@@ -1,16 +1,16 @@
 import React from 'react'
 import { Button, Text, View } from 'react-native';
 
-const WelcomeScreen = ({ navigation }) => {
+const AboutUsScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Welcome Screen</Text>
+      <Text>About Us Screen</Text>
       <Button
-        title="Log in"
-        onPress={() => navigation.navigate('LogInScreen')}
+        title="Go to Home"
+        onPress={() => navigation.navigate('HomeScreen')}
       />
     </View>
   )
 }
 
-export default WelcomeScreen
+export default AboutUsScreen
