@@ -1,9 +1,9 @@
 import React from 'react'
-import { Button, Text, View } from 'react-native';
-import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
+import { Text, View } from 'react-native';
+import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 
-const LogInScreen = ({ navigation }) => {
+const ArtifactsScreen = () => {
   //load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -13,16 +13,12 @@ const LogInScreen = ({ navigation }) => {
   if (!fontsLoaded) {
     return null;
   }
-
+  
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Log In Screen</Text>
-      <Button
-        title="Sign up"
-        onPress={() => navigation.navigate('SignUpScreen')}
-      />
+      <Text>Artifacts Screen</Text>
     </View>
   )
 }
 
-export default LogInScreen
+export default ArtifactsScreen
