@@ -1,9 +1,9 @@
 import React from 'react'
-import { Button, Text, View } from 'react-native';
-import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
+import { Text, View } from 'react-native';
+import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 
-const JoinSessionScreen = ({ navigation }) => {
+const ArtifactsScreen = () => {
   //load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -16,13 +16,9 @@ const JoinSessionScreen = ({ navigation }) => {
   
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Join Session Screen</Text>
-      <Button
-        title="Go to Home"
-        onPress={() => navigation.navigate('HomeScreen')}
-      />
+      <Text>Teams Screen</Text>
     </View>
   )
 }
 
-export default JoinSessionScreen
+export default ArtifactsScreen
