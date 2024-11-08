@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState, useRef } from 'react';
+import { Button, Text, View, StyleSheet, TextInput } from 'react-native';
 import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
+import BasicButton from '../components/BasicButton';
 
 const JoinSessionScreen = ({ navigation }) => {
   //load font
@@ -8,20 +10,57 @@ const JoinSessionScreen = ({ navigation }) => {
     Figtree_400Regular,
     Figtree_600SemiBold,
   });
+  
+  const [value, setValue] = useState('');
+  const inputRef = useRef(null);
+
+  const handleFocus = () => {
+    if (value === 'Enter game code') {
+      setValue('');
+    }
+  };
 
   if (!fontsLoaded) {
     return null;
   }
   
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Join Session Screen</Text>
-      <Button
-        title="Go to Home"
-        onPress={() => navigation.navigate('HomeScreen')}
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.beige }}>
+      <Text style = {styles.title}>Join Session</Text>
+      <View style={styles.inputcontainer}>
+      <TextInput
+        ref={inputRef}
+        style={styles.input}
+        value={value}
+        onChangeText={setValue}
+        onFocus={handleFocus}
+        placeholder="enter game code"
       />
+      </View>
+      <BasicButton
+        text="Join Session"
+        backgroundColor={COLORS.navy}
+        textColor={COLORS.beige}
+        onPress={() => navigation.navigate('HomeScreen')}/>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  title: {
+    fontFamily: "Figtree_400Regular",
+    fontSize: SIZES.title
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+    width: 310,
+  },
+  inputcontainer: {
+    padding: 10,
+  }
+})
 
 export default JoinSessionScreen
