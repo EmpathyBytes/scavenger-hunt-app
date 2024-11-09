@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button, Text, View } from 'react-native';
 import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 
