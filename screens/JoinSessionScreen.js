@@ -15,7 +15,7 @@ const JoinSessionScreen = ({ navigation }) => {
   const inputRef = useRef(null);
 
   const handleFocus = () => {
-    if (value === 'Enter game code') {
+    if (value === 'enter game code') {
       setValue('');
     }
   };
@@ -38,7 +38,7 @@ const JoinSessionScreen = ({ navigation }) => {
       />
       </View>
       <BasicButton
-        text="Join Session"
+        text="Join"
         backgroundColor={COLORS.navy}
         textColor={COLORS.beige}
         onPress={() => navigation.navigate('HomeScreen')}/>
@@ -49,17 +49,20 @@ const JoinSessionScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   title: {
     fontFamily: "Figtree_400Regular",
-    fontSize: SIZES.title
+    fontSize: SIZES.title,
+    color: COLORS.navy
   },
   input: {
-    borderWidth: 1,
-    borderColor: 'gray',
+    borderWidth: 2,
+    borderColor: COLORS.navy,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 15,
     width: 310,
+    height: 50,
   },
   inputcontainer: {
-    padding: 10,
+    padding: 17,
+    paddingTop: 70,
   }
 })
 
