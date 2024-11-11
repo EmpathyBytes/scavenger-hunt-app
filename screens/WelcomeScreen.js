@@ -2,32 +2,46 @@ import React from 'react'
 import { StyleSheet, ImageBackground, TouchableOpacity, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SvgXml } from 'react-native-svg';
+import React from 'react'
+import { Button, Text, View, StyleSheet } from 'react-native';
+import { COLORS, SIZES } from '../components/theme';
+import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
+import BasicButton from '../components/BasicButton';
 
 const WelcomeScreen = ({ navigation }) => {
-  return (
-    <View style={styles.screen}>
-		<ImageBackground
-			style={styles.map}
-			source={require('../assets/map.png')}
-		>
-			{/* <BeeSvg style={styles.line}/> */}
-			<View style={styles.content}>
-				<Text style={styles.title}>BuzzQuest</Text>
-				<TouchableOpacity
-					onPress={() => navigation.navigate('LogInScreen')}
-					style={styles.button}
-				>
-					<Text style={{color: 'white', fontSize: 20, textAlign: 'center',}}>Play</Text>
-				</TouchableOpacity>
-			</View>
-			<MapSvg style={styles.line}/>
-			<LinearGradient
-					colors={['rgba(255, 255, 255, .1)', 'rgba(255, 249, 217, 1)']}
-					style={styles.gradient}
-			/>
-		</ImageBackground>
-    </View>
-  )
+	//load font
+	const [fontsLoaded] = useFonts({
+		Figtree_400Regular,
+		Figtree_600SemiBold,
+	});
+
+	if (!fontsLoaded) {
+		return null;
+	}
+
+	return (
+		<View style={styles.screen}>
+			<ImageBackground
+				style={styles.map}
+				source={require('../assets/map.png')}
+			>
+				{/* <BeeSvg style={styles.line}/> */}
+				<View style={styles.content}>
+					<Text style={styles.title}>BuzzQuest</Text>
+					<BasicButton
+						text="Play"
+						backgroundColor={COLORS.navy}
+						textColor={COLORS.beige}
+						onPress={() => navigation.navigate('LogInScreen')}/>
+				</View>
+				{/* <MapSvg style={styles.line}/> */}
+				<LinearGradient
+						colors={['rgba(255, 255, 255, .1)', 'rgba(255, 249, 217, 1)']}
+						style={styles.gradient}
+				/>
+			</ImageBackground>
+		</View>
+	)
 }
 
 export default WelcomeScreen
