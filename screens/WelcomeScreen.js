@@ -1,14 +1,18 @@
 import React from 'react'
+<<<<<<< HEAD
 import { StyleSheet, ImageBackground, TouchableOpacity, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SvgXml } from 'react-native-svg';
 import React from 'react'
+=======
+>>>>>>> master
 import { Button, Text, View, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 import BasicButton from '../components/BasicButton';
 
 const WelcomeScreen = ({ navigation }) => {
+<<<<<<< HEAD
 	//load font
 	const [fontsLoaded] = useFonts({
 		Figtree_400Regular,
@@ -42,11 +46,38 @@ const WelcomeScreen = ({ navigation }) => {
 			</ImageBackground>
 		</View>
 	)
+=======
+  //load font
+  const [fontsLoaded] = useFonts({
+    Figtree_400Regular,
+    Figtree_600SemiBold,
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={styles.title}>Welcome Screen</Text>
+      <Button
+        title="Log in"
+        onPress={() => navigation.navigate('LogInScreen')}
+      />
+      <BasicButton
+        text="Welcome"
+        backgroundColor={COLORS.navy}
+        textColor={COLORS.beige}
+        onPress={() => navigation.navigate('LogInScreen')}/>
+    </View>
+  )
+>>>>>>> master
 }
 
 export default WelcomeScreen
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
 	screen: {
 		flex: 1, 
 		alignItems: 'center', 
@@ -133,3 +164,9 @@ const bee_xml = `
 	</svg>
 `;
 const BeeSvg = () => <SvgXml xml={bee_xml} width="1%" height="1%" />;
+=======
+  title: {
+    fontFamily: "Figtree_400Regular",
+  },
+})
+>>>>>>> master
