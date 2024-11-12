@@ -35,6 +35,7 @@ const JoinSessionScreen = ({ navigation }) => {
         onChangeText={setValue}
         onFocus={handleFocus}
         placeholder="enter game code"
+        maxLength = {10}
       />
       </View>
       <BasicButton
