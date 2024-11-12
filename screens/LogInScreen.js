@@ -1,10 +1,9 @@
-import React from 'react'
-import { Button, Text, View } from 'react-native';
-import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
-import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
+import React from 'react';
+import { Text, TextInput, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { COLORS, SIZES } from '../components/theme';
+import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 
 const LogInScreen = ({ navigation }) => {
-  //load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
@@ -15,14 +14,91 @@ const LogInScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Log In Screen</Text>
-      <Button
-        title="Sign up"
-        onPress={() => navigation.navigate('SignUpScreen')}
+    <View style={styles.container}>
+      <Text style={styles.backButton} onPress={() => navigation.goBack()}>{"<"}</Text>
+      <Text style={styles.title}>Welcome Back</Text>
+      <TextInput
+        placeholder="email"
+        placeholderTextColor="#B0B0B0"
+        style={styles.input}
       />
+      <TextInput
+        placeholder="password"
+        placeholderTextColor="#B0B0B0"
+        style={styles.input}
+        secureTextEntry
+      />
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('JoinSessionScreen')}>
+        <Text style={styles.buttonText}>Log in</Text>
+      </TouchableOpacity>
+      <Text style={styles.signupText}>
+        Don’t have an account?{' '}
+        <Text style={styles.signupLink} onPress={() => navigation.navigate('SignUpScreen')}>
+          Sign up
+        </Text>
+      </Text>
     </View>
-  )
-}
+  );
+};
 
-export default LogInScreen
+export default LogInScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.beige,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 45,
+  },
+  backButton: {
+    fontSize: 18,
+    color: COLORS.darkGray,
+    alignSelf: 'flex-start',
+    position: 'absolute',
+    top: 50,
+    left: 20,
+  },
+  title: {
+    fontFamily: 'Figtree_600SemiBold',
+    fontSize: 36,
+    marginTop: 10,
+    marginBottom: 40,
+    textAlign: 'center',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderColor: COLORS.darkGray,
+    borderWidth: 2,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body2,
+  },
+  button: {
+    width: '100%',
+    height: 50,
+    backgroundColor: COLORS.navy,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: COLORS.beige,
+    fontFamily: 'Figtree_600SemiBold',
+    fontSize: SIZES.body2,
+  },
+  signupText: {
+    marginTop: 20,
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body3,
+    textAlign: 'center',
+  },
+  signupLink: {
+    color: COLORS.primary,
+    fontFamily: 'Figtree_600SemiBold',
+  },
+});
