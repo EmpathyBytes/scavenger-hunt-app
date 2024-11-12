@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Button } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TeamsScreen from './home_screens/TeamsScreen';
 import ArtifactsScreen from './home_screens/ArtifactsScreen';
@@ -32,6 +32,10 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.flex}>
+      <Button
+        title="About us screen"
+        onPress={() => navigation.navigate('AboutUsScreen')}
+      />
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
         <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
         <Tab.Screen name="MapScreen" component={MapScreen} />
