@@ -8,6 +8,7 @@ import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BottomSheet, { BottomSheetView, TouchableOpacity } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BasicButton from '../components/BasicButton';
 
 const Tab = createBottomTabNavigator();
 
@@ -32,10 +33,14 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.flex}>
-      <Button
-        title="About us screen"
-        onPress={() => navigation.navigate('AboutUsScreen')}
-      />
+      <View style={styles.button}>
+        <BasicButton
+          text="About us screen"
+          backgroundColor={COLORS.navy}
+          textColor={COLORS.beige}
+          onPress={() => navigation.navigate('AboutUsScreen')}
+        />
+      </View>
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
         <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
         <Tab.Screen name="MapScreen" component={MapScreen} />
@@ -81,7 +86,7 @@ const HomeScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   flex: {
-    flex: 1
+    flex: 1,
   },
   container: {
     flex: 1,
@@ -90,6 +95,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 5,
     alignItems: 'center',
+  },
+  button: {
+    height: '10%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   touchableStyle: {
     padding: 5,
