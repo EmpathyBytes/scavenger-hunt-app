@@ -13,6 +13,6 @@ const SIZES = {
     title: 50,
     heading: 35,
     body: 20,
-    body_small: 15,
+    body_small: 12,
 };
 export { COLORS, SIZES }

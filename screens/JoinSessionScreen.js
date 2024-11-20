@@ -60,6 +60,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     width: 310,
     height: 50,
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body,
   },
   inputcontainer: {
     padding: 17,

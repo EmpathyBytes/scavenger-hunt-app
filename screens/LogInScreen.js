@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, TextInput, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
+import BasicButton from '../components/BasicButton'
 
 const LogInScreen = ({ navigation }) => {
   const [fontsLoaded] = useFonts({
@@ -28,9 +29,10 @@ const LogInScreen = ({ navigation }) => {
         style={styles.input}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('JoinSessionScreen')}>
-        <Text style={styles.buttonText}>Log in</Text>
-      </TouchableOpacity>
+      <BasicButton text="Log in"
+        backgroundColor={COLORS.navy}
+        textColor={COLORS.beige}
+        onPress={() => navigation.navigate('JoinSessionScreen')}/>
       <Text style={styles.signupText}>
         Don’t have an account?{' '}
         <Text style={styles.signupLink} onPress={() => navigation.navigate('SignUpScreen')}>
@@ -49,7 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.beige,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 45,
+    //padding: 45,
   },
   backButton: {
     fontSize: 18,
@@ -60,41 +62,30 @@ const styles = StyleSheet.create({
     left: 20,
   },
   title: {
-    fontFamily: 'Figtree_600SemiBold',
-    fontSize: 36,
-    marginTop: 10,
-    marginBottom: 40,
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.title,
+    color: COLORS.navy,
+    width: '60%',
+    paddingBottom: 100,
+    // marginTop: 10,
+    // marginBottom: 40,
     textAlign: 'center',
   },
   input: {
-    width: '100%',
+    width: '80%',
     height: 50,
     borderColor: COLORS.darkGray,
     borderWidth: 2,
-    borderRadius: 8,
+    borderRadius: 15,
     paddingHorizontal: 15,
     marginBottom: 20,
     fontFamily: 'Figtree_400Regular',
-    fontSize: SIZES.body2,
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: COLORS.navy,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: COLORS.beige,
-    fontFamily: 'Figtree_600SemiBold',
-    fontSize: SIZES.body2,
+    fontSize: SIZES.body,
   },
   signupText: {
     marginTop: 20,
     fontFamily: 'Figtree_400Regular',
-    fontSize: SIZES.body3,
+    fontSize: SIZES.body_small,
     textAlign: 'center',
   },
   signupLink: {

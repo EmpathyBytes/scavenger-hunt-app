@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	content: {
-		height: 700,
+		height: '100%',
 		flexDirection: 'column',
 		justifyContent: 'center',
 		alignContent: 'center',
@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 	},
 	title: {
-		fontSize: 50, 
-		fontWeight: '400',
+		fontSize: SIZES.title, 
+		fontFamily: 'Figtree_400Regular',
 		color: COLORS.navy,
 		zIndex: 2,
 		alignSelf: 'center',
@@ -104,10 +104,10 @@ const styles = StyleSheet.create({
 		marginBottom: 360,
 	},
 	button: {
-		width: 110,
+		width: '30%',
 		zIndex: 2,
 		alignItems: 'center',
 		alignSelf: 'center',
-		marginTop: -60,
+		marginTop: -140,
 	},
 });
