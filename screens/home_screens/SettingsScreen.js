@@ -3,6 +3,7 @@ import { Text, View, Image, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../components/theme'; //colors and sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import BasicButton from '../../components/BasicButton';
 
 const SettingsScreen = () => {
   //load font
@@ -28,18 +29,10 @@ const SettingsScreen = () => {
         <Text style={styles.gameCodeText} >Game code: GyWXQ</Text>
       </View>
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>See past results</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Notifications</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Leave Session</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Log Out</Text>
-        </TouchableOpacity>
+        <BasicButton text={'See past results'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
+        <BasicButton text={'Notifications'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
+        <BasicButton text={'Leave Session'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
+        <BasicButton text={'Log Out'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
       </View>
     </View>
   )
@@ -80,6 +73,7 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     width: '100%',
+    alignItems: 'center',
     gap: 12
   },
   button: {
