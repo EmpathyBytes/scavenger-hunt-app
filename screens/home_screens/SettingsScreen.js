@@ -2,7 +2,6 @@ import React from 'react'
 import { Text, View, Image, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../../components/theme'; //colors and sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import BasicButton from '../../components/BasicButton';
 
 const SettingsScreen = () => {
@@ -26,13 +25,13 @@ const SettingsScreen = () => {
         <Image style={styles.circleImage} source={require('../../assets/User.png')} />
       </View>
       <View>
-        <Text style={styles.gameCodeText} >Game code: GyWXQ</Text>
+        <Text style={styles.gameCodeText}>Game code: GyWXQ</Text>
       </View>
       <View style={styles.buttonsContainer}>
-        <BasicButton text={'See past results'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
-        <BasicButton text={'Notifications'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
-        <BasicButton text={'Leave Session'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
-        <BasicButton text={'Log Out'} backgroundColor={'#182E51'} textColor={'#FFF9D9'} />
+        <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
+        <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
+        <BasicButton text={'Leave Session'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
+        <BasicButton text={'Log Out'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
       </View>
     </View>
   )
@@ -45,8 +44,9 @@ const styles = StyleSheet.create({
     gap: 5
   },
   usernameText: {
-    fontSize: 45,
-    color: '#182E51'
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.heading,
+    color: COLORS.navy,
   },
   editImage: {
     // borderColor: 'red',
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   circle: {
     height: 200,
     width: 200,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: COLORS.gray,
     borderRadius: "100%",
   },
   circleImage: {
@@ -66,9 +66,10 @@ const styles = StyleSheet.create({
     height: '50%',
   },
   gameCodeText: {
-    color: '#182E51',
-    fontSize: 18,
-    fontWeight: '600',
+    fontFamily: 'Figtree_400Regular',
+    color: COLORS.navy,
+    fontSize: SIZES.body_small,
+    //fontWeight: '600',
     marginVertical: 10
   },
   buttonsContainer: {
@@ -76,20 +77,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12
   },
-  button: {
-    backgroundColor: '#182E51',
-    margin: 'auto',
-    width: '75%',
-    height: 55,
-    borderRadius: 15,
-  },
-  buttonText: {
-    height: '100%',
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    color: '#FFF9D9',
-    fontSize: 24
-  }
 });
 
 export default SettingsScreen
