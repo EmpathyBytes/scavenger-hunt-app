@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 import BackButton from '../components/BackButton';
+import Entypo from '@expo/vector-icons/Entypo';
 
 // eventually, pull this array from Firebase
 const results = [
@@ -51,17 +52,22 @@ const results = [
 	},
 ];
 
-const Item = ({ item }) => (
-	<View style={styles.session}>
-		<Text style={styles.sessionTitle}>
-			{item.name}
-		</Text>
-		<Text style={styles.sessionText}>
-			{item.winner}{"\n"}
-			{"Your Standing: " + item.yourStanding}{"\n"}
-			{"Your Score: " + item.yourScore}
-		</Text>
-	</View>
+const Item = ({ item, navigation, onPress }) => (
+	<TouchableOpacity style={styles.session} onPress={onPress}>
+		<View>
+			<Text style={styles.sessionTitle}>
+				{item.name}
+			</Text>
+			<Text style={styles.sessionText}>
+				{item.winner}{"\n"}
+				{"Your Standing: " + item.yourStanding}{"\n"}
+				{"Your Score: " + item.yourScore}
+			</Text>
+		</View>
+		<TouchableOpacity style={styles.rightChevron} onPress={onPress}>
+			<Entypo name="chevron-right" size={30} color="white" style={{ strokeWidth: 1 }} />
+		</TouchableOpacity>
+	</TouchableOpacity>
   );
 
 
@@ -79,10 +85,10 @@ const PastResultsScreen = ({ navigation }) => {
 	return (
 		<SafeAreaView style={styles.screen} edges={['left', 'right']}>
 			<View style={styles.container}>
-				<BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.navigate('LogInScreen')} />
+				<BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
 				<FlatList
 					data={results}
-					renderItem={({item}) => <Item item={item} />}
+					renderItem={({item}) => <Item item={item} navigation={navigation} onPress={() => navigation.navigate('LeaderboardScreen')} />}
 					keyExtractor={item => item.id}
 					contentContainerStyle={{ paddingBottom:150 }} 
 				/>
@@ -128,8 +134,12 @@ const styles = StyleSheet.create({
 		backgroundColor: COLORS.navy,
 		borderRadius: 17,
 		padding: 20,
+		paddingRight: 15,
 		marginBlock: 10,
 		marginHorizontal: 35,
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
 	},
 	sessionTitle: {
 		color: 'white',
@@ -142,10 +152,7 @@ const styles = StyleSheet.create({
 		fontSize: 17,
 		lineHeight: 25,
 	},
-	spacer: { 
-		height: 200, 
-		width: 200, 
-		padding: 50, 
-		backgroundColor: 'red'
+	rightChevron: {
+		marginBlock: 'auto',
 	},
 });

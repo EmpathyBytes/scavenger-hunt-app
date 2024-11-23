@@ -7,6 +7,7 @@ import LogInScreen from './screens/LogInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import JoinSessionScreen from './screens/JoinSessionScreen';
 import PastResultsScreen from './screens/PastResultsScreen';
+import LeaderboardScreen from './screens/LeaderboardScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,10 @@ export default function App() {
         <Stack.Screen
           name="PastResultsScreen"
           component={PastResultsScreen}
+        />
+        <Stack.Screen
+          name="LeaderboardScreen"
+          component={LeaderboardScreen}
         />
       </Stack.Navigator>
   </NavigationContainer>
