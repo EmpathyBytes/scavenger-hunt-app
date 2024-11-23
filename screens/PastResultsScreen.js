@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, SafeAreaView } from
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
+import BackButton from '../components/BackButton';
 
 const results = [
 	{
@@ -77,9 +78,7 @@ const PastResultsScreen = ({ navigation }) => {
 	return (
 		<SafeAreaView style={styles.screen} edges={['left', 'right']}>
 			<View style={styles.container}>
-				<TouchableOpacity style={styles.button} onPress={()=>navigation.navigate('LogInScreen')}>
-					<Text>&lt;</Text>
-				</TouchableOpacity>
+				<BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.navigate('LogInScreen')} />
 				<FlatList
 					data={results}
 					renderItem={({item}) => <Item item={item} />}
@@ -119,11 +118,6 @@ const styles = StyleSheet.create({
 		paddingTop: '12%',
 	},
 	container: {
-	},
-	button: {
-		height: 30,
-		width: 30,
-		marginHorizontal: 30,
 	},
 	session: {
 		color: 'white',
