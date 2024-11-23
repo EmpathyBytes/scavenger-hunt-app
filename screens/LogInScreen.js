@@ -39,6 +39,11 @@ const LogInScreen = ({ navigation }) => {
           Sign up
         </Text>
       </Text>
+      {/* TEMPORARY BUTTON */}
+      <BasicButton text="Temporary Past Results Button"
+        backgroundColor={COLORS.navy}
+        textColor={COLORS.beige}
+        onPress={() => navigation.navigate('PastResultsScreen')}/>
     </View>
   );
 };
