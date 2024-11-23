@@ -6,6 +6,7 @@ import AboutUsScreen from './screens/AboutUsScreen';
 import LogInScreen from './screens/LogInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import JoinSessionScreen from './screens/JoinSessionScreen';
+import PastResultsScreen from './screens/PastResultsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,10 @@ export default function App() {
         <Stack.Screen
           name="JoinSessionScreen"
           component={JoinSessionScreen}
+        />
+        <Stack.Screen
+          name="PastResultsScreen"
+          component={PastResultsScreen}
         />
       </Stack.Navigator>
   </NavigationContainer>

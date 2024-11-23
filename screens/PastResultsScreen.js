@@ -5,7 +5,7 @@ import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 import BasicButton from '../components/BasicButton';
 
-const WelcomeScreen = ({ navigation }) => {
+const PastResultsScreen = ({ navigation }) => {
 	//load font
 	const [fontsLoaded] = useFonts({
 		Figtree_400Regular,
@@ -18,6 +18,9 @@ const WelcomeScreen = ({ navigation }) => {
 
 	return (
 		<View style={styles.screen} edges={['left', 'right']}>
+			<Text>
+				Past Results
+			</Text>
 			<LinearGradient
                 colors={['rgba(255, 255, 255, .1)', 'rgba(255, 249, 217, 1)']}
                 style={styles.gradient}
@@ -26,7 +29,7 @@ const WelcomeScreen = ({ navigation }) => {
 	)
 }
 
-export default WelcomeScreen
+export default PastResultsScreen
 
 const styles = StyleSheet.create({
 	screen: {
