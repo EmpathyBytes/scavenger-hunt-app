@@ -260,11 +260,13 @@ const styles = StyleSheet.create({
 	teamTitle: {
 		color: COLORS.navy,
 		fontSize: 25,
+        fontFamily: 'Figtree_600SemiBold',
 		fontWeight: 500,
         marginBottom: 10,
         textAlign: 'center',
 	},
 	teamText: {
+        fontFamily: 'Figtree_400Regular',
 		color: COLORS.navy,
 		fontSize: 18,
         textAlign: 'center',

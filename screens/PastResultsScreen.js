@@ -142,12 +142,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 	},
 	sessionTitle: {
+		fontFamily: 'Figtree_400Regular',
 		color: 'white',
 		fontSize: 20,
 		fontWeight: 500,
 		marginBottom: 10,
 	},
 	sessionText: {
+		fontFamily: 'Figtree_400Regular',
 		color: 'white',
 		fontSize: 17,
 		lineHeight: 25,
