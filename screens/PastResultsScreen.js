@@ -5,6 +5,7 @@ import { COLORS } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 import BackButton from '../components/BackButton';
 
+// eventually, pull this array from Firebase
 const results = [
 	{
 		id: 1,
@@ -83,15 +84,17 @@ const PastResultsScreen = ({ navigation }) => {
 					data={results}
 					renderItem={({item}) => <Item item={item} />}
 					keyExtractor={item => item.id}
+					contentContainerStyle={{ paddingBottom:150 }} 
 				/>
 			</View>
-			{/* <LinearGradient
-                colors={['rgba(255, 255, 255, 0)','rgba(255, 249, 217, .7)']}
+			<LinearGradient
+                colors={['rgba(255, 255, 255, 0)','rgba(255, 249, 217, 1)']}
+				locations={[0, .6]}
                 style={styles.gradient}>
 				<Text style={styles.title}>
 					Past Games
 				</Text>
-			</LinearGradient> */}
+			</LinearGradient>
 		</SafeAreaView>
 	)
 }
@@ -112,10 +115,10 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontFamily: 'Figtree_400Regular',
-		fontSize: 45,
+		fontSize: 40,
 		color: COLORS.navy,
 		textAlign: 'center',
-		paddingTop: '12%',
+		paddingTop: '17%',
 	},
 	container: {
 		gap: 10,
@@ -138,5 +141,11 @@ const styles = StyleSheet.create({
 		color: 'white',
 		fontSize: 17,
 		lineHeight: 25,
+	},
+	spacer: { 
+		height: 200, 
+		width: 200, 
+		padding: 50, 
+		backgroundColor: 'red'
 	},
 });
