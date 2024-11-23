@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
 		paddingTop: '12%',
 	},
 	container: {
+		gap: 10,
 	},
 	session: {
 		color: 'white',
