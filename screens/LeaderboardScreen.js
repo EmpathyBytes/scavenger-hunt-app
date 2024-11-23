@@ -182,21 +182,20 @@ const results = [
 	},
 ];
 
-const Item = ({ item }) => (
-	// <TouchableOpacity style={styles.session} onPress={onPress}>
-	<View>
+const Item = ({ item }) => {
+    const color = item.rank == 1 ? '#EEB210' : item.rank == 2 ? '#D6DBD4' : item.rank == 3 ? '#AB7325' : 'white';
+    return (
+	<View style={[{backgroundColor: color}, styles.team]}>
 		<View>
-			<Text style={styles.sessionTitle}>
-				{item.name}
+			<Text style={styles.teamTitle}>
+				{item.rank} {item.name}
 			</Text>
-			<Text style={styles.sessionText}>
-				{item.winner}{"\n"}
-				{"Your Standing: " + item.yourStanding}{"\n"}
-				{"Your Score: " + item.yourScore}
+			<Text style={styles.teamText}>
+				{"Score: " + item.score}
 			</Text>
 		</View>
 	</View>
-  );
+    )};
 
 const LeaderboardScreen = ({ navigation, route }) => {
 	//load font
@@ -213,18 +212,20 @@ const LeaderboardScreen = ({ navigation, route }) => {
     const { sessionID } = route.params;
     const sessionData = results.find(item => item.id === sessionID);
     const teams = sessionData.teams.sort((a,b) => b.score - a.score)
+                                   .map((item, index) => ({
+                                        ...item,
+                                        rank: index + 1,
+                                    }));
 
 	return (
 		<SafeAreaView style={styles.screen} edges={['left', 'right']}>
 			<View style={styles.container}>
 				<BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
                 <Text style={styles.title}>{sessionData.name}</Text>
-                <Text>{sessionID}</Text>
-                <Text>{JSON.stringify(teams)}</Text>
                 <FlatList
-					data={results}
-					renderItem={({item}) => <Item item={item} navigation={navigation} />}
-					keyExtractor={item => item.id}
+					data={teams}
+					renderItem={({item}) => <Item item={item} />}
+					keyExtractor={item => item.name}
 					contentContainerStyle={{ paddingBottom:150 }} 
 				/>
 			</View>
@@ -250,30 +251,22 @@ const styles = StyleSheet.create({
     container: {
 		gap: 10,
 	},
-	session: {
-		color: 'white',
-		backgroundColor: COLORS.navy,
-		borderRadius: 17,
+	team: {
+		borderRadius: 15,
 		padding: 20,
-		paddingRight: 15,
 		marginBlock: 10,
 		marginHorizontal: 35,
-		flex: 1,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
 	},
-	sessionTitle: {
-		color: 'white',
-		fontSize: 20,
+	teamTitle: {
+		color: COLORS.navy,
+		fontSize: 25,
 		fontWeight: 500,
-		marginBottom: 10,
+        marginBottom: 10,
+        textAlign: 'center',
 	},
-	sessionText: {
-		color: 'white',
-		fontSize: 17,
-		lineHeight: 25,
-	},
-	rightChevron: {
-		marginBlock: 'auto',
+	teamText: {
+		color: COLORS.navy,
+		fontSize: 18,
+        textAlign: 'center',
 	},
 });
