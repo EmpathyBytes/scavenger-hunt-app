@@ -52,8 +52,8 @@ const results = [
 	},
 ];
 
-const Item = ({ item, navigation, onPress }) => (
-	<TouchableOpacity style={styles.session} onPress={onPress}>
+const Item = ({ item, navigation }) => (
+	<TouchableOpacity style={styles.session} onPress={() => navigation.navigate('LeaderboardScreen', { sessionID: item.id})}>
 		<View>
 			<Text style={styles.sessionTitle}>
 				{item.name}
@@ -64,9 +64,9 @@ const Item = ({ item, navigation, onPress }) => (
 				{"Your Score: " + item.yourScore}
 			</Text>
 		</View>
-		<TouchableOpacity style={styles.rightChevron} onPress={onPress}>
+		<View style={styles.rightChevron}>
 			<Entypo name="chevron-right" size={30} color="white" style={{ strokeWidth: 1 }} />
-		</TouchableOpacity>
+		</View>
 	</TouchableOpacity>
   );
 
@@ -88,7 +88,7 @@ const PastResultsScreen = ({ navigation }) => {
 				<BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
 				<FlatList
 					data={results}
-					renderItem={({item}) => <Item item={item} navigation={navigation} onPress={() => navigation.navigate('LeaderboardScreen')} />}
+					renderItem={({item}) => <Item item={item} navigation={navigation} />}
 					keyExtractor={item => item.id}
 					contentContainerStyle={{ paddingBottom:150 }} 
 				/>
