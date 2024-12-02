@@ -1,8 +1,9 @@
 import React from 'react';
-import { Text, TextInput, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, TextInput, View, StyleSheet, Image } from 'react-native';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton'
+import BackButton from '../components/BackButton';
 
 const LogInScreen = ({ navigation }) => {
   const [fontsLoaded] = useFonts({
@@ -16,7 +17,12 @@ const LogInScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.backButton} onPress={() => navigation.goBack()}>{"<"}</Text>
+      <View style={styles.backButtonContainer}>
+        <BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
+      </View>
+      <Image
+        style={styles.bee}
+        source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Welcome Back</Text>
       <TextInput
         placeholder="email"
@@ -29,7 +35,7 @@ const LogInScreen = ({ navigation }) => {
         style={styles.input}
         secureTextEntry
       />
-      <BasicButton text="Log in"
+      <BasicButton text="Log In"
         backgroundColor={COLORS.navy}
         textColor={COLORS.beige}
         onPress={() => navigation.navigate('JoinSessionScreen')}/>
@@ -97,4 +103,14 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontFamily: 'Figtree_600SemiBold',
   },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+  },
+  bee: {
+    height: 140,
+    objectFit: 'contain',
+    alignSelf: 'center',
+  }
 });
