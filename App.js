@@ -10,7 +10,20 @@ import PastResultsScreen from './screens/PastResultsScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 
 const Stack = createNativeStackNavigator();
-
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: 'your-api-key',
+    authDomain: 'your-auth-domain',
+    projectId: 'your-project-id',
+    storageBucket: 'your-storage-bucket',
+    messagingSenderId: 'your-messaging-sender-id',
+    appId: 'your-app-id',
+    measurementId: 'your-measurement-id'
+  });
+} else {
+  firebase.app(); // Use the default app
+}
 export default function App() {
   return (
     <NavigationContainer>

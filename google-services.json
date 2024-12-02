@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "288820002694",
+    "firebase_url": "https://empathy-bytes-app-default-rtdb.firebaseio.com",
+    "project_id": "empathy-bytes-app",
+    "storage_bucket": "empathy-bytes-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288820002694:android:7b7059649c701f295a3607",
+        "android_client_info": {
+          "package_name": "com.empathybytes.scavengerhuntapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWbCg5LIFqHt0yCQfbZ2m-chSnHkRSts0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
