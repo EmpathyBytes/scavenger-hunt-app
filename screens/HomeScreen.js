@@ -33,14 +33,11 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.flex}>
-      <View style={styles.button}>
-        <BasicButton
-          text="About us screen"
-          backgroundColor={COLORS.navy}
-          textColor={COLORS.beige}
-          onPress={() => navigation.navigate('AboutUsScreen')}
-        />
-      </View>
+      <TouchableOpacity style={styles.infoIconWrap} onPress={() => navigation.navigate('AboutUsScreen')}>
+					<Image
+						style={styles.infoIcon}
+						source={require('../assets/info-button.png')}/>
+				</TouchableOpacity>
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
         <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
         <Tab.Screen name="MapScreen" component={MapScreen} />
@@ -112,7 +109,22 @@ const styles = StyleSheet.create({
   },
   selectedOption: {
     backgroundColor: '#EEB210',
-  }
+  },
+  infoIcon: {
+		height: 50,
+		width: 50,
+		alignSelf: 'center',
+		zIndex: 3,
+		objectFit: 'contain',
+	},
+	infoIconWrap: {
+		alignSelf: 'center',
+		zIndex: 3,
+		//width: 10,
+		marginTop: 40,
+		paddingLeft: 300,
+		objectFit: 'contain',
+	}
 });
 
 

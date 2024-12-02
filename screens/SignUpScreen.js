@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
   },
   bee: {
     height: 140,
+    marginBottom: 60,
     objectFit: 'contain',
     alignSelf: 'center',
   }
