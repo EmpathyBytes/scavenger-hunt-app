@@ -25,27 +25,30 @@ const SignUpScreen = ({ navigation }) => {
         source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Create Account</Text>
       <TextInput
-        placeholder="email"
+        placeholder="Email"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
       />
       <TextInput
-        placeholder="password"
+        placeholder="Password"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
         secureTextEntry
       />
       <TextInput
-        placeholder="confirm password"
+        placeholder="Confirm Password"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
         secureTextEntry
       />
       <BasicButton
-        text="Sign up"
+        text="Sign Up"
         backgroundColor={COLORS.navy}
         textColor={COLORS.beige}
         onPress={() => navigation.navigate('JoinSessionScreen')}/>
+      <Text style={styles.body}>
+        Welcome to the club!
+      </Text>
     </View>
   );
 };
@@ -75,6 +78,16 @@ const styles = StyleSheet.create({
     width: '60%',
     paddingBottom: 100,
     // marginTop: 10,
+    // marginBottom: 40,
+    textAlign: 'center',
+  },
+  body: {
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body_small,
+    color: COLORS.navy,
+    width: '60%',
+    //paddingBottom: 100,
+    marginTop: 20,
     // marginBottom: 40,
     textAlign: 'center',
   },

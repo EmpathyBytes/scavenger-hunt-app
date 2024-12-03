@@ -41,7 +41,7 @@ const JoinSessionScreen = ({ navigation }) => {
         value={value}
         onChangeText={setValue}
         onFocus={handleFocus}
-        placeholder="enter super secret game code"
+        placeholder="Enter Super Secret Game Code"
         maxLength = {10}
       />
       </View>

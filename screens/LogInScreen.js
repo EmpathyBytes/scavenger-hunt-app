@@ -25,12 +25,12 @@ const LogInScreen = ({ navigation }) => {
         source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Welcome Back</Text>
       <TextInput
-        placeholder="email"
+        placeholder="Email"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
       />
       <TextInput
-        placeholder="password"
+        placeholder="Password"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
         secureTextEntry
