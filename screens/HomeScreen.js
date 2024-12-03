@@ -56,19 +56,19 @@ const HomeScreen = ({ navigation }) => {
                   style={[styles.touchableStyle, screenIndex == 0 && styles.selectedOption]} 
                   onPress={() => handlePress(0)}
               >
-                <Image source={require('../assets/teams.png')} />
+                <Image style={styles.icon} source={require('../assets/teams.png')} />
               </TouchableOpacity>
               <TouchableOpacity 
                   style={[styles.touchableStyle, screenIndex == 1 && styles.selectedOption]} 
                   onPress={() => handlePress(1)}
               >
-                <Image source={require('../assets/artifacts.png')} />
+                <Image style={styles.icon} source={require('../assets/artifacts.png')} />
               </TouchableOpacity>
               <TouchableOpacity 
                   style={[styles.touchableStyle, screenIndex == 2 && styles.selectedOption]} 
                   onPress={() => handlePress(2)}
               >
-                <Image source={require('../assets/settings.png')} />
+                <Image style={styles.icon} source={require('../assets/settings.png')} />
               </TouchableOpacity>
             </View>
             {(screenIndex == 0) && <TeamsScreen />}
@@ -124,7 +124,12 @@ const styles = StyleSheet.create({
 		marginTop: 40,
 		paddingLeft: 300,
 		objectFit: 'contain',
-	}
+	},
+  icon: {
+    objectFit: 'contain',
+    height: 50, 
+    width: 50,
+  }
 });
 
 
