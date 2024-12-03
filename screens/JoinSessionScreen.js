@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Button, Text, View, StyleSheet, TextInput } from 'react-native';
+import { Image, Text, View, StyleSheet, TextInput } from 'react-native';
 import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BasicButton from '../components/BasicButton';
@@ -28,9 +28,12 @@ const JoinSessionScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.beige }}>
       <View style={styles.backButtonContainer}>
-      <BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
+        <BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
       </View>
-      <Text style = {styles.title}>Join Session</Text>
+      <Image
+        style={styles.bee}
+        source={require('../assets/bee.png')}/>
+      <Text style = {styles.title}>Join Game</Text>
       <View style={styles.inputcontainer}>
       <TextInput
         ref={inputRef}
@@ -38,12 +41,12 @@ const JoinSessionScreen = ({ navigation }) => {
         value={value}
         onChangeText={setValue}
         onFocus={handleFocus}
-        placeholder="enter game code"
+        placeholder="enter super secret game code"
         maxLength = {10}
       />
       </View>
       <BasicButton
-        text="Join"
+        text="Join Game"
         backgroundColor={COLORS.navy}
         textColor={COLORS.beige}
         onPress={() => navigation.navigate('HomeScreen')}/>
@@ -76,6 +79,12 @@ const styles = StyleSheet.create({
     top: 50,
     left: 10,
   },
+  bee: {
+    height: 140,
+    marginBottom: 60,
+    objectFit: 'contain',
+    alignSelf: 'center',
+  }
 })
 
 

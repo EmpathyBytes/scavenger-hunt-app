@@ -23,11 +23,11 @@ export default function BasicButton({ text, backgroundColor, textColor, onPress 
 }
 
 //example button component
-{/* <BasicButton
-        text="Welcome"
-        backgroundColor={COLORS.navy}
-        textColor={COLORS.beige}
-        onPress={() => navigation.navigate('LogInScreen')}/> */}
+{/*<BasicButton
+    text="Log in"
+    backgroundColor={COLORS.navy}
+    textColor={COLORS.beige}
+    onPress={() => navigation.navigate('LogInScreen')}/>*/}
 
 const styles = StyleSheet.create({
     container: {

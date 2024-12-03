@@ -1,8 +1,9 @@
 import React from 'react';
-import { Text, TextInput, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Text, TextInput, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton';
+import BackButton from '../components/BackButton';
 
 const SignUpScreen = ({ navigation }) => {
   const [fontsLoaded] = useFonts({
@@ -16,7 +17,12 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.backButton} onPress={() => navigation.goBack()}>{"<"}</Text>
+      <View style={styles.backButtonContainer}>
+        <BackButton backgroundColor={COLORS.beige} onPress={()=>navigation.goBack()} />
+      </View>
+      <Image
+        style={styles.bee}
+        source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Create Account</Text>
       <TextInput
         placeholder="email"
@@ -83,4 +89,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body,
   },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+  },
+  bee: {
+    height: 140,
+    marginBottom: 60,
+    objectFit: 'contain',
+    alignSelf: 'center',
+  }
 });
