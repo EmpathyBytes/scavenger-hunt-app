@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { View, StyleSheet, Image, Button } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TeamsScreen from './home_screens/TeamsScreen';
@@ -9,10 +9,32 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BottomSheet, { BottomSheetView, TouchableOpacity } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BasicButton from '../components/BasicButton';
+import MapView from 'react-native-maps';
+import * as Location from 'expo-location';
 
 const Tab = createBottomTabNavigator();
 
+
 const HomeScreen = ({ navigation }) => {
+  const [location, setLocation] = useState({});
+  const [errorMsg, setErrorMsg] = useState({});
+
+  useEffect(() => {
+    async function getCurrentLocation() {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync();
+      setLocation(location);
+    }
+
+    getCurrentLocation();
+  }, []);
+
   //load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -26,6 +48,13 @@ const HomeScreen = ({ navigation }) => {
     bottomSheetRef.current?.expand();
     setScreenIndex(idx);
   };
+
+  const INITIAL_REGION = {
+    latitude: 33.778307260053026, 
+    longitude: -84.39842128239762,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  }
 
   if (!fontsLoaded) {
     return null;
@@ -46,6 +75,9 @@ const HomeScreen = ({ navigation }) => {
         <Tab.Screen name="MapScreen" component={MapScreen} />
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
+
+      <MapView style={styles.map} initialRegion={INITIAL_REGION} showsBuildings showsUserLocation />
+
       <GestureHandlerRootView style={styles.container}>
         <BottomSheet
           ref={bottomSheetRef}
@@ -112,6 +144,10 @@ const styles = StyleSheet.create({
   },
   selectedOption: {
     backgroundColor: '#EEB210',
+  },
+  map: {
+    width: '100%',
+    height: '78%'
   }
 });
 
