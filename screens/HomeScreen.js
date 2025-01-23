@@ -32,7 +32,7 @@ const HomeScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.flex}>
+    <GestureHandlerRootView style={styles.container}>
       <TouchableOpacity style={styles.infoIconWrap} onPress={() => navigation.navigate('AboutUsScreen')}>
 					<Image
 						style={styles.infoIcon}
@@ -43,41 +43,39 @@ const HomeScreen = ({ navigation }) => {
         <Tab.Screen name="MapScreen" component={MapScreen} />
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
-      <GestureHandlerRootView style={styles.container}>
-        <BottomSheet
-          ref={bottomSheetRef}
-          snapPoints={['13%', '90%']}
-          index={0}
-          backgroundStyle={{backgroundColor: '#FFF9D9'}}
-        >
-          <BottomSheetView style={styles.contentContainer}>
-            <View style={styles.buttonNavigationContainer}>
-              <TouchableOpacity 
-                  style={[styles.touchableStyle, screenIndex == 0 && styles.selectedOption]} 
-                  onPress={() => handlePress(0)}
-              >
-                <Image style={styles.icon} source={require('../assets/teams.png')} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                  style={[styles.touchableStyle, screenIndex == 1 && styles.selectedOption]} 
-                  onPress={() => handlePress(1)}
-              >
-                <Image style={styles.icon} source={require('../assets/artifacts.png')} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                  style={[styles.touchableStyle, screenIndex == 2 && styles.selectedOption]} 
-                  onPress={() => handlePress(2)}
-              >
-                <Image style={styles.icon} source={require('../assets/settings.png')} />
-              </TouchableOpacity>
-            </View>
-            {(screenIndex == 0) && <TeamsScreen />}
-            {(screenIndex == 1) && <ArtifactsScreen/>}
-            {(screenIndex == 2) && <SettingsScreen/>}
-          </BottomSheetView>
-        </BottomSheet>
-      </GestureHandlerRootView>
-    </View>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={['13%', '90%']}
+        index={0}
+        backgroundStyle={{backgroundColor: '#FFF9D9'}}
+      >
+        <BottomSheetView style={styles.contentContainer}>
+          <View style={styles.buttonNavigationContainer}>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 0 && styles.selectedOption]} 
+                onPress={() => handlePress(0)}
+            >
+              <Image style={styles.icon} source={require('../assets/teams.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 1 && styles.selectedOption]} 
+                onPress={() => handlePress(1)}
+            >
+              <Image style={styles.icon} source={require('../assets/artifacts.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 2 && styles.selectedOption]} 
+                onPress={() => handlePress(2)}
+            >
+              <Image style={styles.icon} source={require('../assets/settings.png')} />
+            </TouchableOpacity>
+          </View>
+          {(screenIndex == 0) && <TeamsScreen />}
+          {(screenIndex == 1) && <ArtifactsScreen/>}
+          {(screenIndex == 2) && <SettingsScreen/>}
+        </BottomSheetView>
+      </BottomSheet>
+    </GestureHandlerRootView>
   )
 }
 
