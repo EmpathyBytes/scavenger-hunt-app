@@ -38,7 +38,7 @@ const AboutUsScreen = ({ navigation }) => {
         Empathy Bytes
       </Text>
       <BasicButton
-        text="Learn more"
+        text="Learn More"
         backgroundColor={COLORS.gold}
         textColor={COLORS.beige}
         onPress={() => navigation.navigate('HomeScreen')}/>

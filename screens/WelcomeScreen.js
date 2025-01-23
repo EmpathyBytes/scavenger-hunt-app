@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, ImageBackground, Image, Text, View, SafeAreaView } from 'react-native';
+import { StyleSheet, ImageBackground, Image, Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
@@ -23,6 +23,11 @@ const WelcomeScreen = ({ navigation }) => {
 				source={require('../assets/map.png')}
 				resizeMode="cover"
 			>
+				<TouchableOpacity style={styles.infoIconWrap} onPress={() => navigation.navigate('AboutUsScreen')}>
+					<Image
+						style={styles.infoIcon}
+						source={require('../assets/info-button.png')}/>
+				</TouchableOpacity>
 				<LinearGradient
 					colors={['rgba(255, 255, 255, .1)', 'rgba(255, 249, 217, 1)']}
 					style={styles.gradient}
@@ -66,6 +71,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		justifyContent: 'center',
 		alignContent: 'center',
+		marginTop: -60,
 	},
 	bee: {
 		height: 120,
@@ -110,4 +116,19 @@ const styles = StyleSheet.create({
 		alignSelf: 'center',
 		marginTop: -140,
 	},
+	infoIcon: {
+		height: 50,
+		width: 50,
+		alignSelf: 'center',
+		zIndex: 3,
+		objectFit: 'contain',
+	},
+	infoIconWrap: {
+		alignSelf: 'center',
+		zIndex: 3,
+		//width: 10,
+		marginTop: 40,
+		paddingLeft: 300,
+		objectFit: 'contain',
+	}
 });

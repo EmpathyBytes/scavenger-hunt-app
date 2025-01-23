@@ -61,15 +61,12 @@ const HomeScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.flex}>
-      <View style={styles.button}>
-        <BasicButton
-          text="About us screen"
-          backgroundColor={COLORS.navy}
-          textColor={COLORS.beige}
-          onPress={() => navigation.navigate('AboutUsScreen')}
-        />
-      </View>
+    <GestureHandlerRootView style={styles.container}>
+      <TouchableOpacity style={styles.infoIconWrap} onPress={() => navigation.navigate('AboutUsScreen')}>
+					<Image
+						style={styles.infoIcon}
+						source={require('../assets/info-button.png')}/>
+				</TouchableOpacity>
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
         <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
         <Tab.Screen name="MapScreen" component={MapScreen} />
@@ -77,42 +74,39 @@ const HomeScreen = ({ navigation }) => {
       </Tab.Navigator> */}
 
       <MapView style={styles.map} initialRegion={INITIAL_REGION} showsBuildings showsUserLocation />
-
-      <GestureHandlerRootView style={styles.container}>
-        <BottomSheet
-          ref={bottomSheetRef}
-          snapPoints={['13%', '90%']}
-          index={0}
-          backgroundStyle={{backgroundColor: '#FFF9D9'}}
-        >
-          <BottomSheetView style={styles.contentContainer}>
-            <View style={styles.buttonNavigationContainer}>
-              <TouchableOpacity 
-                  style={[styles.touchableStyle, screenIndex == 0 && styles.selectedOption]} 
-                  onPress={() => handlePress(0)}
-              >
-                <Image source={require('../assets/teams.png')} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                  style={[styles.touchableStyle, screenIndex == 1 && styles.selectedOption]} 
-                  onPress={() => handlePress(1)}
-              >
-                <Image source={require('../assets/artifacts.png')} />
-              </TouchableOpacity>
-              <TouchableOpacity 
-                  style={[styles.touchableStyle, screenIndex == 2 && styles.selectedOption]} 
-                  onPress={() => handlePress(2)}
-              >
-                <Image source={require('../assets/settings.png')} />
-              </TouchableOpacity>
-            </View>
-            {(screenIndex == 0) && <TeamsScreen />}
-            {(screenIndex == 1) && <ArtifactsScreen/>}
-            {(screenIndex == 2) && <SettingsScreen/>}
-          </BottomSheetView>
-        </BottomSheet>
-      </GestureHandlerRootView>
-    </View>
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={['13%', '90%']}
+        index={0}
+        backgroundStyle={{backgroundColor: '#FFF9D9'}}
+      >
+        <BottomSheetView style={styles.contentContainer}>
+          <View style={styles.buttonNavigationContainer}>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 0 && styles.selectedOption]} 
+                onPress={() => handlePress(0)}
+            >
+              <Image style={styles.icon} source={require('../assets/teams.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 1 && styles.selectedOption]} 
+                onPress={() => handlePress(1)}
+            >
+              <Image style={styles.icon} source={require('../assets/artifacts.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 2 && styles.selectedOption]} 
+                onPress={() => handlePress(2)}
+            >
+              <Image style={styles.icon} source={require('../assets/settings.png')} />
+            </TouchableOpacity>
+          </View>
+          {(screenIndex == 0) && <TeamsScreen />}
+          {(screenIndex == 1) && <ArtifactsScreen/>}
+          {(screenIndex == 2) && <SettingsScreen/>}
+        </BottomSheetView>
+      </BottomSheet>
+    </GestureHandlerRootView>
   )
 }
 
@@ -147,7 +141,27 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '78%'
+    height: '78%',
+  },
+  infoIcon: {
+		height: 50,
+		width: 50,
+		alignSelf: 'center',
+		zIndex: 3,
+		objectFit: 'contain',
+	},
+	infoIconWrap: {
+		alignSelf: 'center',
+		zIndex: 3,
+		//width: 10,
+		marginTop: 40,
+		paddingLeft: 300,
+		objectFit: 'contain',
+	},
+  icon: {
+    objectFit: 'contain',
+    height: 50, 
+    width: 50,
   }
 });
 
