@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '78%',
+    height: '100%',
   },
   infoIcon: {
 		height: 50,
