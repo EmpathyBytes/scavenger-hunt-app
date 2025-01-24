@@ -72,7 +72,6 @@ const HomeScreen = ({ navigation }) => {
         <Tab.Screen name="MapScreen" component={MapScreen} />
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
-
       <MapView style={styles.map} initialRegion={INITIAL_REGION} showsBuildings showsUserLocation />
       <BottomSheet
         ref={bottomSheetRef}
