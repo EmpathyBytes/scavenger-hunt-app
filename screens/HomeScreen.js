@@ -13,14 +13,15 @@ import MapView from 'react-native-maps';
 import * as Location from 'expo-location';
 
 const Tab = createBottomTabNavigator();
-
+let locationSubscription = null;
 
 const HomeScreen = ({ navigation }) => {
   const [location, setLocation] = useState({});
   const [errorMsg, setErrorMsg] = useState({});
 
+  //On mount, start location tracking
   useEffect(() => {
-    async function getCurrentLocation() {
+    async function startLocationTracking() {
       
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -28,11 +29,13 @@ const HomeScreen = ({ navigation }) => {
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync();
-      setLocation(location);
+      //Make sure there isn't already a subscription running
+      locationSubscription?.remove() 
+      //Set a tracker for location updates. On an update, uses the setLocation function to update the location
+      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation}, location => {setLocation(location)});
     }
-
-    getCurrentLocation();
+    startLocationTracking();
+    return () => { locationSubscription?.remove() }; //Remove location tracking upon dismount
   }, []);
 
   //load font
@@ -49,6 +52,7 @@ const HomeScreen = ({ navigation }) => {
     setScreenIndex(idx);
   };
 
+  //Initial region in the middle of Tech
   const INITIAL_REGION = {
     latitude: 33.778307260053026, 
     longitude: -84.39842128239762,
@@ -62,17 +66,22 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      <TouchableOpacity style={styles.infoIconWrap} onPress={() => navigation.navigate('AboutUsScreen')}>
-					<Image
-						style={styles.infoIcon}
-						source={require('../assets/info-button.png')}/>
-				</TouchableOpacity>
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
         <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
         <Tab.Screen name="MapScreen" component={MapScreen} />
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
+
       <MapView style={styles.map} initialRegion={INITIAL_REGION} showsBuildings showsUserLocation />
+
+      <View style={styles.buttonWrapper}>
+        <TouchableOpacity style={{position: 'absolute', top: '1%', right: '1%'}} onPress={() => navigation.navigate('AboutUsScreen')}>
+            <Image
+              style={styles.infoIcon}
+              source={require('../assets/info-button.png')}/>
+          </TouchableOpacity>
+      </View>
+      
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={['13%', '90%']}
@@ -120,6 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 5,
     alignItems: 'center',
+    zIndex: 1,
   },
   button: {
     height: '10%',
@@ -146,21 +156,30 @@ const styles = StyleSheet.create({
 		height: 50,
 		width: 50,
 		alignSelf: 'center',
-		zIndex: 3,
+		//zIndex: 3,
 		objectFit: 'contain',
 	},
 	infoIconWrap: {
 		alignSelf: 'center',
-		zIndex: 3,
+		//zIndex: 3,
 		//width: 10,
 		marginTop: 40,
 		paddingLeft: 300,
 		objectFit: 'contain',
+    position: 'absolute',
+    top: 20,
+    right: 20,
 	},
   icon: {
     objectFit: 'contain',
     height: 50, 
     width: 50,
+  },
+  buttonWrapper: {
+    position: 'absolute',
+    top: "8%",
+    right: "1%",
+    zIndex: 5,
   }
 });
 
