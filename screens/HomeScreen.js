@@ -32,12 +32,10 @@ const HomeScreen = ({ navigation }) => {
       //Make sure there isn't already a subscription running
       locationSubscription?.remove() 
       //Set a tracker for location updates. On an update, uses the setLocation function to update the location
-      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.High}, location => {setLocation(location)});
-
-      return () => locationSubscription?.remove() //Remove location tracking upon dismount
+      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation}, location => {setLocation(location)});
     }
-
     startLocationTracking();
+    return () => { locationSubscription?.remove() }; //Remove location tracking upon dismount
   }, []);
 
   //load font
