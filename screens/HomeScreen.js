@@ -13,14 +13,15 @@ import MapView from 'react-native-maps';
 import * as Location from 'expo-location';
 
 const Tab = createBottomTabNavigator();
-
+let locationSubscription = null;
 
 const HomeScreen = ({ navigation }) => {
   const [location, setLocation] = useState({});
   const [errorMsg, setErrorMsg] = useState({});
 
+  //On mount, start location tracking
   useEffect(() => {
-    async function getCurrentLocation() {
+    async function startLocationTracking() {
       
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -28,12 +29,16 @@ const HomeScreen = ({ navigation }) => {
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({accuracy: Location.Accuracy.High});
-      setLocation(location);
+      //Make sure there isn't already a subscription running
+      locationSubscription?.remove() 
+      //Set a tracker for location updates. On an update, uses the setLocation function to update the location
+      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.High}, location => {setLocation(location)});
+
+      return () => locationSubscription?.remove() //Remove location tracking upon dismount
     }
 
-    getCurrentLocation();
-  }, [location]);
+    startLocationTracking();
+  }, []);
 
   //load font
   const [fontsLoaded] = useFonts({
@@ -49,6 +54,7 @@ const HomeScreen = ({ navigation }) => {
     setScreenIndex(idx);
   };
 
+  //Initial region in the middle of Tech
   const INITIAL_REGION = {
     latitude: 33.778307260053026, 
     longitude: -84.39842128239762,
