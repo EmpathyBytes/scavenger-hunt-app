@@ -63,7 +63,7 @@ const HomeScreen = ({ navigation }) => {
   if (!fontsLoaded) {
     return null;
   }
-
+  
   return (
     <GestureHandlerRootView style={styles.container}>
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
@@ -89,6 +89,7 @@ const HomeScreen = ({ navigation }) => {
         backgroundStyle={{backgroundColor: '#FFF9D9'}}
       >
         <BottomSheetView style={styles.contentContainer}>
+          {/*These are the buttons to switch between screens. */}
           <View style={styles.buttonNavigationContainer}>
             <TouchableOpacity 
                 style={[styles.touchableStyle, screenIndex == 0 && styles.selectedOption]} 
@@ -109,6 +110,7 @@ const HomeScreen = ({ navigation }) => {
               <Image style={styles.icon} source={require('../assets/settings.png')} />
             </TouchableOpacity>
           </View>
+          {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
           {(screenIndex == 0) && <TeamsScreen />}
           {(screenIndex == 1) && <ArtifactsScreen/>}
           {(screenIndex == 2) && <SettingsScreen/>}
