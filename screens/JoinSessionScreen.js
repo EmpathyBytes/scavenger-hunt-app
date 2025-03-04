@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Image, Text, View, StyleSheet, TextInput } from 'react-native';
-import { COLORS, SIZES } from '../components/theme'; //colors and font sizes
-import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
+import { COLORS, SIZES } from '../components/theme'; 
+import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'; 
 import BasicButton from '../components/BasicButton';
 import BackButton from '../components/BackButton';
+import { auth } from '../firebase_config';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const JoinSessionScreen = ({ navigation }) => {
   //load font
@@ -14,6 +16,23 @@ const JoinSessionScreen = ({ navigation }) => {
   
   const [value, setValue] = useState('');
   const inputRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setLoading(false);
+      if (!user) {
+        // User is not signed in, redirect to welcome screen
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'WelcomeScreen' }],
+        });
+      }
+    });
+
+    // Clean up subscription
+    return () => unsubscribe();
+  }, [navigation]);
 
   const handleFocus = () => {
     if (value === 'enter game code') {
@@ -21,7 +40,7 @@ const JoinSessionScreen = ({ navigation }) => {
     }
   };
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || loading) {
     return null;
   }
   
@@ -33,7 +52,7 @@ const JoinSessionScreen = ({ navigation }) => {
       <Image
         style={styles.bee}
         source={require('../assets/bee.png')}/>
-      <Text style = {styles.title}>Join Game</Text>
+      <Text style={styles.title}>Join Game</Text>
       <View style={styles.inputcontainer}>
       <TextInput
         ref={inputRef}
@@ -42,7 +61,7 @@ const JoinSessionScreen = ({ navigation }) => {
         onChangeText={setValue}
         onFocus={handleFocus}
         placeholder="Enter Super Secret Game Code"
-        maxLength = {10}
+        maxLength={10}
       />
       </View>
       <BasicButton
@@ -51,7 +70,7 @@ const JoinSessionScreen = ({ navigation }) => {
         textColor={COLORS.beige}
         onPress={() => navigation.navigate('HomeScreen')}/>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

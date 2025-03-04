@@ -1,15 +1,70 @@
-import React from 'react';
-import { Text, TextInput, View, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { Text, TextInput, View, StyleSheet, Image, Alert, ActivityIndicator } from 'react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase_config';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton'
 import BackButton from '../components/BackButton';
 
 const LogInScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
   });
+
+  // Email validation using regex
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleLogin = async () => {
+    // Reset error state
+    setError('');
+    
+    // Trim inputs to remove any accidental spaces
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    // Validate inputs
+    if (!trimmedEmail || !trimmedPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+      navigation.navigate('JoinSessionScreen');
+    } catch (error) {
+      // Focus on the most common Firebase error codes
+      switch(error.code) {
+        case 'auth/invalid-credential':
+          setError('Invalid email or password');
+          break;
+        case 'auth/too-many-requests':
+          setError('Too many failed login attempts. Please try again later');
+          break;
+        default:
+          setError('Login failed. Please try again.');
+          console.log("Firebase auth error:", error.code, error.message);
+          break;
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!fontsLoaded) {
     return null;
@@ -24,23 +79,41 @@ const LogInScreen = ({ navigation }) => {
         style={styles.bee}
         source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Welcome Back</Text>
+      
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      
       <TextInput
         placeholder="Email"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        editable={!loading}
       />
       <TextInput
         placeholder="Password"
         placeholderTextColor="#B0B0B0"
         style={styles.input}
         secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        editable={!loading}
       />
-      <BasicButton text="Log In"
-        backgroundColor={COLORS.navy}
-        textColor={COLORS.beige}
-        onPress={() => navigation.navigate('JoinSessionScreen')}/>
+      {loading ? (
+        <ActivityIndicator size="large" color={COLORS.navy} />
+      ) : (
+        <BasicButton 
+          text="Log In"
+          backgroundColor={COLORS.navy}
+          textColor={COLORS.beige}
+          onPress={handleLogin}
+          disabled={loading}
+        />
+      )}
       <Text style={styles.signupText}>
-        Don’t have an account?{' '}
+        Don't have an account?{' '}
         <Text style={styles.signupLink} onPress={() => navigation.navigate('SignUpScreen')}>
           Sign up
         </Text>
@@ -108,5 +181,13 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     objectFit: 'contain',
     alignSelf: 'center',
-  }
+  },
+  errorText: {
+    color: 'red',
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body_small,
+    marginBottom: 10,
+    textAlign: 'center',
+    width: '80%',
+  },
 });
