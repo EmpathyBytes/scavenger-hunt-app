@@ -18,8 +18,11 @@ let locationSubscription = null;
 const HomeScreen = ({ navigation }) => {
   const [location, setLocation] = useState({});
   const [errorMsg, setErrorMsg] = useState({});
+  
+  const [mapReady, setMapReady] = useState(false);
+  const [forceReload, setForceReload] = useState(0);
 
-  //On mount, start location tracking
+  //On mount, start location tracking. Check if reload of map is necessary (likely is)
   useEffect(() => {
     async function startLocationTracking() {
       
@@ -34,9 +37,18 @@ const HomeScreen = ({ navigation }) => {
       //Set a tracker for location updates. On an update, uses the setLocation function to update the location
       locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation}, location => {setLocation(location)});
     }
+    
+    //Fix for map not properly rendering upon mount. Forces reload after two seconds
+    const timer = setTimeout(() => {
+      if (!mapReady) {
+        console.warn('Map was not ready within 2 second. Forcing re-render.');
+        setForceReload((prev) => prev + 1);
+      }
+  }, 2000);
+
     startLocationTracking();
-    return () => { locationSubscription?.remove() }; //Remove location tracking upon dismount
-  }, []);
+    return () => { locationSubscription?.remove(); clearTimeout(timer) }; //Remove location tracking and clear timer upon dismount
+  }, [mapReady]);
 
   //load font
   const [fontsLoaded] = useFonts({
@@ -72,7 +84,7 @@ const HomeScreen = ({ navigation }) => {
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
 
-      <MapView style={styles.map} initialRegion={INITIAL_REGION} showsBuildings showsUserLocation />
+      <MapView key={forceReload} style={styles.map} initialRegion={INITIAL_REGION} onMapReady={() => {setMapReady(true); console.log("Map loaded");}} showsBuildings showsUserLocation />
 
       <View style={styles.buttonWrapper}>
         <TouchableOpacity style={{position: 'absolute', top: '1%', right: '1%'}} onPress={() => navigation.navigate('AboutUsScreen')}>
