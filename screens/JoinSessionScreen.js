@@ -4,11 +4,12 @@ import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'; 
 import BasicButton from '../components/BasicButton';
 import BackButton from '../components/BackButton';
-import { auth } from '../firebase_config';
-import { onAuthStateChanged } from 'firebase/auth';
+import { useAuth } from '../contexts/AuthContext';
 
 const JoinSessionScreen = ({ navigation }) => {
-  //load font
+  // Use the auth context instead of direct Firebase calls
+  const { user, isAuthenticated } = useAuth();
+  
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
@@ -16,23 +17,16 @@ const JoinSessionScreen = ({ navigation }) => {
   
   const [value, setValue] = useState('');
   const inputRef = useRef(null);
-  const [loading, setLoading] = useState(true);
 
+  // Check authentication status
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setLoading(false);
-      if (!user) {
-        // User is not signed in, redirect to welcome screen
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'WelcomeScreen' }],
-        });
-      }
-    });
-
-    // Clean up subscription
-    return () => unsubscribe();
-  }, [navigation]);
+    if (!isAuthenticated) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'WelcomeScreen' }],
+      });
+    }
+  }, [isAuthenticated, navigation]);
 
   const handleFocus = () => {
     if (value === 'enter game code') {
@@ -40,7 +34,7 @@ const JoinSessionScreen = ({ navigation }) => {
     }
   };
 
-  if (!fontsLoaded || loading) {
+  if (!fontsLoaded) {
     return null;
   }
   
@@ -53,6 +47,7 @@ const JoinSessionScreen = ({ navigation }) => {
         style={styles.bee}
         source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Join Game</Text>
+      {user && <Text style={styles.welcomeText}>Hi, {user.email}</Text>}
       <View style={styles.inputcontainer}>
       <TextInput
         ref={inputRef}
@@ -71,7 +66,7 @@ const JoinSessionScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('HomeScreen')}/>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   title: {
@@ -103,8 +98,14 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     objectFit: 'contain',
     alignSelf: 'center',
-  }
-})
+  },
+  welcomeText: {
+    fontFamily: "Figtree_400Regular",
+    fontSize: SIZES.body_small,
+    color: COLORS.navy,
+    marginTop: 5,
+    textAlign: 'center',
+  },
+});
 
-
-export default JoinSessionScreen
+export default JoinSessionScreen;
