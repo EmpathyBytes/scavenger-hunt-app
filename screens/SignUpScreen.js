@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   StyleSheet, ImageBackground, Image, Text, View, TextInput, 
-  ActivityIndicator, Alert 
+  ActivityIndicator, Alert, Dimensions 
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -17,7 +17,9 @@ const SignUpScreen = ({ navigation }) => {
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
-  
+	
+	const windowHeight = Dimensions.get('window').height;
+
 	const [fontsLoaded] = useFonts({
 	  Figtree_400Regular,
 	  Figtree_600SemiBold,
@@ -98,15 +100,21 @@ const SignUpScreen = ({ navigation }) => {
 			  colors={['rgba(255, 255, 255, .1)', 'rgba(255, 249, 217, 1)']}
 			  style={styles.gradient}
 			/>
-			<Image
-			  style={styles.bee}
-			  source={require('../assets/bee.png')}
-			/>
-			<Image
-			  style={styles.mapLine}
-			  source={require('../assets/map-line.png')}
-			/>
-			<View style={styles.box}>
+			<View style={styles.content} >
+				<Image
+					style={styles.bee}
+					source={require('../assets/bee.png')}
+				/>
+				<Image
+					style={styles.mapLine}
+					source={require('../assets/map-line.png')}
+				/>
+				<Image
+					style={styles.cross}
+					source={require('../assets/cross.png')}
+				/>
+			</View>
+			<View style={[styles.box, {marginTop: (windowHeight - 550) / 2}]}>
 			  <View style={styles.signUpBox}>
 				<Text style={styles.title}>Welcome!</Text>
 				<Text style={styles.subtitle}>Create an account to begin your quest!</Text>
@@ -175,34 +183,54 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
   },
+  content: {
+	height: '100%',
+	flexDirection: 'column',
+	justifyContent: 'center',
+	alignContent: 'center',
+  },
   bee: {
-    height: 100,
+    height: 120,
     objectFit: 'contain',
-    position: 'absolute',
+    //position: 'absolute',
     alignSelf: 'center',
-    top: '15%',
+    //top: '15%',
+	marginBottom: -45,
+	marginLeft: 50,
     zIndex: 0,
     opacity: 0.7,
   },
   mapLine: {
     alignSelf: 'center',
-    height: 550,
+    height: 570,
     objectFit: 'contain',
-    position: 'absolute',
-    top: '25%',
+    //position: 'absolute',
+    //top: '25%',
     zIndex: 0,
     opacity: 0.5,
+  },
+  cross: {
+	height: 110,
+	width: 110,
+	//objectFit: 'contain',
+	alignSelf: 'center',
+	zIndex: 1,
+	//marginTop: -30,
+	//position: 'absolute',
+	//bottom: '3.6%',
+	opacity: 0.9,
   },
   box: {
     backgroundColor: COLORS.beige,
     borderRadius: 20,
     alignSelf: 'center',
+	position: "absolute",
     zIndex: 2,
-    height: 520,
-    marginTop: 180,
+    height: "550",
+	width: "80%",
   },
   signUpBox: {
-    position: 'center',
+    //position: 'center',
     top: '22.5%',
     alignItems: 'center',
   },
@@ -223,6 +251,7 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
     marginTop: -70,
     marginBottom: 30,
+	width: '80%',
     textAlign: 'center',
     alignSelf: 'center',
   },
