@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import { View, StyleSheet, Image, Button } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TeamsScreen from './home_screens/TeamsScreen';
+import MapScreen from './home_screens/MapScreen';
 import ArtifactsScreen from './home_screens/ArtifactsScreen';
 import SettingsScreen from './home_screens/SettingsScreen';
 import { COLORS, SIZES } from '../components/theme'; //colors and font sizes 
@@ -11,6 +12,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BasicButton from '../components/BasicButton';
 import MapView from 'react-native-maps';
 import * as Location from 'expo-location';
+import HintScreen from './home_screens/HintScreen';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -58,6 +60,8 @@ const HomeScreen = ({ navigation }) => {
 
   const bottomSheetRef = useRef(null);
   const [screenIndex, setScreenIndex] = useState(1);
+
+  const [hintInfo, setHintInfo] = useState({name: "", isChallenge: false, latitude: 0, longitude: 0, locationHint: "", description: ""});
 
   const handlePress = (idx) => {
     bottomSheetRef.current?.expand();
@@ -113,19 +117,27 @@ const HomeScreen = ({ navigation }) => {
                 style={[styles.touchableStyle, screenIndex == 1 && styles.selectedOption]} 
                 onPress={() => handlePress(1)}
             >
-              <Image style={styles.icon} source={require('../assets/artifacts.png')} />
+              <Image style={styles.icon} source={require('../assets/locations.png')} />
             </TouchableOpacity>
             <TouchableOpacity 
                 style={[styles.touchableStyle, screenIndex == 2 && styles.selectedOption]} 
                 onPress={() => handlePress(2)}
+            >
+              <Image style={styles.icon} source={require('../assets/artifacts.png')} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+                style={[styles.touchableStyle, screenIndex == 3 && styles.selectedOption]} 
+                onPress={() => handlePress(3)}
             >
               <Image style={styles.icon} source={require('../assets/settings.png')} />
             </TouchableOpacity>
           </View>
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
           {(screenIndex == 0) && <TeamsScreen />}
-          {(screenIndex == 1) && <ArtifactsScreen/>}
-          {(screenIndex == 2) && <SettingsScreen/>}
+          {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} setHintInfo={setHintInfo}  />}
+          {(screenIndex == 2) && <ArtifactsScreen/>}
+          {(screenIndex == 3) && <SettingsScreen/>}
+          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} location={location}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
