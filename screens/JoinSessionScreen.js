@@ -5,10 +5,14 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BasicButton from '../components/BasicButton';
 import BackButton from '../components/BackButton';
 import { useAuth } from '../contexts/AuthContext';
+import { useServices } from '../contexts/ServiceContext';
 
 const JoinSessionScreen = ({ navigation }) => {
-  // Use the auth context instead of direct Firebase calls
+  // Use the auth context to access the authenticated user's UID
   const { user, isAuthenticated } = useAuth();
+  
+  // Use the services context to access the UserService
+  const { userService } = useServices();
   
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -17,16 +21,36 @@ const JoinSessionScreen = ({ navigation }) => {
   
   const [value, setValue] = useState('');
   const inputRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
 
-  // Check authentication status
+  // Check authentication status and fetch user data
   useEffect(() => {
+    // First check if user is authenticated
     if (!isAuthenticated) {
       navigation.reset({
         index: 0,
         routes: [{ name: 'WelcomeScreen' }],
       });
+      return;
     }
-  }, [isAuthenticated, navigation]);
+
+    // Then fetch the user data from the database using the UID
+    const fetchUserData = async () => {
+      try {
+        if (user && user.uid) {
+          const userDataFromDB = await userService.getUser(user.uid);
+          setUserData(userDataFromDB);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [isAuthenticated, user, navigation, userService]);
 
   const handleFocus = () => {
     if (value === 'enter game code') {
@@ -34,7 +58,7 @@ const JoinSessionScreen = ({ navigation }) => {
     }
   };
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || loading) {
     return null;
   }
   
@@ -47,7 +71,9 @@ const JoinSessionScreen = ({ navigation }) => {
         style={styles.bee}
         source={require('../assets/bee.png')}/>
       <Text style={styles.title}>Join Game</Text>
-      {user && <Text style={styles.welcomeText}>Hi, {user.email}</Text>}
+      {userData && userData.email && 
+        <Text style={styles.welcomeText}>Hi, {userData.email}</Text>
+      }
       <View style={styles.inputcontainer}>
       <TextInput
         ref={inputRef}
