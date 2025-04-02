@@ -1,12 +1,13 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BackButton from '../../components/BackButton';
 
-const HintScreen = ({hintInfo, setScreenIndex, location}) => {
-    const [found, setFound] = useState(false);
-    const [diff, setDiff] = useState(0.6);
+const HintScreen = ({hintInfo, setScreenIndex, locationCurr}) => {
+
+    //console.log("rendered");
+    const location = locationCurr.current;
     const [foundText, setFoundText] = useState("");
     
     const CoordDistance = () => {
@@ -19,7 +20,7 @@ const HintScreen = ({hintInfo, setScreenIndex, location}) => {
         const a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
                 * Math.cos(location.coords.latitude * (Math.PI / 180)) * Math.cos(hintInfo.latitude * (Math.PI / 180));
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        if (earthRadius * c <= 0.5) {
+        if (earthRadius * c <= 0.04) {
             setFoundText("You found the location!")
         } else {
             setFoundText("No lmao");

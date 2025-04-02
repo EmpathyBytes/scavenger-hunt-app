@@ -18,7 +18,7 @@ const Tab = createBottomTabNavigator();
 let locationSubscription = null;
 
 const HomeScreen = ({ navigation }) => {
-  const [location, setLocation] = useState({});
+  const location = useRef({});
   const [errorMsg, setErrorMsg] = useState({});
   
   const [mapReady, setMapReady] = useState(false);
@@ -37,7 +37,7 @@ const HomeScreen = ({ navigation }) => {
       //Make sure there isn't already a subscription running
       locationSubscription?.remove() 
       //Set a tracker for location updates. On an update, uses the setLocation function to update the location
-      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation}, location => {setLocation(location)});
+      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation}, loc => {location.current = loc});
     }
     
     //Fix for map not properly rendering upon mount. Forces reload after two seconds
@@ -137,7 +137,7 @@ const HomeScreen = ({ navigation }) => {
           {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} setHintInfo={setHintInfo}  />}
           {(screenIndex == 2) && <ArtifactsScreen/>}
           {(screenIndex == 3) && <SettingsScreen/>}
-          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} location={location}/>}
+          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
