@@ -1,0 +1,68 @@
+{
+    "artifact1": {
+        "name": "Whistle",
+        "isChallenge": true,
+        "latitude": 0,
+        "longitude": 0,
+        "locationHint": "This iconic red-brick landmark at Georgia Tech features shining 'TECH' signs above. Just down its staircase lies a scenic lawn with brick pathways — a peaceful spot where students often pass by and unwind.",
+        "description": "The Georgia Tech whistle, a longstanding tradition, blows five minutes before each hour from 8 a.m. to 6 p.m. on weekdays. It has been the target of many pranks, including a notable theft during President G. Wayne Clough's inauguration in 1995. Today, the whistle symbolizes class transitions and athletic victories and honors those who have passed during the annual 'When the Whistle Blows' ceremony."
+    },
+    "artifact2": {
+        "name": "Panda Express Plate",
+        "isChallenge": true,
+        "latitude": 0,
+        "longitude": 0,
+        "locationHint": "A vibrant spot for food, fun, and events, this building is where students gather between classes. Look for it near a fountain and the bustling heart of campus!",
+        "description": "Located at the John Lewis Student Center, Panda Express is a perfect and popular place for Georgia Tech students to get their Chinese takeout fix. Using the Mobile Order app, students can order online to continue buzzing along in their busy schedules!"
+    },
+    "artifact3": {
+        "name": "Atari Controller",
+        "isChallenge": true,
+        "latitude": 0,
+        "longitude": 0,
+        "locationHint": "Where the brightest minds decode the future, an old-school controller hides among the cutting-edge tech. Seek out the heart of computing on campus—you might just find a joystick in a world of algorithms!",
+        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
+    },
+    "artifact4": {
+        "name": "Whistle",
+        "isChallenge": true,
+        "latitude": 0,
+        "longitude": 0,
+        "locationHint": "This iconic red-brick landmark at Georgia Tech features shining 'TECH' signs above. Just down its staircase lies a scenic lawn with brick pathways — a peaceful spot where students often pass by and unwind.",
+        "description": "The Georgia Tech whistle, a longstanding tradition, blows five minutes before each hour from 8 a.m. to 6 p.m. on weekdays. It has been the target of many pranks, including a notable theft during President G. Wayne Clough's inauguration in 1995. Today, the whistle symbolizes class transitions and athletic victories and honors those who have passed during the annual 'When the Whistle Blows' ceremony."
+    },
+    "artifact5": {
+        "name": "Panda Express Plate",
+        "isChallenge": true,
+        "latitude": 0,
+        "longitude": 0,
+        "locationHint": "A vibrant spot for food, fun, and events, this building is where students gather between classes. Look for it near a fountain and the bustling heart of campus!",
+        "description": "Located at the John Lewis Student Center, Panda Express is a perfect and popular place for Georgia Tech students to get their Chinese takeout fix. Using the Mobile Order app, students can order online to continue buzzing along in their busy schedules!"
+    },
+    "artifact6": {
+        "name": "Atari Controller",
+        "isChallenge": true,
+        "latitude": 0,
+        "longitude": 0,
+        "locationHint": "Where the brightest minds decode the future, an old-school controller hides among the cutting-edge tech. Seek out the heart of computing on campus—you might just find a joystick in a world of algorithms!",
+        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
+    },
+    "artifact7": {
+        "name": "Center Street North",
+        "isChallenge": true,
+        "latitude": 33.780359923548815,
+        "longitude": -84.40238871548017,
+        "locationHint": "A dorm location on Hemphill, this building sits close to the Eco Commons.",
+        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
+    },
+    "artifact8": {
+        "name": "Student Center",
+        "isChallenge": true,
+        "latitude": 33.77386094612457,
+        "longitude": -84.39908459296271,
+        "locationHint": "A vibrant spot for food, fun, and events, this building is where students gather between classes. Look for it near a fountain and the bustling heart of campus!",
+        "description": "Located at the John Lewis Student Center, Panda Express is a perfect and popular place for Georgia Tech students to get their Chinese takeout fix. Using the Mobile Order app, students can order online to continue buzzing along in their busy schedules!"
+    }
+
+    
+}
