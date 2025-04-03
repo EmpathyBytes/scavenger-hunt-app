@@ -12,6 +12,9 @@ import HomeScreen from './screens/HomeScreen';
 import AboutUsScreen from './screens/AboutUsScreen';
 import PastResultsScreen from './screens/PastResultsScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
+import AdminControlsScreen from './screens/AdminControlsScreen';
+import MySessionsScreen from './screens/MySessionsScreen';
+import CreateSessionScreen from './screens/CreateSessionScreen';
 // ...other imports
 
 const Stack = createNativeStackNavigator();
@@ -30,6 +33,9 @@ export default function App() {
             <Stack.Screen name="AboutUsScreen" component={AboutUsScreen} />
             <Stack.Screen name="PastResultsScreen" component={PastResultsScreen} />
             <Stack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
+            <Stack.Screen name="AdminControlsScreen" component={AdminControlsScreen} />
+            <Stack.Screen name="MySessionsScreen" component={MySessionsScreen} />
+            <Stack.Screen name="CreateSessionScreen" component={CreateSessionScreen} />
             {/* Add other screens here */}
           </Stack.Navigator>
         </NavigationContainer>

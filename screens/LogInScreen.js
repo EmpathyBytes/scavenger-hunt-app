@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Text, TextInput, View, StyleSheet, Image, Alert, ActivityIndicator } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { UserService } from '../services/UserService';
 import { auth } from '../firebase_config';
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton'
 import BackButton from '../components/BackButton';
+import { useServices } from '../contexts/ServiceContext';
 
 const LogInScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -13,6 +15,8 @@ const LogInScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
+  const { userService } = useServices();
+
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
@@ -46,7 +50,20 @@ const LogInScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
-      navigation.navigate('JoinSessionScreen');
+      const userId = userCredential.user.uid;
+  
+      // Use UserService to fetch user data
+      const userData = await userService.getUser(userId);
+  
+      if (userData) {
+        if (userData.isAdmin) {
+          navigation.navigate('AdminControlsScreen');
+        } else {
+          navigation.navigate('JoinSessionScreen');
+        }
+      } else {
+        setError('User data not found');
+      }
     } catch (error) {
       // Focus on the most common Firebase error codes
       switch(error.code) {
