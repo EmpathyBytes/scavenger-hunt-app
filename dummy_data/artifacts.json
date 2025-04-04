@@ -1,67 +1,120 @@
 {
     "artifact1": {
         "name": "Whistle",
+        "locationName": "Tech Tower",
         "isChallenge": true,
-        "latitude": 0,
-        "longitude": 0,
+        "latitude": 33.772400709490284,
+        "longitude": -84.3947130293353,
         "locationHint": "This iconic red-brick landmark at Georgia Tech features shining 'TECH' signs above. Just down its staircase lies a scenic lawn with brick pathways — a peaceful spot where students often pass by and unwind.",
         "description": "The Georgia Tech whistle, a longstanding tradition, blows five minutes before each hour from 8 a.m. to 6 p.m. on weekdays. It has been the target of many pranks, including a notable theft during President G. Wayne Clough's inauguration in 1995. Today, the whistle symbolizes class transitions and athletic victories and honors those who have passed during the annual 'When the Whistle Blows' ceremony."
     },
     "artifact2": {
         "name": "Panda Express Plate",
-        "isChallenge": true,
-        "latitude": 0,
-        "longitude": 0,
-        "locationHint": "A vibrant spot for food, fun, and events, this building is where students gather between classes. Look for it near a fountain and the bustling heart of campus!",
-        "description": "Located at the John Lewis Student Center, Panda Express is a perfect and popular place for Georgia Tech students to get their Chinese takeout fix. Using the Mobile Order app, students can order online to continue buzzing along in their busy schedules!"
-    },
-    "artifact3": {
-        "name": "Atari Controller",
-        "isChallenge": true,
-        "latitude": 0,
-        "longitude": 0,
-        "locationHint": "Where the brightest minds decode the future, an old-school controller hides among the cutting-edge tech. Seek out the heart of computing on campus—you might just find a joystick in a world of algorithms!",
-        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
-    },
-    "artifact4": {
-        "name": "Whistle",
-        "isChallenge": true,
-        "latitude": 0,
-        "longitude": 0,
-        "locationHint": "This iconic red-brick landmark at Georgia Tech features shining 'TECH' signs above. Just down its staircase lies a scenic lawn with brick pathways — a peaceful spot where students often pass by and unwind.",
-        "description": "The Georgia Tech whistle, a longstanding tradition, blows five minutes before each hour from 8 a.m. to 6 p.m. on weekdays. It has been the target of many pranks, including a notable theft during President G. Wayne Clough's inauguration in 1995. Today, the whistle symbolizes class transitions and athletic victories and honors those who have passed during the annual 'When the Whistle Blows' ceremony."
-    },
-    "artifact5": {
-        "name": "Panda Express Plate",
-        "isChallenge": true,
-        "latitude": 0,
-        "longitude": 0,
-        "locationHint": "A vibrant spot for food, fun, and events, this building is where students gather between classes. Look for it near a fountain and the bustling heart of campus!",
-        "description": "Located at the John Lewis Student Center, Panda Express is a perfect and popular place for Georgia Tech students to get their Chinese takeout fix. Using the Mobile Order app, students can order online to continue buzzing along in their busy schedules!"
-    },
-    "artifact6": {
-        "name": "Atari Controller",
-        "isChallenge": true,
-        "latitude": 0,
-        "longitude": 0,
-        "locationHint": "Where the brightest minds decode the future, an old-school controller hides among the cutting-edge tech. Seek out the heart of computing on campus—you might just find a joystick in a world of algorithms!",
-        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
-    },
-    "artifact7": {
-        "name": "Center Street North",
-        "isChallenge": true,
-        "latitude": 33.780359923548815,
-        "longitude": -84.40238871548017,
-        "locationHint": "A dorm location on Hemphill, this building sits close to the Eco Commons.",
-        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
-    },
-    "artifact8": {
-        "name": "Student Center",
+        "locationName": "Student Center",
         "isChallenge": true,
         "latitude": 33.77386094612457,
         "longitude": -84.39908459296271,
         "locationHint": "A vibrant spot for food, fun, and events, this building is where students gather between classes. Look for it near a fountain and the bustling heart of campus!",
         "description": "Located at the John Lewis Student Center, Panda Express is a perfect and popular place for Georgia Tech students to get their Chinese takeout fix. Using the Mobile Order app, students can order online to continue buzzing along in their busy schedules!"
+    },
+    "artifact3": {
+        "name": "Atari Controller",
+        "locationName": "College of Computing",
+        "isChallenge": true,
+        "latitude": 33.77728312551276, 
+        "longitude": -84.39732010406266,
+        "locationHint": "Where the brightest minds decode the future, an old-school controller hides among the cutting-edge tech. Seek out the heart of computing on campus—you might just find a joystick in a world of algorithms!",
+        "description": "The Atari 2600 Plug & Play Joystick is a nostalgic gaming device that encapsulates the essence of classic gaming, offering Georgia Tech students a retro escape from their rigorous academic pursuits. With its compact design and preloaded games, it provided a convenient break for students to indulge in some vintage gaming fun between study sessions on campus."
+    },
+    "artifact4": {
+        "name": "Buzz Diversity Statue",
+        "locationName": "Flag Building",
+        "isChallenge": true,
+        "latitude": 33.77442304440341, 
+        "longitude": -84.39962848349835,
+        "locationHint": "With a exterior design of brick and glass, this building showcases 124 flags suspending from the ceiling. Outside, you can find a statue of George C. Griffin, watching over the entrance — can you find it?",
+        "description": "The statue is painted to represent the student life at Georgia Tech. It is placed the Flags Building, serving as a symbol of the diversity within the student body and the unique experiences that unite students from all walks of life. Each element of the design reflects the creativity, resilience, and collaborative spirit that are at the core of the Georgia Tech community."
+    },
+    "artifact5": {
+        "name": "Model Plane",
+        "locationName": "Daniel Guggenheim Building (College of Aerospace)",
+        "isChallenge": true,
+        "latitude": 33.772286869514964, 
+        "longitude": -84.39602776987495,
+        "locationHint": " This iconic building, with its striking Collegiate Gothic architecture, is the hub of aircraft and spacecraft design! Look for wind tunnels and flight labs as you explore.",
+        "description": "In the late 1940's, Georgia Tech students began the tradition of flying a model Yellow Jacket plane during the halftime of football games. The idea apparently originated with William Milar, who graduated from Tech's Aerospace program in 1950. Milar approached then band director, Ben Logan Sisk, with the idea, and the plane's appearance was incorporated into the Tech band's halftime show. Stuart L. Richmond (IM, '51) and William Cooksey (need to request his file from archives to find grad year) continued the tradition in the early 1950's."
+    },
+    "artifact6": {
+        "name": "Bookend",
+        "locationName": "Daniel Guggenheim Building (College of Aerospace)",
+        "isChallenge": true,
+        "latitude": 33.77441053085426, 
+        "longitude": -84.39564910241361,
+        "locationHint": "Standing near Clough Commons, this library is a retreat for studious Yellow Jackets. With modern glass walls, students pass through on their way to classes. Inside, you'll find cozy study nooks, rows of books, and spacious study areas.",
+        "description": "The Georgia Tech Yellow Jackets played the University of California's Golden Bears the day after Christmas in 1936, upsetting the California team, 13-7. California were seen as potential Pacific Coast Conference Champions in 1936 while Tech was ranked 7th in the Southeastern Conference. These bookends may have been a product of Georgia Tech's Department of Ceramic Engineering in commemoration of the event."
+    },
+    "artifact7": {
+        "name": "Band Uniform and Band Hat",
+        "locationName": "",
+        "isChallenge": true,
+        "latitude": 33.77682171028143, 
+        "longitude": -84.40365299972954,
+        "locationHint": "A lively outdoor field where students run, play, and compete. Whether it’s soccer, flag football, or a casual jog on the track, this multi-purpose space is always buzzing with activity.",
+        "description": "The Georgia Tech marching band was founded in 1908 with an original roster of only 14 students. It was chartered in 1911, making it one of the oldest student organizations at the school. This uniform was used during 1976-1983 under director Ken 'Uncle Kenny' Durham."
+    },
+    "artifact8": {
+        "name": "Football",
+        "locationName": "Stamps Field",
+        "isChallenge": true,
+        "latitude": 33.77312573390961, 
+        "longitude": -84.39314043913159,
+        "locationHint": "This is the home of Georgia Tech football games, where major events like concerts and speeches also take center stage. Look for the stadium that has seen countless Georgia Tech moments, from thrilling football victories to the roar of the crowd at pep rallies.",
+        "description": "Clean, Old-Fashioned Hate is the name given to the Georgia-Georgia Tech football rivalry. The sports rivalry between the two institutions has traditionally focused on football, a sport in which both programs have historically been successful, with an annual game often held on Thanksgiving weekend. Georgia Tech claims four national championships: 1917, 1928, 1952, and 1990. After the firing of head coach Geoff Collins in 2022, Brent Keys has lead the Jackets to more success than they had in the last 4 years."
+    },
+    "artifact9": {
+        "name": "2023 Original Blue Donkey (Blonkey) cup",
+        "locationName": "Crossland Tower",
+        "isChallenge": true,
+        "latitude": 33.77411931877894,
+        "longitude": -84.39503631803615,
+        "locationHint": "Head to the tallest rainbow in the sky - well at least on campus! This colorful tower isn’t just a feast for the eyes; it also hides a legendary coffee spot for students to fuel up on before conquering their studies! ",
+        "description": "Blue Donkey, or as students like to call it, Blonkey, is an iconic cafe located in the Student Center and Library at GT. They are known for their flavorful iced coffee but also have yummy snacks like bagels, chips, and pastry items. Students go here to study, grab a coffee, work with groups, or relax."
+    },
+    "artifact10": {
+        "name": "2021 Buzz Plushie",
+        "locationName": "Tech Square/Bookstore",
+        "isChallenge": true,
+        "latitude": 33.77673527682497, 
+        "longitude": -84.38860982575794,
+        "locationHint": "A place where knowledge stacks high, caffeine flows freely, school spiritwear is plenty, and Buzz might just be hiding among the shelves. Can you track him down?",
+        "description": "In 1980, Buzz was made the official mascot of the Georgia Tech Yellow Jackets after Richie Bland ran onto the football field (without permission) during a pep rally. Students who portray Buzz must keep it secret until they graduate, but are official student athletes and members of the cheer team. In 2023 Buzz became a national champion after placing first in the National Cheerleading Association’s Mascot Division."
+    },
+    "artifact11": {
+        "name": "Ramen",
+        "locationName": "Freshman Dorm (East)",
+        "isChallenge": true,
+        "latitude": 33.77428465079935, 
+        "longitude": -84.3913294759203,
+        "locationHint": "Located in the heart of the action, this spot is where first-year Yellow Jackets dive into campus life headfirst. With Greek life, Tech Square, and late-night study sessions just steps away, it’s no wonder residents often rely on a quick, budget-friendly meal to keep them going!",
+        "description": "A true Georgia Tech survival staple, ramen has fueled countless late-night study sessions, hackathons, and last-minute cramming marathons. Whether microwaved in a dorm room, cooked over a shared kitchen stove, or eaten straight from the packet in a pinch, this budget-friendly meal has become a rite of passage for Tech students."
+    },
+    "artifact12": {
+        "name": "Rat Cap",
+        "locationName": "Freshman Dorm (East)",
+        "isChallenge": true,
+        "latitude": 33.77931092558312, 
+        "longitude": -84.40463514614483,
+        "locationHint": "A place notorious for having the ‘best food on campus’, thus building sits on the West side of campus. It has a firepit sitting out front frequently used by clubs and friends alike to roast tasty s’mores and hotdogs.",
+        "description": "This Rat cap belonged to James Middleton (Mit) Fitzsimmons. Fitzsimmons was captain of the 1936 Georgia Tech football team and the first Yellow Jacket to be drafted into the NFL by the Chicago Cardinals (now Bears) in 1937. The tradition of wearing Rat caps began in 1915. Tech’s freshmen were required to wear the caps everyday until the Thanksgiving Day game against the University of Georgia. Starting in the 1940s, students often recorded the dates and scores of that season's football games on each panel of the cap."
+    },
+    "artifact13": {
+        "name": "Dumbell",
+        "locationName": "CRC",
+        "isChallenge": true,
+        "latitude": 33.775604524664764, 
+        "longitude": -84.40357989590485,
+        "locationHint": "Whether you’re here to lift your GPA or lift some weights, this spot is all about building strength—inside and out.",
+        "description": "A symbol of strength and determination, this dumbbell represents the countless hours Georgia Tech students dedicate to fitness and self-improvement. From first-timers to experienced lifters, students at the CRC use weights like this to build resilience—both physically and mentally. Just like tackling tough coursework, every rep is a step toward progress."
     }
 
     
