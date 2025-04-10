@@ -9,6 +9,7 @@ import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton';
 import BackButton from '../components/BackButton';
+import { useServices } from '../contexts/ServiceContext';
 
 const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,9 @@ const SignUpScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Get the userService from our ServiceContext
+  const { userService } = useServices();
 
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -62,8 +66,16 @@ const SignUpScreen = ({ navigation }) => {
     // Attempt to create user
     setLoading(true);
     try {
+      // 1. Create Firebase Authentication account
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Success - User is created
+      
+      // 2. Get the Firebase user ID (uid) from the user credential
+      const firebaseUserId = userCredential.user.uid;
+      
+      // 3. Create a user record in the database using Firebase UID
+      await createUserInDatabase(firebaseUserId, email.trim());
+      
+      // 4. Show success message and navigate
       Alert.alert('Success', 'Your account has been created successfully!');
       navigation.navigate('JoinSessionScreen');
     } catch (error) {
@@ -84,6 +96,29 @@ const SignUpScreen = ({ navigation }) => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Creates a user record in the database after successful Firebase authentication
+   * 
+   * @param {string} userId - The Firebase user ID (uid)
+   * @param {string} userEmail - The user's email address
+   */
+  const createUserInDatabase = async (userId, userEmail) => {
+    try {
+      // Create the user in our database using UserService with Firebase uid
+      await userService.createUser(userId);
+      
+      // Set the email field separately
+      await userService.setEmail(userId, userEmail);
+      
+      console.log('User created in database successfully with Firebase UID');
+    } catch (error) {
+      console.error('Error creating user in database:', error);
+      // Don't throw error here - we want to consider signup successful
+      // even if there's an issue with the database record,
+      // as the authentication account was created
     }
   };
 
