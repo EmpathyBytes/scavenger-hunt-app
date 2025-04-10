@@ -156,6 +156,8 @@ const LogInScreen = ({ navigation }) => {
   );
 };
 
+export default LogInScreen;
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -189,7 +191,7 @@ const styles = StyleSheet.create({
   },
   mapLine: {
     width: width * 0.8,
-    height: height * 0.6,
+    height: height * 0.7,
     resizeMode: 'contain',
     position: 'absolute',
     top: height * 0.2,
