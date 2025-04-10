@@ -1,54 +1,147 @@
-import React, {useState} from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import { useAuth } from "../contexts/AuthContext";
+import { useServices } from "../contexts/ServiceContext";
+import { COLORS } from "../components/theme";
 
-const MySessionsScreen = ({ route }) => {
-  const { sessions = [] } = route.params || {};
+const MySessionsScreen = ({ navigation }) => {
+  const { user } = useAuth();
+  const { sessionService } = useServices();
+
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchUserSessions = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (!user?.uid) {
+          setError("User not authenticated.");
+          setSessions([]);
+          return;
+        }
+
+        const sessionsData = await sessionService.getData("sessions");
+
+        if (!sessionsData) {
+          setSessions([]);
+          return;
+        }
+
+        const sessionsList = Object.entries(sessionsData)
+          .filter(([sessionId, session]) => session.creatorId === user.uid)
+          .map(([sessionId, session]) => ({
+            id: sessionId,
+            ...session,
+          }));
+
+        setSessions(sessionsList);
+      } catch (e) {
+        console.error("Error fetching sessions:", e);
+        setError("Failed to load sessions.");
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserSessions();
+  }, [user?.uid, sessionService]);
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.sessionItem}
+      onPress={() => {
+        navigation.navigate("SessionDetailsScreen", { sessionId: item.id });
+      }}
+    >
+      <Text style={styles.sessionName}>{item.sessionName || "Unnamed Session"}</Text>
+      <Text style={styles.sessionDetails}>
+        {`Start: ${item.startTime}, End: ${item.endTime}, Active: ${item.isActive ? 'Yes' : 'No'}`}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={COLORS.navy} />
+        <Text>Loading Sessions...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Sessions</Text>
-      {sessions.length > 0 ? (
-        sessions.map((session, index) => (
-          <TouchableOpacity key={index} style={styles.button}>
-            <Text style={styles.buttonText}>{session}</Text>
-          </TouchableOpacity>
-        ))
+      {sessions.length === 0 ? (
+        <Text style={styles.noSessionsText}>No sessions created yet.</Text>
       ) : (
-        <Text style={styles.noSessions}>No sessions available</Text>
+        <FlatList
+          data={sessions}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          style={styles.list}
+        />
       )}
     </View>
   );
 };
 
-export default MySessionsScreen;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFBEB",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.beige,
+    padding: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
+    color: COLORS.navy,
     marginBottom: 20,
-    color: "#13274F",
   },
-  button: {
-    backgroundColor: "#13274F",
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    marginVertical: 10,
+  list: {
+    width: "100%",
   },
-  buttonText: {
-    color: "#FFFFFF",
+  sessionItem: {
+    backgroundColor: COLORS.white,
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+  },
+  sessionName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.navy,
+  },
+  sessionDetails: {
+    fontSize: 14,
+    color: COLORS.darkGray,
+  },
+  noSessionsText: {
     fontSize: 16,
+    color: COLORS.darkGray,
   },
-  noSessions: {
+  errorText: {
     fontSize: 16,
-    color: "#666",
-    marginTop: 20,
+    color: "red",
+    textAlign: "center",
   },
 });
+
+export default MySessionsScreen;

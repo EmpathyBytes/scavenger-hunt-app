@@ -13,15 +13,13 @@ export const createSession = async (sessionService, creatorId, sessionData) => {
 
     await sessionService.createSession(sessionId, creatorId);
 
-    // Optionally, update the session with additional data (e.g., sessionName)
     if (sessionData) {
       await sessionService.setSessionName(sessionId, sessionData.sessionName);
       await sessionService.setActiveStatus(sessionId, sessionData.isActive);
       await sessionService.setTimes(sessionId, sessionData.startTime, sessionData.endTime);
     }
-
-    // Return the created session ID
     return sessionId;
+    
   } catch (error) {
     console.error('Error creating session:', error);
     throw error;
