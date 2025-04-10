@@ -4,7 +4,7 @@ import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BackButton from '../../components/BackButton';
 
-const HintScreen = ({hintInfo, setScreenIndex, locationCurr}) => {
+const HintScreen = ({hintInfo, setScreenIndex, locationCurr, markers}) => {
 
     //console.log("rendered");
     const location = locationCurr.current;
@@ -22,11 +22,27 @@ const HintScreen = ({hintInfo, setScreenIndex, locationCurr}) => {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         if (earthRadius * c <= 0.04) {
             setFoundText("You found the location!")
+            addMarker();
         } else {
             setFoundText("No lmao");
         }
     };
 
+    const addMarker = () => {
+        //Adds a marker to the map at the hint location
+        if (!markers.current.some(e => e.key == hintInfo.locationName)) {
+            markers.current.push({
+                key: hintInfo.locationName,
+                coordinate: {
+                    latitude: hintInfo.latitude,
+                    longitude: hintInfo.longitude,
+                },
+                title: hintInfo.locationName,
+                description: hintInfo.description,
+            });
+        }
+        console.log(markers.current);
+    }
 
     //load font
     const [fontsLoaded] = useFonts({
@@ -61,6 +77,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.beige,
+        width: '100%',
     },
     hintLabel: {
         fontFamily: "Figtree_600SemiBold",

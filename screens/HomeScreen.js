@@ -19,6 +19,7 @@ let locationSubscription = null;
 
 const HomeScreen = ({ navigation }) => {
   const location = useRef({});
+  const markers = useRef([]);
   const [errorMsg, setErrorMsg] = useState({});
   
   const [mapReady, setMapReady] = useState(false);
@@ -88,7 +89,22 @@ const HomeScreen = ({ navigation }) => {
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
 
-      <MapView key={forceReload} style={styles.map} initialRegion={INITIAL_REGION} onMapReady={() => {setMapReady(true); console.log("Map loaded");}} showsBuildings showsUserLocation />
+      <MapView 
+        key={forceReload} 
+        style={styles.map} 
+        initialRegion={INITIAL_REGION} 
+        onMapReady={() => {setMapReady(true); console.log("Map loaded");}} 
+        showsBuildings 
+        showsUserLocation 
+        {...markers.current.map((marker) => (
+          <Marker
+            key={marker.key}
+            coordinate={marker.coordinate}
+            title={marker.title}
+            description={marker.description}
+            onPress={() => onMarkerSelected(marker)}
+          />
+        ))}/>
 
       <View style={styles.buttonWrapper}>
         <TouchableOpacity style={{position: 'absolute', top: '1%', right: '1%'}} onPress={() => navigation.navigate('AboutUsScreen')}>
@@ -137,7 +153,7 @@ const HomeScreen = ({ navigation }) => {
           {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} setHintInfo={setHintInfo}  />}
           {(screenIndex == 2) && <ArtifactsScreen/>}
           {(screenIndex == 3) && <SettingsScreen/>}
-          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location}/>}
+          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location} markers={markers}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
