@@ -96,7 +96,8 @@ const HomeScreen = ({ navigation }) => {
         onMapReady={() => {setMapReady(true); console.log("Map loaded");}} 
         showsBuildings 
         showsUserLocation 
-        {...markers.current.map((marker) => (
+        >
+        {markers.current?.map((marker) => (
           <Marker
             key={marker.key}
             coordinate={marker.coordinate}
@@ -104,7 +105,8 @@ const HomeScreen = ({ navigation }) => {
             description={marker.description}
             onPress={() => onMarkerSelected(marker)}
           />
-        ))}/>
+        ))}
+        </MapView>
 
       <View style={styles.buttonWrapper}>
         <TouchableOpacity style={{position: 'absolute', top: '1%', right: '1%'}} onPress={() => navigation.navigate('AboutUsScreen')}>
@@ -153,7 +155,7 @@ const HomeScreen = ({ navigation }) => {
           {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} setHintInfo={setHintInfo}  />}
           {(screenIndex == 2) && <ArtifactsScreen/>}
           {(screenIndex == 3) && <SettingsScreen/>}
-          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location} markers={markers}/>}
+          {(screenIndex == 4) && <MarkersProvider> <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location} markers={markers}/> </MarkersProvider>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
