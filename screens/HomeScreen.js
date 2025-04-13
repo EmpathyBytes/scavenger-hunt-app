@@ -1,6 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import { View, StyleSheet, Image, Button } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MarkersContext } from '../contexts/MarkersContext'; // Import the context
+import { MarkersProvider } from '../contexts/MarkersContext'; // Import the provider
 import TeamsScreen from './home_screens/TeamsScreen';
 import MapScreen from './home_screens/MapScreen';
 import ArtifactsScreen from './home_screens/ArtifactsScreen';
@@ -10,7 +12,7 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BottomSheet, { BottomSheetView, TouchableOpacity } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BasicButton from '../components/BasicButton';
-import MapView from 'react-native-maps';
+import {MapView, Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
 
@@ -19,7 +21,7 @@ let locationSubscription = null;
 
 const HomeScreen = ({ navigation }) => {
   const location = useRef({});
-  const markers = useRef([]);
+  const { markers } = useContext(MarkersContext);
   const [errorMsg, setErrorMsg] = useState({});
   
   const [mapReady, setMapReady] = useState(false);
@@ -97,7 +99,7 @@ const HomeScreen = ({ navigation }) => {
         showsBuildings 
         showsUserLocation 
         >
-        {markers.current?.map((marker) => (
+        {markers.map((marker) => (
           <Marker
             key={marker.key}
             coordinate={marker.coordinate}

@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider } from './contexts/AuthContext';
+import { MarkersProvider } from './contexts/MarkersContext';
 import { ServiceProvider } from './contexts/ServiceContext';
 // Import your screens
 import WelcomeScreen from './screens/WelcomeScreen';
@@ -20,21 +21,21 @@ export default function App() {
   return (
     <AuthProvider>
       <ServiceProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="WelcomeScreen" screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
-            <Stack.Screen name="LogInScreen" component={LogInScreen} />
-            <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-            <Stack.Screen name="JoinSessionScreen" component={JoinSessionScreen} />
-            <MarkersProvider>
-              <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            </MarkersProvider>
-            <Stack.Screen name="AboutUsScreen" component={AboutUsScreen} />
-            <Stack.Screen name="PastResultsScreen" component={PastResultsScreen} />
-            <Stack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
-            {/* Add other screens here */}
-          </Stack.Navigator>
-        </NavigationContainer>
+        <MarkersProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="WelcomeScreen" screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
+              <Stack.Screen name="LogInScreen" component={LogInScreen} />
+              <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+              <Stack.Screen name="JoinSessionScreen" component={JoinSessionScreen} />
+                <Stack.Screen name="HomeScreen" component={HomeScreen} />
+              <Stack.Screen name="AboutUsScreen" component={AboutUsScreen} />
+              <Stack.Screen name="PastResultsScreen" component={PastResultsScreen} />
+              <Stack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
+              {/* Add other screens here */}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </MarkersProvider>
       </ServiceProvider>
     </AuthProvider>
   );
