@@ -26,7 +26,9 @@ export default function App() {
             <Stack.Screen name="LogInScreen" component={LogInScreen} />
             <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
             <Stack.Screen name="JoinSessionScreen" component={JoinSessionScreen} />
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            <MarkersProvider>
+              <Stack.Screen name="HomeScreen" component={HomeScreen} />
+            </MarkersProvider>
             <Stack.Screen name="AboutUsScreen" component={AboutUsScreen} />
             <Stack.Screen name="PastResultsScreen" component={PastResultsScreen} />
             <Stack.Screen name="LeaderboardScreen" component={LeaderboardScreen} />
