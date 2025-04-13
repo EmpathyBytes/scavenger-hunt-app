@@ -5,6 +5,9 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BasicButton from '../components/BasicButton';
 import BackButton from '../components/BackButton';
 
+export let globalSession = "session123";
+export let currentTeam = "Yellow Jackets";
+
 const JoinSessionScreen = ({ navigation }) => {
   //load font
   const [fontsLoaded] = useFonts({

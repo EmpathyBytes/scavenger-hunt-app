@@ -1,0 +1,184 @@
+[
+    {
+      "username": "georgeburdell",
+      "email": "georgeburdell@email.com",
+      "profilePictureUrl": "",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Yellow Jackets",
+          "points": 50,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        }
+      },
+      "isAdmin": false,
+      "createdAt": 1709059200,
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "jchens",
+      "email": "jchen@email.com",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Yellow Jackets",
+          "points": 70,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        },
+        "session456": {
+          "teamId": "Yellow Jackets",
+          "points": 30,
+          "foundArtifacts": {
+            "artifact3": true
+          }
+        }
+      },
+      "isAdmin": true,
+      "createdAt": 1709059300, 
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "jeffburdell",
+      "email": "georgeburdell@email.com",
+      "profilePictureUrl": "",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Yellow Jackets",
+          "points": 10,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        }
+      },
+      "isAdmin": false,
+      "createdAt": 1709059200,
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "jchen",
+      "email": "jchen@email.com",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Yellow Jackets",
+          "points": 10,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        },
+        "session456": {
+          "teamId": "Yellow Jackets",
+          "points": 10,
+          "foundArtifacts": {
+            "artifact3": true
+          }
+        }
+      },
+      "isAdmin": true,
+      "createdAt": 1709059300, 
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "jeffchow",
+      "email": "jchow@email.com",
+      "currentSession": "session456",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Yellow Jackets",
+          "points": 50,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        },
+        "session456": {
+          "teamId": "Yellow Jackets",
+          "points": 70,
+          "foundArtifacts": {
+            "artifact3": true
+          }
+        }
+      },
+      "isAdmin": true,
+      "createdAt": 1709059300, 
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "geoburdell",
+      "email": "georgeburdell@email.com",
+      "profilePictureUrl": "",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Green Jackets",
+          "points": 50,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        }
+      },
+      "isAdmin": false,
+      "createdAt": 1709059200,
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "jch",
+      "email": "jchen@email.com",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Green Jackets",
+          "points": 80,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        },
+        "session456": {
+          "teamId": "Blue Jackets",
+          "points": 30,
+          "foundArtifacts": {
+            "artifact3": true
+          }
+        }
+      },
+      "isAdmin": true,
+      "createdAt": 1709059300, 
+      "updatedAt": 1709159200
+    },
+    {
+      "username": "jeffchow",
+      "email": "jchow@email.com",
+      "currentSession": "session123",
+      "sessionsJoined": {
+        "session123": {
+          "teamId": "Blue Jackets",
+          "points": 50,
+          "foundArtifacts": {
+            "artifact1": true,
+            "artifact2": false
+          }
+        },
+        "session456": {
+          "teamId": "Yellow Jackets",
+          "points": 70,
+          "foundArtifacts": {
+            "artifact3": true
+          }
+        }
+      },
+      "isAdmin": true,
+      "createdAt": 1709059300, 
+      "updatedAt": 1709159200
+    }
+  ]

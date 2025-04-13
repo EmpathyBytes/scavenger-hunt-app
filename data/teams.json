@@ -1,0 +1,18 @@
+[
+  {
+    "sessionId": "session123", 
+    "teamName": "Yellow Jackets", 
+    "members": { "userId123": true }
+  },
+  {
+    "sessionId": "session123", 
+    "teamName": "Blue Jackets", 
+    "members": { "userId123": true }
+  },
+  {
+    "sessionId": "session123", 
+    "teamName": "Green Jackets", 
+    "members": { "userId123": true }
+  } 
+]
+
