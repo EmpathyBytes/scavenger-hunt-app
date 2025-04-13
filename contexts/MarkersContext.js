@@ -1,12 +1,12 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useRef } from 'react';
 
-export const MarkersContext = createContext();
+export const MarkersContext = createContext(null);
 
 export const MarkersProvider = ({ children }) => {
-    const [markers, setMarkers] = useState([]); // State to hold markers
+    const markers = useRef([]); // State to hold markers
     
     return (
-        <MarkersContext.Provider value={{ markers, setMarkers }}>
+        <MarkersContext.Provider value={{ markers }}>
             {children}
         </MarkersContext.Provider>
     );

@@ -12,7 +12,7 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BottomSheet, { BottomSheetView, TouchableOpacity } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BasicButton from '../components/BasicButton';
-import {MapView, Marker} from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
 
@@ -91,24 +91,18 @@ const HomeScreen = ({ navigation }) => {
         <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
       </Tab.Navigator> */}
 
-      <MapView 
-        key={forceReload} 
-        style={styles.map} 
-        initialRegion={INITIAL_REGION} 
-        onMapReady={() => {setMapReady(true); console.log("Map loaded");}} 
-        showsBuildings 
-        showsUserLocation 
-        >
-        {markers.map((marker) => (
+      <MapView key={forceReload} style={styles.map} initialRegion={INITIAL_REGION} onMapReady={() => {setMapReady(true); console.log("Map loaded");}} showsBuildings showsUserLocation> 
+        {/* This is where the markers are placed on the map. The markers are passed in from the context. */}
+        {markers.current?.map((marker) => (
           <Marker
             key={marker.key}
             coordinate={marker.coordinate}
             title={marker.title}
             description={marker.description}
-            onPress={() => onMarkerSelected(marker)}
           />
         ))}
-        </MapView>
+
+      </MapView>
 
       <View style={styles.buttonWrapper}>
         <TouchableOpacity style={{position: 'absolute', top: '1%', right: '1%'}} onPress={() => navigation.navigate('AboutUsScreen')}>
@@ -157,7 +151,7 @@ const HomeScreen = ({ navigation }) => {
           {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} setHintInfo={setHintInfo}  />}
           {(screenIndex == 2) && <ArtifactsScreen/>}
           {(screenIndex == 3) && <SettingsScreen/>}
-          {(screenIndex == 4) && <MarkersProvider> <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location} markers={markers}/> </MarkersProvider>}
+          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location} setForceReload={setForceReload}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>

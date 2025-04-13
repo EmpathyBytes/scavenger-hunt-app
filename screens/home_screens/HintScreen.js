@@ -1,13 +1,15 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BackButton from '../../components/BackButton';
+import {MarkersContext} from '../../contexts/MarkersContext'; // Import the context
 
-const HintScreen = ({hintInfo, setScreenIndex, locationCurr, markers}) => {
+const HintScreen = ({hintInfo, setScreenIndex, locationCurr, setForceReload}) => {
 
     //console.log("rendered");
     const location = locationCurr.current;
+    const { markers } = useContext(MarkersContext); // Access the markers from the context
     const [foundText, setFoundText] = useState("");
     
     const CoordDistance = () => {
@@ -30,8 +32,8 @@ const HintScreen = ({hintInfo, setScreenIndex, locationCurr, markers}) => {
 
     const addMarker = () => {
         //Adds a marker to the map at the hint location
-        if (!markers.current.some(e => e.key == hintInfo.locationName)) {
-            markers.current.push({
+        if (!markers.current?.some(e => e.key == hintInfo.locationName)) {
+            markers.current?.push({
                 key: hintInfo.locationName,
                 coordinate: {
                     latitude: hintInfo.latitude,
@@ -41,6 +43,7 @@ const HintScreen = ({hintInfo, setScreenIndex, locationCurr, markers}) => {
                 description: hintInfo.description,
             });
         }
+        setForceReload((prev) => prev + 1); // Trigger a re-render of the map
         console.log(markers.current);
     }
 
