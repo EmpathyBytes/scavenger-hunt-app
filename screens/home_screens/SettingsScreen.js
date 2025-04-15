@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Text, View, Image, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, Image, StyleSheet, ActivityIndicator, Alert, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../../components/theme'; //colors and sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
@@ -9,13 +9,15 @@ import { useServices } from '../../contexts/ServiceContext';
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth(); // Get signOut from AuthContext
   const { userService, sessionService } = useServices();
   
   const [userData, setUserData] = useState(null);
   const [sessionData, setSessionData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [leavingSession, setLeavingSession] = useState(false);
+  const [editingDisplayName, setEditingDisplayName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState('');
   
   //load font
   const [fontsLoaded] = useFonts({
@@ -101,6 +103,57 @@ const SettingsScreen = () => {
     }
   };
 
+  const handleEditDisplayName = async () => {
+    if (!newDisplayName.trim()) {
+      Alert.alert("Error", "Display name cannot be empty.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await userService.setDisplayName(user.uid, newDisplayName);
+      const updatedUserData = await userService.getUser(user.uid);
+      setUserData(updatedUserData);
+      setEditingDisplayName(false);
+      Alert.alert("Success", "Display name updated successfully.");
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      Alert.alert("Error", "Failed to update display name. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await signOut();
+              // Navigate back to welcome screen after successful logout
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'WelcomeScreen' }],
+              });
+            } catch (error) {
+              console.error("Error logging out:", error);
+              Alert.alert("Error", "Failed to log out. Please try again.");
+            }
+          }
+        }
+      ]
+    );
+  };
+
   if (!fontsLoaded || loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -108,64 +161,108 @@ const SettingsScreen = () => {
       </View>
     );
   }
-  
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', width: '100%', gap: 13 }}>
-      <View style={styles.usernameContainer}>
-        <Text style={styles.usernameText}> {userData?.displayName || "Username"} </Text>
-        <Image style={styles.editImage} source={require('../../assets/Edit.png')} />
-      </View>
-      <View style={styles.circle}>
-        <Image style={styles.circleImage} source={require('../../assets/User.png')} />
-      </View>
-      <View>
-        {sessionData && (
-          <Text style={styles.gameCodeText}> 
-            Game Code: {userData?.currentSession || "None"} 
-          </Text>
-        )}
-      </View>
-      <View style={styles.buttonsContainer}>
-        <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} onPress={() => navigation.navigate('PastResultsScreen')}/>
-        <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
-        <BasicButton 
-          text={leavingSession ? 'Leaving...' : 'Leave Session'} 
-          backgroundColor={COLORS.navy} 
-          textColor={COLORS.beige}
-          disabled={leavingSession || !userData?.currentSession}
-          onPress={handleLeaveSession}
-        />
-        <BasicButton text={'Log Out'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
-      </View>
-    </View>
-  )
-}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <View style={styles.usernameContainer}>
+          {editingDisplayName ? (
+            <TextInput
+              style={styles.input}
+              value={newDisplayName}
+              onChangeText={setNewDisplayName}
+              placeholder="Enter new display name"
+              maxLength={30}
+            />
+          ) : (
+            <Text style={styles.usernameText}>{userData?.displayName || "Username"}</Text>
+          )}
+          <View style={styles.editContainer}>
+            <TouchableOpacity onPress={() => {
+              if (!editingDisplayName) {
+                setNewDisplayName(userData?.displayName || '');
+                setEditingDisplayName(true);
+              }
+            }}>
+              <Image style={styles.editImage} source={require('../../assets/Edit.png')} />
+            </TouchableOpacity>
+            {editingDisplayName && (
+              <TouchableOpacity onPress={handleEditDisplayName}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+        <View style={styles.circle}>
+          <Image style={styles.circleImage} source={require('../../assets/User.png')} />
+        </View>
+        <View>
+          {sessionData && (
+            <Text style={styles.gameCodeText}> 
+              Game Code: {userData?.currentSession || "None"} 
+            </Text>
+          )}
+        </View>
+        <View style={styles.buttonsContainer}>
+          <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} onPress={() => navigation.navigate('PastResultsScreen')}/>
+          <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
+          <BasicButton 
+            text={leavingSession ? 'Leaving...' : 'Leave Session'} 
+            backgroundColor={COLORS.navy} 
+            textColor={COLORS.beige}
+            disabled={leavingSession || !userData?.currentSession}
+            onPress={handleLeaveSession}
+          />
+          <BasicButton 
+            text={'Log Out'} 
+            backgroundColor={COLORS.navy} 
+            textColor={COLORS.beige} 
+            onPress={handleLogout}  // Add the onPress handler for logout
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+};
 
 const styles = StyleSheet.create({
   usernameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5
+    gap: 5,
+    marginBottom: 10,
   },
   usernameText: {
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.heading,
     color: COLORS.navy,
   },
+  editContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
   editImage: {
-    // borderColor: 'red',
-    // borderWidth: 2,
     height: 23,
-    width: 23
+    width: 23,
+  },
+  saveButtonText: {
+    fontFamily: 'Figtree_600SemiBold',
+    fontSize: SIZES.body_small,
+    color: COLORS.navy,
   },
   circle: {
     height: 200,
     width: 200,
     backgroundColor: COLORS.gray,
-    borderRadius: "100%",
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   circleImage: {
-    margin: 'auto',
     width: '50%',
     height: '50%',
   },
@@ -173,14 +270,23 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree_400Regular',
     color: COLORS.navy,
     fontSize: SIZES.body_small,
-    //fontWeight: '600',
-    marginVertical: 10
+    marginVertical: 10,
   },
   buttonsContainer: {
     width: '100%',
     alignItems: 'center',
-    gap: 12
+    gap: 12,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: COLORS.navy,
+    padding: 8,
+    borderRadius: 8,
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body,
+    color: COLORS.navy,
+    width: 200,
   },
 });
 
-export default SettingsScreen
+export default SettingsScreen;
