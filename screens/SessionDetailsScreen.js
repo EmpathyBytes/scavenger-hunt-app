@@ -24,6 +24,7 @@ const SessionDetailsScreen = ({ navigation, route }) => {
   const [error, setError] = useState('');
 
   const [userData, setUserData] = useState(null);
+  const [session, setSession] = useState(null);
   const [teams, setTeams] = useState([]);
   const [teamName, setTeamName] = useState("");
 
@@ -41,8 +42,15 @@ const SessionDetailsScreen = ({ navigation, route }) => {
       setTeams([]);
       return;
     }
-
     try {
+      const sessionData = await sessionService.getSession(sessionId);
+      setSession(sessionData);
+      
+      if (!sessionData) {
+        setLoading(false);
+        return;
+      }
+
       // returns keys (teamIds)
       const teamsData = await sessionService.listSessionTeams(sessionId);
       if (!teamsData) {
@@ -170,7 +178,11 @@ const SessionDetailsScreen = ({ navigation, route }) => {
       </View>
       <Image style={styles.bee} source={require('../assets/bee.png')} />
       <Text style={styles.title}>Session Details</Text>
-
+      <Text style={styles.sessionDetails}>
+        {`Start: ${session.startTime}, End: ${session.endTime}, Active: ${session.isActive ? 'Yes' : 'No'}`}
+      </Text>
+      
+      <Text style={styles.teamList}>Team List</Text>
       {teams.length === 0 ? (
         <Text style={styles.noTeamsText}>No teams created yet.</Text>
       ) : (
@@ -222,21 +234,32 @@ const styles = StyleSheet.create({
     top: 50,
     left: 20,
   },
+  sessionDetails: {
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body,
+    marginBottom: 25
+  },
+  teamList: {
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.heading - 10
+  },
   list: {
     width: "90%",
     flexGrow: 0,
-    backgroundColor: COLORS.red
+    backgroundColor: COLORS.beige
   },
   itemText: {
     fontSize: SIZES.body,
-    textAlign: 'center'
+    margin: 3,
+    textAlign: 'center',
+    fontFamily: 'Figtree_400Regular'
   },
   title: {
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.title - 10,
     color: COLORS.navy,
     width: '80%',
-    paddingBottom: 30,
+    paddingBottom: 5,
     // marginTop: 10,
     // marginBottom: 40,
     textAlign: 'center',
