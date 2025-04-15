@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TextInput, View, StyleSheet, Image, Alert, ActivityIndicator, Modal } from 'react-native';
+import { Text, TextInput, View, StyleSheet, Image, Alert, ActivityIndicator, FlatList } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useServices } from '../contexts/ServiceContext';
 // import { createTeamInDatabase } from './adminHelpers';
@@ -22,48 +22,58 @@ const SessionDetailsScreen = ({ navigation, route }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
   const [userData, setUserData] = useState(null);
   const [teams, setTeams] = useState([]);
-
-  // const [modalVisible, setModalVisible] = useState(false);
   const [teamName, setTeamName] = useState("");
+
   const validateTeams = (teamName) => {
     // Allow letters, numbers, spaces, and between 1-15 characters
     const re = /^[A-Za-z0-9\s]{1,15}$/;
     return re.test(teamName);
   };
 
-  useEffect(() => {
-    const fetchSessionTeams = async () => {
-      setLoading(true);
-      setError(null);
-      if (!sessionId) {
-        setError("Not a valid session");
-        setSessions([]);
-        // go back a screen? Error msg set here, though
+  const fetchSessionTeams = async () => {
+    setLoading(true);
+    setError(null);
+    if (!sessionId) {
+      setError("Not a valid session");
+      setTeams([]);
+      return;
+    }
+
+    try {
+      // returns keys (teamIds)
+      const teamsData = await sessionService.listSessionTeams(sessionId);
+      if (!teamsData) {
+        setTeams([]);
         return;
       }
 
-      try {
-        const teamsList = await sessionService.listSessionTeams(sessionId);
-        if (!teamsList) {
-          setTeams([]);
-          return;
+      const teamsList = [];
+      for (const teamId of teamsData) {
+        const team = await teamService.getTeam(teamId);
+        if (team) {
+          teamsList.push({ id: teamId, ...team });
         }
-        console.log(sessionId);
-        console.log(teamsList);
-        setTeams(teamsList);
-      } catch (e) {
-        console.error("Error fetching teams:", e);
-        setError("Failed to load teams.");
-        setTeams([]);
-      } finally {
-        setLoading(false);
       }
-    };
 
+      console.log(sessionId);
+      console.log("Teams List: " + teamsList);
+      setTeams(teamsList);
+    } catch (e) {
+      console.error("Error fetching teams:", e);
+      setError("Failed to load teams.");
+      setTeams([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch teams when the component mounts or sessionId changes
+  useEffect(() => {
     fetchSessionTeams();
-  }, [sessionId, teamService]);
+  }, [sessionService, teamService, sessionId]);
 
   const handleTeamCreation = async () => {
       setError('');
@@ -84,14 +94,10 @@ const SessionDetailsScreen = ({ navigation, route }) => {
       setLoading(true);
 
       try {
-          // double check teamID
-              // note: sessionID should be part of current screen?
           await createTeamInDatabase(teamID, teamName);
+          fetchSessionTeams();
           Alert.alert('Success', 'Your team has been created successfully!');
           // navigation.navigate('MySessionsScreen'); 
-          // probably just display team now as flat list (between "ADD Teams" and Text Input)
-
-          // TODO: now figure out how to let users join (display on user end!)
       } catch (error) {
           switch (error.code) {
               // only possible error should be duplicates when creating team
@@ -104,8 +110,7 @@ const SessionDetailsScreen = ({ navigation, route }) => {
       }
   }
 
-
-  // not needed?
+  // !
   if (loading) {
     return (
       <View style={styles.container}>
@@ -121,19 +126,28 @@ const SessionDetailsScreen = ({ navigation, route }) => {
    * @param {string} teamName - name of team being added
   */
   const createTeamInDatabase = async (teamId, teamName) => {
+    let teamCreated = false;
     try {
         await teamService.createTeam(teamId);
+        // teamCreated = true;
+        // if successful, add team to session
+        await sessionService.addTeam(sessionId, teamId);
+
         await teamService.setTeamName(teamId, teamName);
         // now, assign current sessionID to team (should this be done separately?)
         await teamService.setTeamSession(teamId, sessionId);
-
-        // if successful, add team to session
-        await sessionService.addTeam(sessionId, teamId);
-        console.log(sessionId);
-        console.log(teamId);
-        console.log(teamName);
+        // console.log(sessionId);
+        // console.log(teamId);
+        // console.log(teamName);
         console.log("Team created with unique team ID")
     } catch (error) {
+        setError(error.message);
+        // do we need to delete failed teams...?
+        /*
+        if (teamDeleted) {
+          // delete team, which should be empty
+        }
+        */
         console.error('Error creating team in database:', error);
     }
   };
@@ -141,12 +155,13 @@ const SessionDetailsScreen = ({ navigation, route }) => {
   if (!fontsLoaded) {
     return null;
   }
-
+/*
   const renderItem = ({ item }) => (
     <View>
-      <Text>{item.teamName || "Unnamed Team"}</Text>
+      <Text styles={styles.itemText}>{item.teamName || "Unnamed Team"}</Text>
     </View>
   );
+*/
 
   return (
     <View style={styles.container}>
@@ -162,7 +177,9 @@ const SessionDetailsScreen = ({ navigation, route }) => {
         <FlatList
           data={teams}
           keyExtractor={(item) => item.id}
-          renderItem={renderItem}
+          renderItem={({item}) => (
+            <Text style={styles.itemText}>{item.teamName || "Unnamed Team"}</Text>
+          )}
           style={styles.list}
         />
       )}
@@ -204,6 +221,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     left: 20,
+  },
+  list: {
+    width: "90%",
+    flexGrow: 0,
+    backgroundColor: COLORS.red
+  },
+  itemText: {
+    fontSize: SIZES.body,
+    textAlign: 'center'
   },
   title: {
     fontFamily: 'Figtree_400Regular',
