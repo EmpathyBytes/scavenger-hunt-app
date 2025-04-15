@@ -164,10 +164,10 @@ const SettingsScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, width: '100%' }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 20, width: '100%' }}>
         <View style={styles.usernameContainer}>
           {editingDisplayName ? (
             <TextInput
