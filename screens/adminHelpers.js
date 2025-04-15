@@ -58,3 +58,25 @@ export const updateSession = async (sessionId, updatedData) => {
     throw error;
   }
 };
+
+const validateTeams = (teamName) => {
+  // Allow letters, numbers, spaces, and between 1-15 characters
+  const re = /^[A-Za-z0-9\s]{1,15}$/;
+  return re.test(teamName);
+};
+
+/**
+ * Creates a team record in the database after valid constraints
+ * 
+ * @param {string} teamID - unique identifier for team
+ * @param {string} teamName - name of team being added
+*/
+const createTeamInDatabase = async (teamID, teamName) => {
+    try {
+        await teamService.createTeam(teamID);
+        await teamService.setTeamName(teamName);
+        console.log("Team created with unique team ID")
+    } catch (error) {
+        console.error('Error creating team in database:', error);
+    }
+};
