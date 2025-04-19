@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
-import { View, StyleSheet, Image, Button } from 'react-native';
+import React, { useRef, useState, useEffect, useContext, } from 'react'
+import { View, StyleSheet, Image, Button, Modal, Text, Dimensions } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MarkersContext } from '../contexts/MarkersContext'; // Import the context
-import { MarkersProvider } from '../contexts/MarkersContext'; // Import the provider
+import { HintContext } from '../contexts/HintContext';
 import TeamsScreen from './home_screens/TeamsScreen';
 import MapScreen from './home_screens/MapScreen';
 import ArtifactsScreen from './home_screens/ArtifactsScreen';
@@ -12,12 +12,13 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BottomSheet, { BottomSheetView, TouchableOpacity } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BasicButton from '../components/BasicButton';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
+const {height, width} = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const location = useRef({});
@@ -49,7 +50,7 @@ const HomeScreen = ({ navigation }) => {
         console.warn('Map was not ready within 2 second. Forcing re-render.');
         setForceReload((prev) => prev + 1);
       }
-  }, 2000);
+  }, 5000);
 
     startLocationTracking();
     return () => { locationSubscription?.remove(); clearTimeout(timer) }; //Remove location tracking and clear timer upon dismount
@@ -63,8 +64,6 @@ const HomeScreen = ({ navigation }) => {
 
   const bottomSheetRef = useRef(null);
   const [screenIndex, setScreenIndex] = useState(1);
-
-  const [hintInfo, setHintInfo] = useState({name: "", isChallenge: false, latitude: 0, longitude: 0, locationHint: "", description: ""});
 
   const handlePress = (idx) => {
     bottomSheetRef.current?.expand();
@@ -84,6 +83,7 @@ const HomeScreen = ({ navigation }) => {
   }
   
   return (
+    
     <GestureHandlerRootView style={styles.container}>
       {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
         <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
@@ -148,10 +148,10 @@ const HomeScreen = ({ navigation }) => {
           </View>
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
           {(screenIndex == 0) && <TeamsScreen />}
-          {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} setHintInfo={setHintInfo}  />}
+          {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} />}
           {(screenIndex == 2) && <ArtifactsScreen/>}
           {(screenIndex == 3) && <SettingsScreen/>}
-          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} hintInfo={hintInfo} locationCurr={location} setForceReload={setForceReload}/>}
+          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} locationCurr={location} navigation={navigation} setForceReload={setForceReload}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
@@ -220,6 +220,17 @@ const styles = StyleSheet.create({
     top: "8%",
     right: "1%",
     zIndex: 5,
+  },
+  modal: {
+    flex: 1,
+    alignSelf: 'center',
+    backgroundColor: COLORS.beige,
+    zIndex: 2,
+    width: '80%',
+    marginLeft: width * 0.25,
+    padding: 20,
+    alignItems: 'center',
+    borderRadius: 20,
   }
 });
 

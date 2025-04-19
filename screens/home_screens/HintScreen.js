@@ -4,12 +4,15 @@ import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BackButton from '../../components/BackButton';
 import {MarkersContext} from '../../contexts/MarkersContext'; // Import the context
+import {HintContext} from '../../contexts/HintContext'; // Import the context
 
-const HintScreen = ({hintInfo, setScreenIndex, locationCurr, setForceReload}) => {
+const HintScreen = ({setScreenIndex, locationCurr, navigation, setForceReload}) => {
 
-    //console.log("rendered");
+    
     const location = locationCurr.current;
+    
     const { markers } = useContext(MarkersContext); // Access the markers from the context
+    const {hint: hintInfo, setHint: setHintInfo} = useContext(HintContext); // Access the hintInfo from the context
     const [foundText, setFoundText] = useState("");
     
     const CoordDistance = () => {
@@ -31,7 +34,7 @@ const HintScreen = ({hintInfo, setScreenIndex, locationCurr, setForceReload}) =>
     };
 
     const addMarker = () => {
-        //Adds a marker to the map at the hint location
+        //Adds a marker to the map (in HomeScreen) at the hint location
         if (!markers.current?.some(e => e.key == hintInfo.locationName)) {
             markers.current?.push({
                 key: hintInfo.locationName,
@@ -43,8 +46,11 @@ const HintScreen = ({hintInfo, setScreenIndex, locationCurr, setForceReload}) =>
                 description: hintInfo.description,
             });
         }
-        setForceReload((prev) => prev + 1); // Trigger a re-render of the map
-        console.log(markers.current);
+        //console.log(markers.current);
+        //console.log(hintInfo);
+        setForceReload((prev) => prev + 1);
+        navigation.navigate('FoundScreen', {navigation});
+        
     }
 
     //load font
