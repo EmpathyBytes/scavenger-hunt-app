@@ -1,9 +1,13 @@
 import React from 'react'
-import { Text, View } from 'react-native';
+import { Text, View, FlatList } from 'react-native';
 import { COLORS, SIZES } from '../../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
+import LocationButton from '../../components/LocationButton';
 
-const MapScreen = () => {
+const MapScreen = ({setScreenIndex, setHintInfo}) => {
+  const questionMark = "../../assets/QuestionMark.png";
+  const artifacts = require('../../dummy_data/artifacts.json')
+
   //load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -13,10 +17,20 @@ const MapScreen = () => {
   if (!fontsLoaded) {
     return null;
   }
-  
+
+  const data = Object.values(artifacts);
+
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      <Text>Map Screen</Text>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: '10%'}}>
+      <FlatList 
+        data={data}
+        renderItem={({item}) => 
+          <LocationButton image={require(questionMark)} onPress={() => {setHintInfo(item); setScreenIndex(4);}} />
+        }
+        numColumns={3}
+        columnWrapperStyle={{gap: '15%', marginBottom: '5%'}}>
+      </FlatList>
+
     </View>
   )
 }
