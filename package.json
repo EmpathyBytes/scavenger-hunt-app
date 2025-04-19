@@ -12,6 +12,8 @@
   "dependencies": {
     "@expo-google-fonts/figtree": "^0.2.3",
     "@gorhom/bottom-sheet": "^5.0.5",
+    "@react-native-firebase/app": "^21.12.0",
+    "@react-native-firebase/auth": "^21.12.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
