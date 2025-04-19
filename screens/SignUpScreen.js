@@ -17,6 +17,7 @@ const SignUpScreen = ({ navigation }) => {
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
+	const { userService } = useServices(); // Access the userService from context
   
 	const [fontsLoaded] = useFonts({
 	  Figtree_400Regular,
