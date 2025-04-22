@@ -8,9 +8,9 @@ const FoundScreen = ({navigation}) => {
     const {hint: hintInfo} = useContext(HintContext); // Access the hintInfo from the context
     return (
         <SafeAreaView style={styles.container}>
-            <Image source={require('../assets/center_street_north.jpg')} style={{width: '100%', height: '70%'}}></Image>
+            <Image source={require('../assets/student_center.jpeg')} style={{width: '100%', height: '70%'}}></Image>
             <Text style={styles.foundText}>You found {hintInfo.locationName}</Text>
-            <Text style={styles.foundText}>Description: {hintInfo.description}</Text>
+            <Text style={styles.descText}>Description: {hintInfo.description}</Text>
             <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={styles.button}>
                 <Text style={styles.buttonText}>Go to Map</Text>
             </TouchableOpacity>
@@ -29,6 +29,11 @@ const styles = {
         fontSize: 24,
         fontWeight: 'bold',
         marginVertical: 20,
+    },
+    descText: {
+        fontSize: 15,
+        marginVertical: 10,
+        fontFamily: "Figtree_400Regular",
     },
     button: {
         backgroundColor: '#007BFF',
