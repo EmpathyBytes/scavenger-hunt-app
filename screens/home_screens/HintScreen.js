@@ -29,7 +29,11 @@ const HintScreen = ({setScreenIndex, locationCurr, navigation, setForceReload}) 
             setFoundText("You found the location!")
             addMarker();
         } else {
-            setFoundText("No lmao");
+            if (earthRadius * c >= 0.5 && earthRadius * c < 0.7) {
+                setFoundText("It's not here, but you're close!");
+            } else {
+                setFoundText("It's not here, maybe try looking elsewhere...");
+            }
         }
     };
 
