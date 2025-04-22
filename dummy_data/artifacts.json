@@ -115,6 +115,15 @@
         "longitude": -84.40357989590485,
         "locationHint": "Whether you’re here to lift your GPA or lift some weights, this spot is all about building strength—inside and out.",
         "description": "A symbol of strength and determination, this dumbbell represents the countless hours Georgia Tech students dedicate to fitness and self-improvement. From first-timers to experienced lifters, students at the CRC use weights like this to build resilience—both physically and mentally. Just like tackling tough coursework, every rep is a step toward progress."
+    },
+    "artifact14": {
+        "name": "CENTER STREET",
+        "locationName": "Center Street North",
+        "isChallenge": true,
+        "latitude": 33.780339022316966,
+        "longitude": -84.40237873145593,
+        "locationHint": "Center Street North!",
+        "description": "This place is my home"
     }
 
     
