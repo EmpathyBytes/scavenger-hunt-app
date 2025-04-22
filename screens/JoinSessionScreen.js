@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, Text, View, StyleSheet, TextInput } from 'react-native';
+import { Image, Text, View, StyleSheet, TextInput, ActivityIndicator, Alert } from 'react-native';
 import { COLORS, SIZES } from '../components/theme'; 
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'; 
 import BasicButton from '../components/BasicButton';
@@ -11,18 +11,20 @@ const JoinSessionScreen = ({ navigation }) => {
   // Use the auth context to access the authenticated user's UID
   const { user, isAuthenticated } = useAuth();
   
-  // Use the services context to access the UserService
-  const { userService } = useServices();
+  // Use the services context to access the UserService and SessionService
+  const { userService, sessionService } = useServices();
   
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
   });
   
-  const [value, setValue] = useState('');
+  const [sessionCode, setSessionCode] = useState('');
   const inputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
+  const [joiningSession, setJoiningSession] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Check authentication status and fetch user data
   useEffect(() => {
@@ -41,6 +43,12 @@ const JoinSessionScreen = ({ navigation }) => {
         if (user && user.uid) {
           const userDataFromDB = await userService.getUser(user.uid);
           setUserData(userDataFromDB);
+          
+          // If user already has a current session, redirect to home screen
+          if (userDataFromDB && userDataFromDB.currentSession) {
+            console.log("User already in session, forwarding to home screen");
+            navigation.replace('HomeScreen');
+          }
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -53,13 +61,88 @@ const JoinSessionScreen = ({ navigation }) => {
   }, [isAuthenticated, user, navigation, userService]);
 
   const handleFocus = () => {
-    if (value === 'enter game code') {
-      setValue('');
+    setErrorMessage('');
+  };
+  
+  const handleJoinSession = async () => {
+    // Reset error message
+    setErrorMessage('');
+    
+    if (!sessionCode.trim()) {
+      setErrorMessage("Please enter a session code");
+      return;
+    }
+    
+    // Forward to home screen if user enters their current session code
+    if (userData && userData.currentSession === sessionCode) {
+      navigation.replace('HomeScreen');
+      return;
+    }
+    
+    // Check if user is already in a different active session
+    if (userData && userData.currentSession) {
+      setErrorMessage("You're already in an active session. Please leave your current session before joining a new one.");
+      return;
+    }
+    
+    setJoiningSession(true);
+    
+    try {
+      // Check if the session exists
+      const sessionExists = await sessionService.getSession(sessionCode);
+      
+      if (!sessionExists) {
+        setErrorMessage("Session not found. Please check the code and try again.");
+        setJoiningSession(false);
+        return;
+      }
+      
+      // Check if the session is active
+      if (!sessionExists.isActive) {
+        setErrorMessage("This session is not currently active.");
+        setJoiningSession(false);
+        return;
+      }
+      
+      // First check if user is already part of this session
+      if (userData.sessionsJoined && userData.sessionsJoined[sessionCode]) {
+        // User is already part of this session, just set it as current and proceed
+        await userService.setCurrentSession(user.uid, sessionCode);
+        navigation.replace('HomeScreen');
+        return;
+      }
+      
+      // Add user to the session (only if not already joined)
+      await userService.addUserToSession(user.uid, sessionCode);
+      
+      // Set as current session
+      await userService.setCurrentSession(user.uid, sessionCode);
+      
+      // Update local user data
+      const updatedUserData = await userService.getUser(user.uid);
+      setUserData(updatedUserData);
+      
+      // Show success message
+      Alert.alert(
+        "Success!",
+        `You've joined the session: ${sessionExists.sessionName}`,
+        [{ text: "Let's go!", onPress: () => navigation.navigate('HomeScreen') }]
+      );
+      
+    } catch (error) {
+      console.error("Error joining session:", error);
+      setErrorMessage(error.message || "Failed to join session. Please try again.");
+    } finally {
+      setJoiningSession(false);
     }
   };
 
   if (!fontsLoaded || loading) {
-    return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.beige }}>
+        <ActivityIndicator size="large" color={COLORS.navy} />
+      </View>
+    );
   }
   
   return (
@@ -75,21 +158,23 @@ const JoinSessionScreen = ({ navigation }) => {
         <Text style={styles.welcomeText}>Hi, {userData.email}</Text>
       }
       <View style={styles.inputcontainer}>
-      <TextInput
-        ref={inputRef}
-        style={styles.input}
-        value={value}
-        onChangeText={setValue}
-        onFocus={handleFocus}
-        placeholder="Enter Super Secret Game Code"
-        maxLength={10}
-      />
+        <TextInput
+          ref={inputRef}
+          style={[styles.input, errorMessage ? styles.inputError : null]}
+          value={sessionCode}
+          onChangeText={setSessionCode}
+          onFocus={handleFocus}
+          placeholder="Enter Super Secret Game Code"
+          maxLength={20}
+        />
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
       </View>
       <BasicButton
-        text="Join Game"
+        text={joiningSession ? "Joining..." : "Join Game"}
         backgroundColor={COLORS.navy}
         textColor={COLORS.beige}
-        onPress={() => navigation.navigate('HomeScreen')}/>
+        disabled={joiningSession}
+        onPress={handleJoinSession}/>
     </View>
   );
 };
@@ -110,9 +195,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body,
   },
+  inputError: {
+    borderColor: 'red',
+  },
   inputcontainer: {
     padding: 17,
     paddingTop: 70,
+    width: '100%',
+    alignItems: 'center',
   },
   backButtonContainer: {
     position: 'absolute',
@@ -129,6 +219,13 @@ const styles = StyleSheet.create({
     fontFamily: "Figtree_400Regular",
     fontSize: SIZES.body_small,
     color: COLORS.navy,
+    marginTop: 5,
+    textAlign: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontFamily: 'Figtree_400Regular',
+    fontSize: SIZES.body_small,
     marginTop: 5,
     textAlign: 'center',
   },
