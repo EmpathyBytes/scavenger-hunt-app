@@ -56,18 +56,6 @@ export class TeamService extends BaseService {
   }
 
   /**
-   * Sets the session ID of a team
-   * 
-   * @param sessionId - associated session's id
-   */
-  async setTeamSession(teamId: string, sessionId: string) {
-    const team = await this.getTeam(teamId);
-    if (!team) throw new Error('Team not found');
-    
-    await this.setData(`teams/${teamId}/sessionId`, sessionId);
-  }
-
-  /**
    * Adds a member to a team
    * 
    * Following schema requirements:

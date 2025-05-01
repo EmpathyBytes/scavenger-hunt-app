@@ -138,12 +138,10 @@ const SessionDetailsScreen = ({ navigation, route }) => {
     try {
         await teamService.createTeam(teamId);
         // teamCreated = true;
-        // if successful, add team to session
+        // if successful, add team to session and assign sessionId
         await sessionService.addTeam(sessionId, teamId);
 
         await teamService.setTeamName(teamId, teamName);
-        // now, assign current sessionID to team (should this be done separately?)
-        await teamService.setTeamSession(teamId, sessionId);
         // console.log(sessionId);
         // console.log(teamId);
         // console.log(teamName);
