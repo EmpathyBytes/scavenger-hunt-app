@@ -9,7 +9,8 @@ import { useServices } from '../contexts/ServiceContext';
 export const createSession = async (sessionService, creatorId, sessionData) => {
   try {
 
-    const sessionId = uuidv4();
+    const sessionId = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+
 
     await sessionService.createSession(sessionId, creatorId);
 
@@ -34,7 +35,7 @@ export const deleteSession = async (sessionId) => {
     if (!response.ok) {
       throw new Error('Error deleting session');
     }
-    await deleteDoc(doc(db, 'sessions', sessionId)); // Delete the session ID from Firebase
+    await deleteDoc(doc(db, 'sessions', sessionId));
     return true;
   } catch (error) {
     console.error('Error deleting session:', error);
