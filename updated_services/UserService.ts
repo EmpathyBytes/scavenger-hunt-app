@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService';
-import { User, Team } from '../types/database';
+import { User, Team } from '../types/updated_database';
 
 export class UserService extends BaseService {
   /**

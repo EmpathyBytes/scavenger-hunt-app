@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService';
-import { Session } from '../types/database';
+import { Session } from '../types/updated_database';
 
 export class SessionService extends BaseService {
   /**

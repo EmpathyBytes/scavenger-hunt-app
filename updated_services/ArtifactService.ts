@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService';
-import { Artifact, Session } from '../types/database';
+import { Artifact, Session } from '../types/updated_database';
 
 export class ArtifactService extends BaseService {
   /**

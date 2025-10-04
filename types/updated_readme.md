@@ -205,8 +205,7 @@ export interface Session {
 - **startTime**: Unix timestamp when the session begins
 - **endTime**: Unix timestamp when the session ends
 - **isActive**: Boolean flag for active status
-- **teams**: Map of team IDs to boolean (presence indicator)
-- **participants**: Map of user IDs to their team IDs (`""` if not on a team)
+- **participants**: Array of user IDs in session
 - **artifacts**: Map of artifact IDs to boolean (availability indicator)
 
 ### **Session Operations**
@@ -215,7 +214,7 @@ export interface Session {
 ```typescript
 async createSession(sessionId: string, creatorId: string): Promise<void>
 ```
-- Creates a blank session object with empty teams, participants, and artifacts
+- Creates a blank session object with empty participants and artifacts
 - Sets creatorId to the provided value
 - Sets default values for timestamps and status
 
@@ -235,22 +234,6 @@ async setTimes(sessionId: string, startTime: number, endTime: number): Promise<v
 async setActiveStatus(sessionId: string, isActive: boolean): Promise<void>
 ```
 - Sets whether the session is currently active
-
-#### **Team Management**
-```typescript
-async addTeam(sessionId: string, teamId: string): Promise<void>
-```
-- Validates session and team existence
-- Ensures team is not already part of another session
-- Ensures team has no members
-- Updates both session and team records
-
-```typescript
-async removeTeam(sessionId: string, teamId: string): Promise<void>
-```
-- Validates team is part of the session
-- Ensures team has no members
-- Updates both session and team records
 
 #### **Artifact Management**
 ```typescript
@@ -274,11 +257,10 @@ async getSession(sessionId: string): Promise<Session | null>
 - Returns null if session doesn't exist
 
 ```typescript
-async listSessionTeams(sessionId: string): Promise<string[]>
 async listSessionParticipants(sessionId: string): Promise<string[]>
 async listSessionArtifacts(sessionId: string): Promise<string[]>
 ```
-- Lists all teams, participants, or artifacts in a session
+- Lists all participants or artifacts in a session
 - Return empty arrays if none exist
 
 #### **Delete Session**
@@ -286,7 +268,6 @@ async listSessionArtifacts(sessionId: string): Promise<string[]>
 async deleteSession(sessionId: string): Promise<void>
 ```
 - Validates session has no participants
-- Validates session has no teams
 - Completely removes the session from the database
 
 ---
@@ -490,3 +471,7 @@ To delete a user, team, or session, UI programmers should:
 2. After artifact is not in any session, call `deleteArtifact()`
 
 ---
+
+
+
+
