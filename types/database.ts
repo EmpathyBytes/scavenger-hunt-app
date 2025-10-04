@@ -102,8 +102,7 @@ export interface User {
  * 
  * Key Properties:
  * @property sessionName - Display name for the session
- * @property teams - Map of team IDs to boolean (presence indicator)
- * @property participants - Map of user IDs to their team IDs
+ * @property participants - Array of user IDs within session
  * @property artifacts - Map of artifact IDs to boolean (availability indicator)
  * 
  * State Management:
@@ -117,8 +116,7 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  teams: { [teamId: string]: boolean };
-  participants: { [userId: string]: string }; // userId: teamId
+  participants: string[]; // array of user IDs
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 
