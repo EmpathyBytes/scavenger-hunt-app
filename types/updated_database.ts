@@ -83,7 +83,7 @@ export interface User {
   currentSession?: string;
   sessionsJoined: {
     [sessionId: string]: {
-      teamId: string;
+      // teamId: string;
       points: number;
       foundArtifacts: { [artifactId: string]: boolean };
     }
@@ -120,24 +120,24 @@ export interface Session {
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 
-/**
- * Team object representing a group within a session
- * 
- * Creation Requirements:
- * - Must be created blank with empty members
- * - Must be added to session while empty
- * 
- * Key Properties:
- * @property sessionId - ID of parent session (one-to-one relationship)
- * @property teamName - Display name for the team
- * @property members - Map of user IDs to boolean (membership indicator)
- */
-export interface Team {
-  sessionId: string;
-  teamName: string;
-  members: { [key: string]: boolean };
-  // score removed as it's now tracked per-player only
-}
+// /**
+//  * Team object representing a group within a session
+//  * 
+//  * Creation Requirements:
+//  * - Must be created blank with empty members
+//  * - Must be added to session while empty
+//  * 
+//  * Key Properties:
+//  * @property sessionId - ID of parent session (one-to-one relationship)
+//  * @property teamName - Display name for the team
+//  * @property members - Map of user IDs to boolean (membership indicator)
+//  */
+// export interface Team {
+//   sessionId: string;
+//   teamName: string;
+//   members: { [key: string]: boolean };
+//   // score removed as it's now tracked per-player only
+// }
 
 /**
  * Artifact object representing an item to be found
@@ -196,7 +196,7 @@ export interface Artifact {
 export interface DatabaseSchema {
   users: { [key: string]: User };
   sessions: { [key: string]: Session };
-  teams: { [key: string]: Team };
+  // teams: { [key: string]: Team };
   artifacts: { [key: string]: Artifact };
   // verifications: { [key: string]: Verification };
 }
