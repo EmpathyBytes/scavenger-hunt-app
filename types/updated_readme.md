@@ -5,22 +5,12 @@
 ### Key Object Relationships and Rules Overview
 
 #### Users and Sessions
-- Users can join multiple sessions.
+- Users can join one sessions but may store multiple.
 - User participation in a session is tracked in both the user object (`sessionsJoined`) and the session object (`participants`).
 - A user can set any session they've joined as their "current" session.
 
-#### Teams and Sessions
-- Teams belong to exactly one session.
-- Teams cannot be reused across sessions.
-- Teams must be assigned to a session before members can be added.
-
-#### Users and Teams
-- Users can join teams but only within the context of a session.
-- A user can be part of only one team per session but may belong to different teams in different sessions.
-- Team membership is tracked in both the user object and the team object.
-
 #### Creating Objects
-- Users, teams, and sessions are created as blank objects.
+- Users and sessions are created as blank objects.
 - Attributes are set later via update operations.
 - This approach ensures proper initialization and consistent state.
 
@@ -30,7 +20,7 @@
 - The system enforces this sequence to maintain data integrity.
 
 #### Deletion Restrictions
-- Users, teams, and sessions cannot be deleted if they have active associations.
+- Users and sessions cannot be deleted if they have active associations.
 - Within a session, removing a user from a team requires updates to both the user object and the team object.
 - Teams can only be deleted if they are not part of any session and have no members.
 - Users can only be deleted if they are not part of any sessions or teams.
@@ -57,7 +47,6 @@ export interface User {
   currentSession?: string; 
   sessionsJoined: { 
     [sessionId: string]: { 
-      teamId: string; 
       points: number; 
       foundArtifacts: { [artifactId: string]: boolean }; 
     }; 
@@ -122,23 +111,6 @@ async removeUserFromSession(userId: string, sessionId: string): Promise<void>
 - Ensures user is not part of a team in the session (reject if so)
 - Updates both user and session records
 - Clears currentSession if it was set to this session
-
-#### **Team Management**
-```typescript
-async assignUserToTeam(userId: string, sessionId: string, teamId: string): Promise<void>
-```
-- Validates session and team existence
-- Ensures user is part of the session
-- Ensures team belongs to the session
-- Removes user from previous team in session if applicable
-- Updates user, team, and session records atomically
-
-```typescript
-async removeUserFromTeam(userId: string, sessionId: string): Promise<void>
-```
-- Validates user is part of the session
-- Validates user is part of a team in that session
-- Updates user, team, and session records atomically
 
 #### **Artifact Discovery**
 ```typescript
@@ -272,78 +244,6 @@ async deleteSession(sessionId: string): Promise<void>
 
 ---
 
-## Team Schema and Operations
-
-```typescript
-export interface Team {
-  sessionId: string;
-  teamName: string;
-  members: { [userId: string]: boolean };
-}
-```
-
-### Team Object Properties
-- **sessionId**: ID of parent session (one-to-one relationship)
-- **teamName**: Display name for the team
-- **members**: Map of user IDs to boolean (membership indicator)
-
-### **Team Operations**
-
-#### **Create Team**
-```typescript
-async createTeam(teamId: string): Promise<void>
-```
-- Creates a blank team with empty members and no sessionId
-- Teams must be created before being added to a session
-
-#### **Team Configuration**
-```typescript
-async setTeamName(teamId: string, name: string): Promise<void>
-```
-- Updates the team's display name
-
-#### **Member Management**
-```typescript
-async addMember(teamId: string, userId: string): Promise<void>
-```
-- Validates team is assigned to a session
-- Ensures user is part of that session
-- Updates team and session records
-
-```typescript
-async removeMember(teamId: string, userId: string): Promise<void>
-```
-- Validates user is a member of the team
-- Updates team and session records
-
-#### **Team Queries**
-```typescript
-async getTeam(teamId: string): Promise<Team | null>
-```
-- Retrieves a team by ID
-- Returns null if team doesn't exist
-
-```typescript
-async listTeamMembers(teamId: string): Promise<string[]>
-```
-- Lists all members of a team
-- Returns an empty array if team has no members
-
-```typescript
-async getTeamSession(teamId: string): Promise<string | null>
-```
-- Returns the ID of the session this team belongs to
-- Returns null if team isn't assigned to a session
-
-#### **Delete Team**
-```typescript
-async deleteTeam(teamId: string): Promise<void>
-```
-- Validates team has no members
-- Validates team is not part of any session
-- Completely removes the team from the database
-
----
 
 ## Artifact Schema and Operations
 
@@ -424,19 +324,14 @@ async deleteArtifact(artifactId: string): Promise<void>
 
 | **Operation** | **Error Message** |
 |--------------|------------------|
-| **Create User/Team/Session/Artifact** | [Object] already exists. |
+| **Create User/Session/Artifact** | [Object] already exists. |
 | **Any Getter or Setter** | [Object] not found. |
 | **Add User to Session** | Session does not exist. / User is already part of this session. |
 | **Remove User from Session** | User is not part of this session. / Remove user from team first before removing from session. |
-| **Assign User to Team in Session** | User is not part of this session. / Team does not exist. / Team does not belong to this session. |
-| **Remove User from Team in Session** | User is not part of this session. / User is not part of any team in this session. |
 | **Add Artifact to User's Found Artifacts** | User is not part of this session. / Artifact is not part of this session. |
 | **Remove Artifact from User's Found Artifacts** | User is not part of this session. / Artifact is not in user's found artifacts. |
 | **Delete User** | User still has session associations. Remove from all sessions first. |
-| **Add Team to Session** | Team is already part of another session. / Team must be empty before adding to session. |
-| **Remove Team from Session** | Team is not part of this session. / Team must be empty before removing from session. |
 | **Delete Session** | Cannot delete session with active participants. / Cannot delete session with associated teams. |
-| **Delete Team** | Remove team from session before deletion. / Remove all team members before deletion. |
 | **Delete Artifact** | Cannot delete artifact that is part of an active session. |
 
 ---
@@ -447,24 +342,13 @@ To delete a user, team, or session, UI programmers should:
 
 ### Deleting a User:
 1. For each session the user is in:
-   - Call `removeUserFromTeam()` if user is in a team
    - Call `removeUserFromSession()` to remove from the session
 2. After removing from all sessions, call `deleteUser()`
 
-### Deleting a Team:
-1. For each user in the team:
-   - Call `removeUserFromTeam()` to remove all members
-2. Call `removeTeam()` to remove the team from its session
-3. After team is empty and not in a session, call `deleteTeam()`
-
 ### Deleting a Session:
 1. For each user in the session:
-   - Call `removeUserFromTeam()` if in a team
    - Call `removeUserFromSession()` to remove from session
-2. For each team in the session:
-   - Ensure team is empty
-   - Call `removeTeam()` to remove from session
-3. After session has no participants or teams, call `deleteSession()`
+3. After session has no participants, call `deleteSession()`
 
 ### Deleting an Artifact:
 1. Remove artifact from each session using `removeArtifact()`
