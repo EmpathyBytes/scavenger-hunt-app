@@ -15,23 +15,20 @@
 - This approach ensures proper initialization and consistent state.
 
 #### Associations
-- Users must be added to a session before being added to a team in that session.
-- Empty teams (i.e., with no members) must be added to a session before users can be assigned to the team.
+- Users must be added to an existing session.
 - The system enforces this sequence to maintain data integrity.
 
 #### Deletion Restrictions
 - Users and sessions cannot be deleted if they have active associations.
-- Within a session, removing a user from a team requires updates to both the user object and the team object.
-- Teams can only be deleted if they are not part of any session and have no members.
-- Users can only be deleted if they are not part of any sessions or teams.
-- Sessions can only be deleted if they have no teams and no users.
+- Users can only be deleted if they are not part of any sessions.
+- Sessions can only be deleted if they have no users.
 
 **Deletion Process:**  
 To delete a user or a team, UI programmers should:
-1. Remove the user or team's associations in each session.
-2. Ensure the user or team has no active associations.
-3. Remove the user or team from all sessions.
-4. Delete the user or team once it has no associations.
+1. Remove the user associations in each session.
+2. Ensure the user has no active associations.
+3. Remove the user from all sessions.
+4. Delete the user once it has no associations.
 
 ---
 
@@ -108,7 +105,6 @@ async addUserToSession(userId: string, sessionId: string): Promise<void>
 async removeUserFromSession(userId: string, sessionId: string): Promise<void>
 ```
 - Validates user is part of the session
-- Ensures user is not part of a team in the session (reject if so)
 - Updates both user and session records
 - Clears currentSession if it was set to this session
 
@@ -152,7 +148,7 @@ async listUserSessions(userId: string): Promise<string[]>
 async deleteUser(userId: string): Promise<void>
 ```
 - Validates user has no active session associations
-- User must be removed from all teams and sessions before deletion
+- User must be removed from all sessions before deletion
 
 ---
 
@@ -165,7 +161,6 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  teams: { [teamId: string]: boolean };
   participants: { [userId: string]: string }; // userId -> teamId
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
@@ -327,18 +322,18 @@ async deleteArtifact(artifactId: string): Promise<void>
 | **Create User/Session/Artifact** | [Object] already exists. |
 | **Any Getter or Setter** | [Object] not found. |
 | **Add User to Session** | Session does not exist. / User is already part of this session. |
-| **Remove User from Session** | User is not part of this session. / Remove user from team first before removing from session. |
+| **Remove User from Session** | User is not part of this session. |
 | **Add Artifact to User's Found Artifacts** | User is not part of this session. / Artifact is not part of this session. |
 | **Remove Artifact from User's Found Artifacts** | User is not part of this session. / Artifact is not in user's found artifacts. |
 | **Delete User** | User still has session associations. Remove from all sessions first. |
-| **Delete Session** | Cannot delete session with active participants. / Cannot delete session with associated teams. |
+| **Delete Session** | Cannot delete session with active participants. |
 | **Delete Artifact** | Cannot delete artifact that is part of an active session. |
 
 ---
 
 ## General Guidance for Deletion Operations
 
-To delete a user, team, or session, UI programmers should:
+To delete a user or session, UI programmers should:
 
 ### Deleting a User:
 1. For each session the user is in:
