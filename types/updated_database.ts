@@ -88,7 +88,7 @@ export interface User {
  * 
  * Key Properties:
  * @property sessionName - Display name for the session
- * @property participants - Array of user IDs within session
+ * @property participants - Map of user IDs within session
  * @property artifacts - Map of artifact IDs to boolean (availability indicator)
  * 
  * State Management:
@@ -102,7 +102,7 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  participants: { [userId: string]: boolean }; // "hashset" of userIds with boolean value
+  participants: { [userId: string]: boolean }; // "hashset" of userIds with "true" as default
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 
@@ -175,7 +175,6 @@ export interface Artifact {
  * Top-level Collections:
  * @property users - All user objects indexed by ID
  * @property sessions - All session objects indexed by ID
- * @property teams - All team objects indexed by ID
  * @property artifacts - All artifact objects indexed by ID
 
  */
