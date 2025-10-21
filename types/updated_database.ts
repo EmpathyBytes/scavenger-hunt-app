@@ -6,8 +6,6 @@
  * 
  * Key Relationships:
  * - Users <-> Sessions: Many-to-many. Users can join multiple sessions
- * - Teams <-> Sessions: One-to-one. Teams belong to exactly one session and cannot be reused
- * - Users <-> Teams: Contextual. Users can join one team per session
  * 
  * Creation Rules:
  * - All objects must be created as blank objects first
@@ -15,30 +13,18 @@
  * - Empty objects must be properly initialized with required empty collections
  * 
  * Association Rules:
- * 1. Session-Team Association:
- *    - Teams must be empty when added to a session
- *    - Teams can only belong to one session at a time
- * 
- * 2. User-Session Association:
- *    - Users must join a session before joining any team in that session
+ * 1. User-Session Association:
+ *    - Users must join a session to participate in that session
  *    - Users can track found artifacts and points per session
- * 
- * 3. User-Team Association:
- *    - Users can only join teams within sessions they've joined
- *    - Users can only be in one team per session
- *    - Users can be in different teams across different sessions
  * 
  * Deletion Rules:
  * 1. Remove associations in correct order:
- *    a. Remove user-team associations
- *    b. Remove team-session associations
- *    c. Remove user-session associations
- *    d. Delete the empty object
+ *    a. Remove user-session associations
+ *    b. Delete the empty object
  * 
  * 2. Specific Restrictions:
  *    - Users: Cannot be deleted while in any session
- *    - Teams: Cannot be deleted while in a session or with members
- *    - Sessions: Cannot be deleted with teams or participants
+ *    - Sessions: Cannot be deleted with participants
  * 
  * Error Messages:
  * The system provides specific error messages for common violation scenarios:
@@ -50,8 +36,8 @@
  * Example Deletion Process:
  * To delete a user:
  * 1. For each session:
- *    - Remove user from team (if in one)
  *    - Remove user from session
+ *    - Remove the sessions on that user
  * 2. Verify user has no remaining associations
  * 3. Delete user object
  * 

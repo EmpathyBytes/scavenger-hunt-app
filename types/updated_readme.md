@@ -1,6 +1,6 @@
 # Scavenger Hunt App for Georgia Tech
 
-## Firebase CRUD Requirements and Rules for User, Session, Team, Artifact, and Verification Objects
+## Firebase CRUD Requirements and Rules for User, Session, Artifact, and Verification Objects
 
 ### Key Object Relationships and Rules Overview
 
@@ -24,7 +24,7 @@
 - Sessions can only be deleted if they have no users.
 
 **Deletion Process:**  
-To delete a user or a team, UI programmers should:
+To delete a user, UI programmers should:
 1. Remove the user associations in each session.
 2. Ensure the user has no active associations.
 3. Remove the user from all sessions.
@@ -161,7 +161,7 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  participants: { [userId: string]: string }; // userId -> teamId
+  participants: { [userId: string]: string }; // userId -> boolean
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 ```
