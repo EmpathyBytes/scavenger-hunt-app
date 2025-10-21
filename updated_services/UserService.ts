@@ -389,10 +389,10 @@ export class UserService extends BaseService {
     const user = await this.getUser(userId);
     if (!user) throw new Error('User not found');
 
-    // // More defensive check for sessionsJoined
-    // if (user.sessionsJoined && Object.keys(user.sessionsJoined).length > 0) {
-    //   throw new Error('User still has session associations. Remove from all sessions first');
-    // }
+    // More defensive check for sessionsJoined
+    if (user.sessionsJoined && Object.keys(user.sessionsJoined).length > 0) {
+      throw new Error('User still has session associations. Remove from all sessions first');
+    }
 
     await this.removeData(`users/${userId}`);
   }
