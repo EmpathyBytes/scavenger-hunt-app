@@ -162,7 +162,7 @@ export class UserService extends BaseService {
       points: 0,
       foundArtifacts: {}
     });
-    await this.setData(`sessions/${sessionId}/participants/${userId}`, '');
+    await this.setData(`sessions/${sessionId}/participants/${userId}`, true);
     await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 
