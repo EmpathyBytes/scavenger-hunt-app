@@ -172,7 +172,7 @@ export interface Session {
 - **startTime**: Unix timestamp when the session begins
 - **endTime**: Unix timestamp when the session ends
 - **isActive**: Boolean flag for active status
-- **participants**: Array of user IDs in session
+- **participants**: Map of user IDs with boolean "true" as default when user is added
 - **artifacts**: Map of artifact IDs to boolean (availability indicator)
 
 ### **Session Operations**
