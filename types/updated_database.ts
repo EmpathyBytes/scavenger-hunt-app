@@ -102,7 +102,7 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  participants: string[]; // array of user IDs
+  participants: { [userId: string]: boolean }; // "hashset" of userIds with boolean value
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 

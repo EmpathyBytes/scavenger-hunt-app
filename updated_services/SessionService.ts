@@ -28,7 +28,7 @@ export class SessionService extends BaseService {
       startTime: 0,
       endTime: 0,
       isActive: false,
-      participants: [],
+      participants: {},
       artifacts: {}
     };
 
