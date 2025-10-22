@@ -15,6 +15,7 @@ import BasicButton from '../components/BasicButton';
 import MapView, {Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
+import LeaderboardScreen from './LeaderboardScreen';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -147,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
-          {(screenIndex == 0) && <TeamsScreen />}
+          {(screenIndex == 0) && <LeaderboardScreen navigation={navigation} route={{ params: { sessionID: 1 } }} />}
           {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} />}
           {(screenIndex == 2) && <ArtifactsScreen/>}
           {(screenIndex == 3) && <SettingsScreen/>}
