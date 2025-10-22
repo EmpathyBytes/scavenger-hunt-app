@@ -21,6 +21,23 @@ const Tab = createBottomTabNavigator();
 let locationSubscription = null;
 const {height, width} = Dimensions.get('window');
 
+const GEOFENCE_TASK = 'geofenceTask';
+
+// This will be triggered when the user enters or exits a region
+TaskManager.defineTask(GEOFENCE_TASK, ({ data: { eventType, region }, error }) => {
+  if (error) {
+    console.error(error);
+    return;
+  }
+  if (eventType === Location.GeofencingEventType.Enter) {
+    console.log('🟢 Entered region:', region.identifier);
+    // you could trigger a modal, hint unlock, vibration, etc. here
+  } else if (eventType === Location.GeofencingEventType.Exit) {
+    console.log('🔴 Exited region:', region.identifier);
+  }
+});
+
+
 const HomeScreen = ({ navigation }) => {
   const location = useRef({});
   const { markers } = useContext(MarkersContext);
@@ -29,33 +46,38 @@ const HomeScreen = ({ navigation }) => {
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
 
-  //On mount, start location tracking. Check if reload of map is necessary (likely is)
   useEffect(() => {
-    async function startLocationTracking() {
-      
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      //Make sure there isn't already a subscription running
-      locationSubscription?.remove() 
-      //Set a tracker for location updates. On an update, uses the setLocation function to update the location
-      locationSubscription = await Location.watchPositionAsync({accuracy: Location.Accuracy.BestForNavigation}, loc => {location.current = loc});
+  async function startGeofencing() {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      return;
     }
-    
-    //Fix for map not properly rendering upon mount. Forces reload after two seconds
-    const timer = setTimeout(() => {
-      if (!mapReady) {
-        console.warn('Map was not ready within 2 second. Forcing re-render.');
-        setForceReload((prev) => prev + 1);
-      }
-  }, 5000);
 
-    startLocationTracking();
-    return () => { locationSubscription?.remove(); clearTimeout(timer) }; //Remove location tracking and clear timer upon dismount
-  }, [mapReady]);
+    // You can later pull marker coordinates dynamically from context
+    const regions = markers.current?.map((marker) => ({
+      identifier: marker.title,
+      latitude: marker.coordinate.latitude,
+      longitude: marker.coordinate.longitude,
+      radius: 100, // meters — adjust as needed
+      notifyOnEnter: true,
+      notifyOnExit: true,
+    }));
+
+    if (!regions || regions.length === 0) return;
+
+    // stop any existing geofence session
+    try {
+      await Location.stopGeofencingAsync(GEOFENCE_TASK);
+    } catch (e) {}
+
+    console.log('Starting geofencing for', regions.length, 'locations...');
+    await Location.startGeofencingAsync(GEOFENCE_TASK, regions);
+  }
+
+  startGeofencing();
+}, [markers]);
+
 
   //load font
   const [fontsLoaded] = useFonts({
