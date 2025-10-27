@@ -16,6 +16,8 @@ import MapView, {Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
 import LeaderboardScreen from './LeaderboardScreen';
+import * as TaskManager from 'expo-task-manager';
+import ArtifactInfoScreen from './ArtifactInfoScreen';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -172,9 +174,10 @@ const HomeScreen = ({ navigation }) => {
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
           {(screenIndex == 0) && <LeaderboardScreen navigation={navigation} route={{ params: { sessionID: 1 } }} />}
           {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} />}
-          {(screenIndex == 2) && <ArtifactsScreen/>}
+          {(screenIndex == 2) && <ArtifactsScreen setScreenIndex={setScreenIndex}/>}
           {(screenIndex == 3) && <SettingsScreen/>}
           {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} locationCurr={location} navigation={navigation} setForceReload={setForceReload}/>}
+          {(screenIndex == 5) && <ArtifactInfoScreen setScreenIndex={setScreenIndex}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
