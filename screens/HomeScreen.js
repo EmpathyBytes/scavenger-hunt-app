@@ -16,6 +16,7 @@ import MapView, {Marker, Callout} from 'react-native-maps';
 import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
 import LeaderboardScreen from './LeaderboardScreen';
+import * as TaskManager from 'expo-task-manager';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
