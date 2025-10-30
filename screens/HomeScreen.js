@@ -24,8 +24,9 @@ import BottomSheet, {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
-import LeaderboardScreen from "./LeaderboardScreen";
+import LeaderboardScreen from "./home_screens/LeaderboardScreen";
 import * as TaskManager from "expo-task-manager";
+import { UserService } from "../services/UserService";
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -36,13 +37,49 @@ const GEOFENCE_TASK = "geofenceTask";
 // This will be triggered when the user enters or exits a region
 TaskManager.defineTask(
   GEOFENCE_TASK,
-  ({ data: { eventType, region }, error }) => {
+  async ({ data: { eventType, region }, error }) => {
     if (error) {
       console.error(error);
       return;
     }
+
     if (eventType === Location.GeofencingEventType.Enter) {
       console.log(`🟢 Entered geofence: ${region.identifier}`);
+
+      try {
+        // Access userId and sessionId dynamically
+        const userId = "actualUserId"; // Replace with actual user ID from context or auth
+        const sessionId = "actualSessionId"; // Replace with actual session ID from context or navigation
+
+        // Access locations from context
+        const { locations } = LocationsContext._currentValue;
+        const location = locations.find((loc) => loc.id === region.identifier);
+
+        if (!location) {
+          console.error(`Location with ID ${region.identifier} not found in context.`);
+          return;
+        }
+
+        const userService = new UserService();
+
+        // Add found location
+        await userService.addFoundLocation(userId, sessionId, location.id);
+
+        // Add artifacts and update points
+        const artifactPoints = location.artifacts.map(() => 10); // Example: Assign 10 points per artifact
+        const artifactsFound = location.artifacts;
+
+        for (const artifactId of artifactsFound) {
+          await userService.addFoundArtifact(userId, sessionId, artifactId);
+        }
+
+        const pointsToAdd = artifactPoints.reduce((sum, points) => sum + points, 0);
+        await userService.updatePoints(userId, sessionId, pointsToAdd);
+
+        console.log(`Geofence entry handled for user ${userId}, session ${sessionId}`);
+      } catch (error) {
+        console.error("Error processing geofence entry:", error);
+      }
     } else if (eventType === Location.GeofencingEventType.Exit) {
       console.log(`🔴 Exited geofence: ${region.identifier}`);
     }
