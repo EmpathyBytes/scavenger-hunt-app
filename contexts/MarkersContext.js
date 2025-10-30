@@ -15,6 +15,12 @@ export const MarkersProvider = ({ children }) => {
             coordinate: { latitude: 33.77046811985075, longitude: -84.39443900124264 },
             title: 'Clue 2',
             description: 'Find the building'
+        },
+        {
+            key: 'pg',
+            coordinate: { latitude: 33.7756546, longitude: -84.394497},
+            title: 'Clue 3', 
+            description: 'Find this'
         }
 ]); // State to hold markers
     

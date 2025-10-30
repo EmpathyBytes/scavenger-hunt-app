@@ -17,6 +17,7 @@ import * as Location from 'expo-location';
 import HintScreen from './home_screens/HintScreen';
 import * as TaskManager from 'expo-task-manager';
 
+import LocationModal from '../components/LocationModal';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -33,6 +34,7 @@ TaskManager.defineTask(GEOFENCE_TASK, ({ data: { eventType, region }, error }) =
   if (eventType === Location.GeofencingEventType.Enter) {
     console.log('🟢 Entered region:', region.identifier);
     // you could trigger a modal, hint unlock, vibration, etc. here
+    // setModalVisible(true);
   } else if (eventType === Location.GeofencingEventType.Exit) {
     console.log('🔴 Exited region:', region.identifier);
   }
@@ -47,6 +49,12 @@ const HomeScreen = ({ navigation }) => {
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // const [enteredRegion, setEnteredRegion] = useState(null);
+
+
+  //On mount, start location tracking. Check if reload of map is necessary (likely is)
   useEffect(() => {
   async function startGeofencing() {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -123,7 +131,11 @@ const HomeScreen = ({ navigation }) => {
             coordinate={marker.coordinate}
             title={marker.title}
             description={marker.description}
+            onPress={() => {
+              setModalVisible(true)
+            }}
           />
+         
         ))}
 
       </MapView>
@@ -178,6 +190,7 @@ const HomeScreen = ({ navigation }) => {
           {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} locationCurr={location} navigation={navigation} setForceReload={setForceReload}/>}
         </BottomSheetView>
       </BottomSheet>
+      <LocationModal visible={modalVisible} setModalVisible={setModalVisible}/>
     </GestureHandlerRootView>
   )
 }
