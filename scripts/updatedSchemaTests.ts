@@ -29,6 +29,7 @@
  * 
  * Running the Tests:
  *    tsx <path to the file>/testServices.ts
+ *    or: npx tsx <path>/updatedSchemaTests.ts
  * 
  * Test Suites:
  * 
@@ -295,6 +296,18 @@ async function runTest2() {
     await sessionService.removeArtifact('session1', 'artifact2');
     await sessionService.removeArtifact('session2', 'artifact3');
     
+    // Delete users, sessions, and artifacts
+    await userService.deleteUser('user_A');
+    await userService.deleteUser('user_B');
+    await userService.deleteUser('user_C');
+
+    await sessionService.deleteSession('session1');
+    await sessionService.deleteSession('session2');
+
+    await artifactService.deleteArtifact('artifact1');
+    await artifactService.deleteArtifact('artifact2');
+    await artifactService.deleteArtifact('artifact3');
+
     console.log('✓ Cleanup preparation completed');
 
     console.log('\nTest 2 completed successfully! ✨');
@@ -419,11 +432,137 @@ async function runTest3() {
   }
 }
 
+async function runBulkOperationsTest() {
+  console.log('\nStarting Bulk Operations Test');
+  const baseNode = 'SchemaTest_BulkOps_Test';
+  await clearTestNode(baseNode);
+
+  const userService = new UserService(baseNode);
+  const sessionService = new SessionService(baseNode);
+  const artifactService = new ArtifactService(baseNode);
+
+  try {
+    const BATCH_SIZE = 0; // Test with manageable size first
+    const userPrefix = 'bulk_user_';
+    const artifactPrefix = 'bulk_artifact_';
+
+    // Test 1: Bulk User Creation
+    console.log(`\n1. Testing bulk user creation (${BATCH_SIZE} users)...`);
+    const createStart = Date.now();
+    
+    const createPromises = [];
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      createPromises.push(userService.createUser(`${userPrefix}${i}`));
+    }
+    await Promise.all(createPromises);
+    
+    const createTime = Date.now() - createStart;
+    console.log(`✓ Created ${BATCH_SIZE} users in ${createTime}ms`);
+    console.log(`  Average: ${(createTime / BATCH_SIZE).toFixed(2)}ms per user`);
+
+    // Test 2: Bulk Session Association
+    console.log(`\n2. Testing bulk session associations...`);
+    await sessionService.createSession('bulk_session', 'admin1');
+    
+    const associateStart = Date.now();
+    const associatePromises = [];
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      associatePromises.push(
+        userService.addUserToSession(`${userPrefix}${i}`, 'bulk_session')
+      );
+    }
+    await Promise.all(associatePromises); // run operations concurrently, stop if any errors
+    
+    const associateTime = Date.now() - associateStart;
+    console.log(`✓ Associated ${BATCH_SIZE} users in ${associateTime}ms`);
+    console.log(`  Average: ${(associateTime / BATCH_SIZE).toFixed(2)}ms per association`);
+
+    // Test 3: Bulk Artifact Operations
+    console.log(`\n3. Testing bulk artifact operations...`);
+    const artifactPromises = [];
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      artifactPromises.push(artifactService.createArtifact(`${artifactPrefix}${i}`));
+    }
+    await Promise.all(artifactPromises);
+    
+    // Add artifacts to session
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      await sessionService.addArtifact('bulk_session', `${artifactPrefix}${i}`);
+    }
+    console.log(`✓ Created and associated ${BATCH_SIZE} artifacts`);
+
+    // Test 4: Bulk User Deletion (with cleanup)
+    console.log(`\n4. Testing bulk user deletion...`);
+    
+    // First remove from session
+    const removeFromSessionStart = Date.now();
+    const removeSessionPromises = [];
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      removeSessionPromises.push(
+        userService.removeUserFromSession(`${userPrefix}${i}`, 'bulk_session')
+      );
+    }
+    await Promise.all(removeSessionPromises);
+    const removeSessionTime = Date.now() - removeFromSessionStart;
+
+    // Then delete users
+    const deleteStart = Date.now();
+    const deletePromises = [];
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      deletePromises.push(userService.deleteUser(`${userPrefix}${i}`));
+    }
+    await Promise.all(deletePromises);
+    const deleteTime = Date.now() - deleteStart;
+
+    console.log(`✓ Removed ${BATCH_SIZE} users from session in ${removeSessionTime}ms`);
+    console.log(`✓ Deleted ${BATCH_SIZE} users in ${deleteTime}ms`);
+    console.log(`  Session removal avg: ${(removeSessionTime / BATCH_SIZE).toFixed(2)}ms`);
+    console.log(`  Deletion avg: ${(deleteTime / BATCH_SIZE).toFixed(2)}ms`);
+
+    // Test 5: Error Handling with Large Batches
+    console.log(`\n5. Testing error handling...`);
+    
+    // Test what happens when we exceed reasonable limits
+    const TOO_MANY_USERS = 300; // Adjust based on your findings
+    try {
+      const massivePromises = [];
+      for (let i = 0; i < TOO_MANY_USERS; i++) { // Be conservative
+        massivePromises.push(userService.createUser(`massive_user_${i}`));
+      }
+      await Promise.all(massivePromises);
+      console.log(`✓ Successfully handled ${TOO_MANY_USERS} operations`);
+
+      console.log('Cleaning up test users...');
+      const cleanupPromises = [];
+      for (let i = 0; i < TOO_MANY_USERS; i++) {
+        cleanupPromises.push(userService.deleteUser(`massive_user_${i}`));
+      }
+      await Promise.all(cleanupPromises);
+      console.log(`✓ Successfully cleaned up ${TOO_MANY_USERS} users`);
+    } catch (error) {
+      console.log(`⚠️  System limited at: ${error}`);
+    }
+
+    // Cleanup
+    await sessionService.deleteSession('bulk_session');
+    for (let i = 0; i < BATCH_SIZE; i++) {
+      await artifactService.deleteArtifact(`${artifactPrefix}${i}`);
+    }
+
+    console.log('\n✓ Bulk operations test completed successfully!');
+    
+  } catch (error) {
+    console.error('Bulk operations test failed:', error);
+    throw error;
+  }
+}
+
 async function runAllTests() {
   try {
     await runTest1();
     await runTest2();
     await runTest3();
+    await runBulkOperationsTest();
     console.log('\n🎉 All tests completed successfully!');
     console.log('\n📋 Test Summary:');
     console.log('  ✅ Basic CRUD operations');
@@ -431,6 +570,7 @@ async function runAllTests() {
     console.log('  ✅ Validation rules and error handling');
     console.log('  ✅ Artifact discovery and point tracking');
     console.log('  ✅ User session management');
+    console.log (' ✅ Bulk Test');
   } catch (error) {
     console.error('❌ Tests failed:', error);
     process.exit(1);
