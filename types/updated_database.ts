@@ -6,8 +6,6 @@
  * 
  * Key Relationships:
  * - Users <-> Sessions: Many-to-many. Users can join multiple sessions
- * - Teams <-> Sessions: One-to-one. Teams belong to exactly one session and cannot be reused
- * - Users <-> Teams: Contextual. Users can join one team per session
  * 
  * Creation Rules:
  * - All objects must be created as blank objects first
@@ -15,30 +13,18 @@
  * - Empty objects must be properly initialized with required empty collections
  * 
  * Association Rules:
- * 1. Session-Team Association:
- *    - Teams must be empty when added to a session
- *    - Teams can only belong to one session at a time
- * 
- * 2. User-Session Association:
- *    - Users must join a session before joining any team in that session
+ * 1. User-Session Association:
+ *    - Users must join a session to participate in that session
  *    - Users can track found artifacts and points per session
- * 
- * 3. User-Team Association:
- *    - Users can only join teams within sessions they've joined
- *    - Users can only be in one team per session
- *    - Users can be in different teams across different sessions
  * 
  * Deletion Rules:
  * 1. Remove associations in correct order:
- *    a. Remove user-team associations
- *    b. Remove team-session associations
- *    c. Remove user-session associations
- *    d. Delete the empty object
+ *    a. Remove user-session associations
+ *    b. Delete the empty object
  * 
  * 2. Specific Restrictions:
  *    - Users: Cannot be deleted while in any session
- *    - Teams: Cannot be deleted while in a session or with members
- *    - Sessions: Cannot be deleted with teams or participants
+ *    - Sessions: Cannot be deleted with participants
  * 
  * Error Messages:
  * The system provides specific error messages for common violation scenarios:
@@ -50,8 +36,8 @@
  * Example Deletion Process:
  * To delete a user:
  * 1. For each session:
- *    - Remove user from team (if in one)
  *    - Remove user from session
+ *    - Remove the sessions on that user
  * 2. Verify user has no remaining associations
  * 3. Delete user object
  * 
@@ -83,7 +69,7 @@ export interface User {
   currentSession?: string;
   sessionsJoined: {
     [sessionId: string]: {
-      teamId: string;
+      // teamId: string;
       points: number;
       foundArtifacts: { [artifactId: string]: boolean };
     }
@@ -102,8 +88,7 @@ export interface User {
  * 
  * Key Properties:
  * @property sessionName - Display name for the session
- * @property teams - Map of team IDs to boolean (presence indicator)
- * @property participants - Map of user IDs to their team IDs
+ * @property participants - Map of user IDs within session
  * @property artifacts - Map of artifact IDs to boolean (availability indicator)
  * 
  * State Management:
@@ -117,29 +102,28 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  teams: { [teamId: string]: boolean };
-  participants: { [userId: string]: string }; // userId: teamId
+  participants: { [userId: string]: boolean }; // "hashset" of userIds with "true" as default
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 
-/**
- * Team object representing a group within a session
- * 
- * Creation Requirements:
- * - Must be created blank with empty members
- * - Must be added to session while empty
- * 
- * Key Properties:
- * @property sessionId - ID of parent session (one-to-one relationship)
- * @property teamName - Display name for the team
- * @property members - Map of user IDs to boolean (membership indicator)
- */
-export interface Team {
-  sessionId: string;
-  teamName: string;
-  members: { [key: string]: boolean };
-  // score removed as it's now tracked per-player only
-}
+// /**
+//  * Team object representing a group within a session
+//  * 
+//  * Creation Requirements:
+//  * - Must be created blank with empty members
+//  * - Must be added to session while empty
+//  * 
+//  * Key Properties:
+//  * @property sessionId - ID of parent session (one-to-one relationship)
+//  * @property teamName - Display name for the team
+//  * @property members - Map of user IDs to boolean (membership indicator)
+//  */
+// export interface Team {
+//   sessionId: string;
+//   teamName: string;
+//   members: { [key: string]: boolean };
+//   // score removed as it's now tracked per-player only
+// }
 
 /**
  * Artifact object representing an item to be found
@@ -191,14 +175,13 @@ export interface Artifact {
  * Top-level Collections:
  * @property users - All user objects indexed by ID
  * @property sessions - All session objects indexed by ID
- * @property teams - All team objects indexed by ID
  * @property artifacts - All artifact objects indexed by ID
 
  */
 export interface DatabaseSchema {
   users: { [key: string]: User };
   sessions: { [key: string]: Session };
-  teams: { [key: string]: Team };
+  // teams: { [key: string]: Team };
   artifacts: { [key: string]: Artifact };
   // verifications: { [key: string]: Verification };
 }
