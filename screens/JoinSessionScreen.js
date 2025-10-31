@@ -72,22 +72,45 @@ const JoinSessionScreen = ({ navigation }) => {
       setErrorMessage("Please enter a session code");
       return;
     }
-    
+
+    /*
     // Forward to home screen if user enters their current session code
     if (userData && userData.currentSession === sessionCode) {
+      console.log("Current session code: " + sessionCode + ", user session: " + userData.currentSession);
       navigation.replace('HomeScreen');
       return;
     }
     
     // Check if user is already in a different active session
     if (userData && userData.currentSession) {
+    // if (freshUserData && freshUserData.currentSession) {
       setErrorMessage("You're already in an active session. Please leave your current session before joining a new one.");
       return;
     }
+    */
     
     setJoiningSession(true);
     
     try {
+      // Always get fresh user data at the start
+      // Since setUserData() is async, updating the state will not update value for next lines
+      // Need to create freshUserData and then update
+      let freshUserData = await userService.getUser(user.uid);
+      if (!freshUserData) throw new Error("User not found");
+
+      // Check if already in this session
+      if (freshUserData.currentSession === sessionCode) {
+        console.log("Already in current session:", sessionCode);
+        navigation.replace('HomeScreen');
+        return;
+      }
+
+      // Check if user is already in a different session
+      if (freshUserData.currentSession) {
+        setErrorMessage("You're already in an active session. Please leave your current session before joining a new one.");
+        return;
+      }
+
       // Check if the session exists
       const sessionExists = await sessionService.getSession(sessionCode);
       
@@ -105,9 +128,13 @@ const JoinSessionScreen = ({ navigation }) => {
       }
       
       // First check if user is already part of this session
-      if (userData.sessionsJoined && userData.sessionsJoined[sessionCode]) {
+      if (freshUserData.sessionsJoined && freshUserData.sessionsJoined[sessionCode]) {
         // User is already part of this session, just set it as current and proceed
         await userService.setCurrentSession(user.uid, sessionCode);
+
+        // Wait a moment for the database to update and refresh user data
+        const updatedUserData = await userService.getUser(user.uid);
+        setUserData(updatedUserData);
         navigation.replace('HomeScreen');
         return;
       }
