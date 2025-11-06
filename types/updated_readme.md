@@ -6,7 +6,7 @@
 
 #### Users and Sessions
 - Users can join one sessions but may store multiple.
-- User participation in a session is tracked in both the user object (`sessionsJoined`) and the session object (`participants`).
+- User participation in a session is tracked in both the user object (`sessionsJoined`) and the session object (`participants`), which also tracks user's points and artifacts.
 - A user can set any session they've joined as their "current" session.
 
 #### Creating Objects
@@ -17,6 +17,7 @@
 #### Associations
 - Users must be added to an existing session.
 - The system enforces this sequence to maintain data integrity.
+- Adding a user updates the user's sessionJoined map and session's participant object
 
 #### Deletion Restrictions
 - Users and sessions cannot be deleted if they have active associations.
@@ -42,12 +43,7 @@ export interface User {
   email: string; 
   profilePictureUrl?: string; 
   currentSession?: string; 
-  sessionsJoined: { 
-    [sessionId: string]: { 
-      points: number; 
-      foundArtifacts: { [artifactId: string]: boolean }; 
-    }; 
-  }; 
+  sessionsJoined: { [sessionId: string]: boolean };
   isAdmin: boolean; 
   createdAt?: number; 
   updatedAt?: number; 
@@ -59,7 +55,7 @@ export interface User {
 - **email**: User's email address
 - **profilePictureUrl**: Optional URL to user's profile image
 - **currentSession**: Optional ID of the session the user is currently active in
-- **sessionsJoined**: Map of sessions the user has joined with session-specific data
+- **sessionsJoined**: Map of sessions the user has joined with boolean flag
 - **isAdmin**: Boolean flag for administrative privileges
 - **createdAt**: Timestamp of user creation
 - **updatedAt**: Timestamp of last user update
@@ -100,6 +96,7 @@ async addUserToSession(userId: string, sessionId: string): Promise<void>
 - Ensures user isn't already in the session
 - Initializes user with empty foundArtifacts and zero points
 - Updates both user and session records atomically
+- Add user to session's participant map
 
 ```typescript
 async removeUserFromSession(userId: string, sessionId: string): Promise<void>
@@ -107,28 +104,6 @@ async removeUserFromSession(userId: string, sessionId: string): Promise<void>
 - Validates user is part of the session
 - Updates both user and session records
 - Clears currentSession if it was set to this session
-
-#### **Artifact Discovery**
-```typescript
-async addFoundArtifact(userId: string, sessionId: string, artifactId: string): Promise<void>
-```
-- Validates user is part of the session
-- Validates artifact is part of the session
-- Updates the user's found artifacts list
-
-```typescript
-async removeFoundArtifact(userId: string, sessionId: string, artifactId: string): Promise<void>
-```
-- Validates user is part of the session
-- Ensures artifact is part of the user's found artifacts
-- Updates the user's found artifacts list
-
-```typescript
-async updatePoints(userId: string, sessionId: string, points: number): Promise<void>
-```
-- Updates a user's points within a specific session
-- Sets the absolute point value (not incremental)
-- Validates user is part of the session
 
 #### **User Queries**
 ```typescript
@@ -161,8 +136,13 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  participants: { [userId: string]: string }; // userId -> boolean
-  artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
+  participants: {
+    [userId: string]: {
+      points: number;
+      foundArtifacts: { [artifactId: string]: boolean };
+    };
+  };
+  artifacts: { [artifactId: string]: boolean };
 }
 ```
 
@@ -172,7 +152,7 @@ export interface Session {
 - **startTime**: Unix timestamp when the session begins
 - **endTime**: Unix timestamp when the session ends
 - **isActive**: Boolean flag for active status
-- **participants**: Map of user IDs with boolean "true" as default when user is added
+- **participants**: Map of user IDs with their points and foundArtifacts set
 - **artifacts**: Map of artifact IDs to boolean (availability indicator)
 
 ### **Session Operations**
@@ -204,17 +184,26 @@ async setActiveStatus(sessionId: string, isActive: boolean): Promise<void>
 
 #### **Artifact Management**
 ```typescript
-async addArtifact(sessionId: string, artifactId: string): Promise<void>
+async addFoundArtifact(sessionId: string, userId: string, artifactId: string):Promise<void>
 ```
 - Makes an artifact available in the session
+- Ensure user is within session
 - Validates both session and artifact existence
+- Add artifact to respective user's foundArtifacts within participants
 
 ```typescript
-async removeArtifact(sessionId: string, artifactId: string): Promise<void>
+async removeArtifact(sessionId: string, userId: string, artifactId: string): Promise<void>
 ```
 - Validates artifact is part of the session
 - Ensures no users have found this artifact in the session
-- Updates the session's artifacts list
+- Updates the session's participants map to remove artifact from user's foundArtifacts
+
+```typescript
+async updatePoints(sessionId: string, userId: string, points: number): Promise<void>
+```
+- Validates user is part of the session
+- Updates a user's points within participants object in the session
+- Sets the absolute point value (not incremental)
 
 #### **Session Queries**
 ```typescript
@@ -323,8 +312,9 @@ async deleteArtifact(artifactId: string): Promise<void>
 | **Any Getter or Setter** | [Object] not found. |
 | **Add User to Session** | Session does not exist. / User is already part of this session. |
 | **Remove User from Session** | User is not part of this session. |
-| **Add Artifact to User's Found Artifacts** | User is not part of this session. / Artifact is not part of this session. |
-| **Remove Artifact from User's Found Artifacts** | User is not part of this session. / Artifact is not in user's found artifacts. |
+| **Add Artifact to Participant's Found Artifacts** | Session does not exist. / User is not part of this session. / Artifact is not part of this session. |
+| **Remove Artifact from Participant's Found Artifacts** | Session does not exist. / User is not part of this session. / Artifact is not in participant's founArtifacts. |
+| **Update Points** Session does not exist. / User is not part of this session. |
 | **Delete User** | User still has session associations. Remove from all sessions first. |
 | **Delete Session** | Cannot delete session with active participants. |
 | **Delete Artifact** | Cannot delete artifact that is part of an active session. |

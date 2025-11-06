@@ -55,7 +55,7 @@
  * @property displayName - User's display name
  * @property email - User's email address
  * @property currentSession - ID of active session (must exist in sessionsJoined)
- * @property sessionsJoined - Tracks all session participation and associated data
+ * @property sessionsJoined - Tracks all session participation
  * @property isAdmin - Administrative privileges flag
  * 
  * Timestamps:
@@ -67,13 +67,7 @@ export interface User {
   email: string;
   profilePictureUrl?: string;
   currentSession?: string;
-  sessionsJoined: {
-    [sessionId: string]: {
-      // teamId: string;
-      points: number;
-      foundArtifacts: { [artifactId: string]: boolean };
-    }
-  };
+  sessionsJoined: { [sessionId: string]: boolean }; // "hashset" of sessions
   isAdmin: boolean;
   createdAt?: number;
   updatedAt?: number;
@@ -88,7 +82,7 @@ export interface User {
  * 
  * Key Properties:
  * @property sessionName - Display name for the session
- * @property participants - Map of user IDs within session
+ * @property participants - Map of user IDs within session to their points and set of foundArtifacts
  * @property artifacts - Map of artifact IDs to boolean (availability indicator)
  * 
  * State Management:
@@ -102,7 +96,12 @@ export interface Session {
   startTime: number;
   endTime: number;
   isActive: boolean;
-  participants: { [userId: string]: boolean }; // "hashset" of userIds with "true" as default
+  participants: {
+    [userId: string]: {
+      points: number;
+      foundArtifacts: { [artifactId: string]: boolean };
+    }
+  } // map of users within session -> user's points and mapping of foundArtifacts; easier for leaderboard queries
   artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
 }
 
