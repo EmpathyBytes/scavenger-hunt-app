@@ -1,12 +1,9 @@
 import React, { useRef, useState, useEffect, useContext } from "react";
-import {
-  View,
-  StyleSheet,
-  Image,
-  Dimensions,
-} from "react-native";
+import { View, StyleSheet, Image, Dimensions } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LocationsContext } from "../contexts/LocationsContext"; // Unified context
+import { useAuth } from "../contexts/AuthContext";
+import { useServices } from "../contexts/ServiceContext";
 
 import MapScreen from "./home_screens/MapScreen";
 import ArtifactsScreen from "./home_screens/ArtifactsScreen";
@@ -44,44 +41,47 @@ TaskManager.defineTask(
     }
 
     if (eventType === Location.GeofencingEventType.Enter) {
-      console.log(`🟢 Entered geofence: ${region.identifier}`);
+      console.log(`Entered geofence: ${region.identifier}`);
 
       try {
-        // Access userId and sessionId dynamically
-        const userId = "actualUserId"; // Replace with actual user ID from context or auth
-        const sessionId = "actualSessionId"; // Replace with actual session ID from context or navigation
+        const { user } = useAuth();
+        const { userService } = useServices();
+        const userId = user?.uid;
+        const sessionId = user?.currentSession;
 
-        // Access locations from context
         const { locations } = LocationsContext._currentValue;
         const location = locations.find((loc) => loc.id === region.identifier);
 
         if (!location) {
-          console.error(`Location with ID ${region.identifier} not found in context.`);
+          console.error(
+            `Location with ID ${region.identifier} not found in context.`
+          );
           return;
         }
 
-        const userService = new UserService();
-
-        // Add found location
         await userService.addFoundLocation(userId, sessionId, location.id);
 
-        // Add artifacts and update points
-        const artifactPoints = location.artifacts.map(() => 10); // Example: Assign 10 points per artifact
+        const artifactPoints = location.artifacts.map(() => 10);
         const artifactsFound = location.artifacts;
 
         for (const artifactId of artifactsFound) {
           await userService.addFoundArtifact(userId, sessionId, artifactId);
         }
 
-        const pointsToAdd = artifactPoints.reduce((sum, points) => sum + points, 0);
+        const pointsToAdd = artifactPoints.reduce(
+          (sum, points) => sum + points,
+          0
+        );
         await userService.updatePoints(userId, sessionId, pointsToAdd);
 
-        console.log(`Geofence entry handled for user ${userId}, session ${sessionId}`);
+        console.log(
+          `Geofence entry handled for user ${userId}, session ${sessionId}`
+        );
       } catch (error) {
         console.error("Error processing geofence entry:", error);
       }
     } else if (eventType === Location.GeofencingEventType.Exit) {
-      console.log(`🔴 Exited geofence: ${region.identifier}`);
+      console.log(`Exited geofence: ${region.identifier}`);
     }
   }
 );
@@ -94,7 +94,7 @@ const HomeScreen = ({ navigation }) => {
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
 
-  //Replace markers logic with locations logic
+  // Replace markers logic with locations logic
   useEffect(() => {
     async function startGeofencing() {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -126,7 +126,7 @@ const HomeScreen = ({ navigation }) => {
     startGeofencing();
   }, [locations]);
 
-  //load font
+  // Load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
@@ -140,7 +140,7 @@ const HomeScreen = ({ navigation }) => {
     setScreenIndex(idx);
   };
 
-  //Initial region in the middle of Tech
+  // Initial region in the middle of Tech
   const INITIAL_REGION = {
     latitude: 33.778307260053026,
     longitude: -84.39842128239762,
