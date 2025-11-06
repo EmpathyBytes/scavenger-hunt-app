@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useContext } from "react";
 import { View, StyleSheet, Image, Dimensions } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LocationsContext } from "../contexts/LocationsContext"; // Unified context
+import { ArtifactsContext } from "../contexts/ArtifactsContext"; // NEW: bring in artifact data
 import { useAuth } from "../contexts/AuthContext";
 import { useServices } from "../contexts/ServiceContext";
 
@@ -23,7 +24,6 @@ import MapView, { Marker, Callout } from "react-native-maps";
 import * as Location from "expo-location";
 import LeaderboardScreen from "./home_screens/LeaderboardScreen";
 import * as TaskManager from "expo-task-manager";
-import { UserService } from "../services/UserService";
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -47,10 +47,12 @@ TaskManager.defineTask(
         const { user } = useAuth();
         const { userService } = useServices();
         const userId = user?.uid;
-        const sessionId = user?.currentSession;
-
+        // Dynamically fetch sessionId
+        const sessionId = await userService.getCurrentSession(userId);
         const { locations } = LocationsContext._currentValue;
-        const location = locations.find((loc) => loc.id === region.identifier);
+        const { artifacts } = require("../contexts/ArtifactsContext")
+          .ArtifactsContext._currentValue || { artifacts: [] };
+        const location = locations.find((loc) => loc.id === region.identifier); // Match by id
 
         if (!location) {
           console.error(
@@ -61,17 +63,21 @@ TaskManager.defineTask(
 
         await userService.addFoundLocation(userId, sessionId, location.id);
 
-        const artifactPoints = location.artifacts.map(() => 10);
-        const artifactsFound = location.artifacts;
+        // Robust: Only process if artifacts can be found and are arrays
+        const artifactIds = Array.isArray(location.artifacts)
+          ? location.artifacts
+          : [];
 
-        for (const artifactId of artifactsFound) {
+        let pointsToAdd = 0;
+        for (const artifactId of artifactIds) {
           await userService.addFoundArtifact(userId, sessionId, artifactId);
+          const artifactObj = Array.isArray(artifacts)
+            ? artifacts.find((a) => a && a.id === artifactId)
+            : null;
+          if (artifactObj && typeof artifactObj.points === "number") {
+            pointsToAdd += artifactObj.points;
+          }
         }
-
-        const pointsToAdd = artifactPoints.reduce(
-          (sum, points) => sum + points,
-          0
-        );
         await userService.updatePoints(userId, sessionId, pointsToAdd);
 
         console.log(
@@ -89,7 +95,25 @@ TaskManager.defineTask(
 const HomeScreen = ({ navigation }) => {
   const location = useRef({});
   const { locations } = useContext(LocationsContext); // Access locations from unified context
+  const { user } = useAuth();
+  const { userService } = useServices();
   const [errorMsg, setErrorMsg] = useState({});
+  const [currentSession, setCurrentSession] = useState(null);
+
+  useEffect(() => {
+    const fetchCurrentSession = async () => {
+      if (user?.uid && !currentSession) {
+        try {
+          const session = await userService.getCurrentSession(user.uid);
+          setCurrentSession(session);
+        } catch (error) {
+          console.error("Error fetching current session:", error);
+        }
+      }
+    };
+
+    fetchCurrentSession();
+  }, [user, userService]);
 
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
@@ -104,9 +128,9 @@ const HomeScreen = ({ navigation }) => {
       }
 
       const regions = locations.map((location) => ({
-        identifier: location.name,
-        latitude: location.coordinate.latitude,
-        longitude: location.coordinate.longitude,
+        identifier: location.id, // Use id, not name, for geofence
+        latitude: location.latitude,
+        longitude: location.longitude,
         radius: 1000, // meters — adjust as needed
         notifyOnEnter: true,
         notifyOnExit: true,
@@ -174,7 +198,6 @@ const HomeScreen = ({ navigation }) => {
         {/* Remove marker rendering logic */}
         {/* No markers will be displayed on the map */}
       </MapView>
-
       <View style={styles.buttonWrapper}>
         <TouchableOpacity
           style={{ position: "absolute", top: "1%", right: "1%" }}

@@ -94,6 +94,13 @@ export class UserService extends BaseService {
     await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 
+  async getCurrentSession(userId: string): Promise<string | null> {
+    const user = await this.getUser(userId);
+    if (!user) throw new Error("User not found");
+
+    return user.currentSession || null;
+  }
+
   /**
    * Sets the user's current active session
    *
