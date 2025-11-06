@@ -6,6 +6,9 @@ import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-
 import BasicButton from '../../components/BasicButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useServices } from '../../contexts/ServiceContext';
+import { getPlayerPoints } from '../../services/PointService';
+import { ref, onValue } from "firebase/database";
+import { database } from "../../firebase_config";
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -18,6 +21,7 @@ const SettingsScreen = () => {
   const [leavingSession, setLeavingSession] = useState(false);
   const [editingDisplayName, setEditingDisplayName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState('');
+  const [points, setPoints] = useState(0);
   
   //load font
   const [fontsLoaded] = useFonts({
@@ -48,6 +52,19 @@ const SettingsScreen = () => {
     
     fetchData();
   }, [user, userService, sessionService]);
+
+useEffect(() => { //dynamically updates points
+  if (!userData?.currentSession || !user?.uid) return;
+
+  const pointsRef = ref(database, `development_node/users/${user.uid}/sessionsJoined/${userData.currentSession}/points`);
+
+  const unsubscribe = onValue(pointsRef, (snapshot) => { //live listener for points
+    const val = snapshot.val();
+    setPoints(val || 0);
+  });
+
+  return () => unsubscribe();
+}, [userData, user]);
   
   const handleLeaveSession = async () => {
     if (!userData?.currentSession) {
@@ -201,9 +218,10 @@ const SettingsScreen = () => {
         </View>
         <View>
           {sessionData && (
-            <Text style={styles.gameCodeText}> 
-              Game Code: {userData?.currentSession || "None"} 
-            </Text>
+            <>
+            <Text style = {styles.gameCodeText}>Game Code: {userData?.currentSession || "None"}</Text>
+            <Text style = {styles.gameCodeText}>Points: {points}</Text>
+            </>
           )}
         </View>
         <View style={styles.buttonsContainer}>
@@ -269,7 +287,7 @@ const styles = StyleSheet.create({
   gameCodeText: {
     fontFamily: 'Figtree_400Regular',
     color: COLORS.navy,
-    fontSize: SIZES.body_small,
+    fontSize: SIZES.body,
     marginVertical: 10,
   },
   buttonsContainer: {

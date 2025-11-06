@@ -17,7 +17,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
   if (!fontsLoaded) {
     return null;
   }
-  
+
   const data = Object.values(artifacts);
 
   return (
@@ -25,7 +25,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
       <FlatList 
         data={data}
         renderItem={({item}) => 
-          <LocationButton image={require(questionMark)} onPress={() => {setHintInfo(item); setScreenIndex(4);}} />
+          <LocationButton image={require(questionMark)} onPress={() => {setScreenIndex(5);}} />
         }
         numColumns={3}
         columnWrapperStyle={{gap: '12%', marginBottom: '8%'}}>
@@ -36,7 +36,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
 
     </View>
   )
-    
+
 }
 
-export default ArtifactsScreen
+ export default ArtifactsScreen
