@@ -13,7 +13,6 @@ import { DATABASE_CONFIG } from '../config/config';
  */
 const services = {
   userService: new UserService(DATABASE_CONFIG.baseNode),
-  // Add other services as they're needed:
   sessionService: new SessionService(DATABASE_CONFIG.baseNode),
   teamService: new TeamService(DATABASE_CONFIG.baseNode),
   artifactService: new ArtifactService(DATABASE_CONFIG.baseNode),

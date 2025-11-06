@@ -1,18 +1,47 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
+import { useServices } from "./ServiceContext";
 
 export const ArtifactsContext = createContext(null);
 
 export const ArtifactsProvider = ({ children }) => {
-  const [artifacts, setArtifacts] = useState([
-    {
-        art_id: "BuzzDiversityStatue",
-        loc_id: "FlagBuilding",
-        name: "Buzz Diversity Statue",
-        description: "The statue is painted to represent the student life at Georgia Tech. It is placed the Flags Building, serving as a symbol of the diversity within the student body and the unique experiences that unite students from all walks of life. Each element of the design reflects the creativity, resilience, and collaborative spirit that are at the core of the Georgia Tech community.",
-        image: require("../assets/Artifacts/BuzzDiversityStatue.png"),
-        points: 50,
-    },
-  ]);
+  const [artifacts, setArtifacts] = useState([]);
+  const { user } = useAuth();
+  const { artifactService, userService } = useServices();
+
+  useEffect(() => {
+    const fetchArtifacts = async () => {
+      if (user?.uid && artifactService && userService) {
+        try {
+          const sessionId = await userService.getCurrentSession(user.uid);
+          if (sessionId) {
+            // The session's artifacts field is a map of artifactIds to true
+            const path = `sessions/${sessionId}/artifacts`;
+            const artifactIdsObj = await artifactService.getData(path);
+            if (artifactIdsObj) {
+              // Fetch all artifact objects in parallel
+              const ids = Object.keys(artifactIdsObj);
+              const artifactObjs = await Promise.all(
+                ids.map((id) => artifactService.getArtifact(id))
+              );
+              setArtifacts(artifactObjs.filter(Boolean));
+            } else {
+              setArtifacts([]);
+            }
+          } else {
+            setArtifacts([]);
+          }
+        } catch (error) {
+          console.error("Error fetching artifacts from Firebase:", error);
+          setArtifacts([]);
+        }
+      } else {
+        setArtifacts([]);
+      }
+    };
+
+    fetchArtifacts();
+  }, [user, artifactService, userService]);
 
   return (
     <ArtifactsContext.Provider value={{ artifacts, setArtifacts }}>
