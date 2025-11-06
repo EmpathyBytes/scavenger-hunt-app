@@ -7,16 +7,14 @@ export const LocationsContext = createContext(null);
 export const LocationsProvider = ({ children }) => {
   const [locations, setLocations] = useState([]);
   const { user } = useAuth();
-  const { userService } = useServices();
+  const { sessionService, userService } = useServices();
 
   useEffect(() => {
     const fetchLocations = async () => {
       if (user?.uid) {
         try {
           const sessionId = await userService.getCurrentSession(user.uid);
-          const raw = await userService.getFirebaseData(
-            `sessions/${sessionId}/locations`
-          );
+          const raw = await sessionService.getLocationsForSession(sessionId);
           if (raw) {
             setLocations(
               Object.entries(raw).map(([id, rest]) => ({ id, ...rest }))
@@ -32,7 +30,7 @@ export const LocationsProvider = ({ children }) => {
       }
     };
     fetchLocations();
-  }, [user, userService]);
+  }, [user, sessionService, userService]);
 
   return (
     <LocationsContext.Provider value={{ locations, setLocations }}>
