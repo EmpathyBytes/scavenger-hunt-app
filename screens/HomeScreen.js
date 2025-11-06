@@ -1,29 +1,23 @@
-import React, { useRef, useState, useEffect, useContext } from "react";
-import { View, StyleSheet, Image, Dimensions } from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { LocationsContext } from "../contexts/LocationsContext"; // Unified context
-import { ArtifactsContext } from "../contexts/ArtifactsContext"; // NEW: bring in artifact data
-import { useAuth } from "../contexts/AuthContext";
-import { useServices } from "../contexts/ServiceContext";
-
-import MapScreen from "./home_screens/MapScreen";
-import ArtifactsScreen from "./home_screens/ArtifactsScreen";
-import SettingsScreen from "./home_screens/SettingsScreen";
-import { COLORS } from "../components/theme"; //colors and font sizes
-import {
-  Figtree_400Regular,
-  Figtree_600SemiBold,
-  useFonts,
-} from "@expo-google-fonts/figtree"; //font
-import BottomSheet, {
-  BottomSheetView,
-  TouchableOpacity,
-} from "@gorhom/bottom-sheet";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import MapView, { Marker, Callout } from "react-native-maps";
-import * as Location from "expo-location";
-import LeaderboardScreen from "./home_screens/LeaderboardScreen";
-import * as TaskManager from "expo-task-manager";
+import React, { useRef, useState, useEffect, useContext, } from 'react'
+import { View, StyleSheet, Image, Button, Modal, Text, Dimensions } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MarkersContext } from '../contexts/MarkersContext'; // Import the context
+import { HintContext } from '../contexts/HintContext';
+import TeamsScreen from './home_screens/TeamsScreen';
+import MapScreen from './home_screens/MapScreen';
+import ArtifactsScreen from './home_screens/ArtifactsScreen';
+import SettingsScreen from './home_screens/SettingsScreen';
+import { COLORS, SIZES } from '../components/theme'; //colors and font sizes 
+import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
+import BottomSheet, { BottomSheetView, TouchableOpacity } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BasicButton from '../components/BasicButton';
+import MapView, {Marker, Callout} from 'react-native-maps';
+import * as Location from 'expo-location';
+import HintScreen from './home_screens/HintScreen';
+import LeaderboardScreen from './LeaderboardScreen';
+import * as TaskManager from 'expo-task-manager';
+import ArtifactInfoScreen from './ArtifactInfoScreen';
 
 const Tab = createBottomTabNavigator();
 let locationSubscription = null;
@@ -269,15 +263,12 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
-          {screenIndex == 0 && (
-            <LeaderboardScreen
-              navigation={navigation}
-              route={{ params: { sessionID: 1 } }}
-            />
-          )}
-          {screenIndex == 1 && <MapScreen setScreenIndex={setScreenIndex} />}
-          {screenIndex == 2 && <ArtifactsScreen />}
-          {screenIndex == 3 && <SettingsScreen />}
+          {(screenIndex == 0) && <LeaderboardScreen navigation={navigation} route={{ params: { sessionID: 1 } }} />}
+          {(screenIndex == 1) && <MapScreen setScreenIndex={setScreenIndex} />}
+          {(screenIndex == 2) && <ArtifactsScreen setScreenIndex={setScreenIndex}/>}
+          {(screenIndex == 3) && <SettingsScreen/>}
+          {(screenIndex == 4) && <HintScreen setScreenIndex={setScreenIndex} locationCurr={location} navigation={navigation} setForceReload={setForceReload}/>}
+          {(screenIndex == 5) && <ArtifactInfoScreen setScreenIndex={setScreenIndex}/>}
         </BottomSheetView>
       </BottomSheet>
     </GestureHandlerRootView>
