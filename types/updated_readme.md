@@ -184,6 +184,12 @@ async setActiveStatus(sessionId: string, isActive: boolean): Promise<void>
 
 #### **Artifact Management**
 ```typescript
+async addArtifact(sessionId: string, artifactId: string): Promise<void>
+```
+- Makes an artifact available in the session
+- Validates both session and artifact existence
+
+```typescript
 async addFoundArtifact(sessionId: string, userId: string, artifactId: string):Promise<void>
 ```
 - Makes an artifact available in the session

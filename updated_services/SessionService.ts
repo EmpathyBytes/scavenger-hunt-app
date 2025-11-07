@@ -146,10 +146,17 @@ export class SessionService extends BaseService {
     // More defensive check - treat undefined/null participants same as empty object
     if (session.participants) {
       for (const userId of Object.keys(session.participants)) {
+        /*
         const userData = await this.getData(
           `users/${userId}/sessionsJoined/${sessionId}/foundArtifacts/${artifactId}`
         );
         if (userData) {
+          throw new Error('Cannot remove artifact that has been found by users');
+        }
+        */
+        // changed location of foundArtifacts for participants 
+        const found = await this.getData(`sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`);
+        if (found) {
           throw new Error('Cannot remove artifact that has been found by users');
         }
       }
@@ -182,6 +189,156 @@ export class SessionService extends BaseService {
 
     await this.removeData(`sessions/${sessionId}`);
   }
+
+  /**
+   * Adds a user to a session as a participant
+   * 
+   * Creation Requirements:
+   * - Session must exist
+   * - User must not already be part of the session
+   * 
+   * Key Behaviors:
+   * - Initializes participant entry under the session
+   * - Sets default values:
+   *   - points = 0
+   *   - foundArtifacts = {}
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID to add as participant
+   * @throws Error if the session does not exist
+   * @throws Error if the user is already part of this session
+   */
+  async addParticipant(sessionId: string, userId: string): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+
+    if (session.participants[userId]) {
+      throw new Error('User is already part of this session');
+    }
+
+    await this.setData(`sessions/${sessionId}/participants/${userId}`, {
+      points: 0,
+      foundArtifacts: {}
+    });
+  }
+
+  /**
+   * Removes a user from a session
+   * 
+   * Removal Requirements:
+   * - Session must exist
+   * - User must currently be part of the session
+   * 
+   * Key Behaviors:
+   * - Deletes the user's participant data from the session
+   * - Does not affect other participants
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID to remove from the session
+   * @throws Error if the session does not exist
+   * @throws Error if the user is not part of this session
+   */
+  async removeParticipant(sessionId: string, userId: string): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+
+    if (!session.participants[userId]) {
+      throw new Error('User is not part of this session');
+    }
+
+    await this.removeData(`sessions/${sessionId}/participants/${userId}`);
+  }
+
+  /**
+   * Adds a found artifact to a participant within a session
+   * Records that a specific user/participant has found a given artifact
+   * 
+   * Validation Rules:
+   * - Session must exist
+   * - User must be a participant of the session
+   * - Artifact must exist within the session’s artifact list
+   * 
+   * Key Behaviors:
+   * - Adds artifactId under sessions/{sessionId}/participants/{userId}/foundArtifacts
+   * - Marks it as `true` to indicate discovery
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID of the participant
+   * @param artifactId - Artifact ID found by the user
+   * @throws Error if the session does not exist
+   * @throws Error if the user is not part of the session
+   * @throws Error if the artifact is not part of the session
+   */
+  async addFoundArtifact(sessionId: string, userId: string, artifactId: string): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (!session.participants[userId]) throw new Error('User is not part of this session');
+    if (!session.artifacts[artifactId]) throw new Error('Artifact is not part of this session');
+
+    await this.setData(`sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`, true);
+  }
+
+  /**
+   * Removes a found artifact from a participant
+   * 
+   * Validation Rules:
+   * - Session must exist
+   * - User must be a participant of the session
+   * - Artifact must exist in user's foundArtifacts list
+   * 
+   * Key Behaviors:
+   * - Removes artifactId from sessions/{sessionId}/participants/{userId}/foundArtifacts
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID of the participant
+   * @param artifactId - Artifact ID to remove from user's found list
+   * @throws Error if the session does not exist
+   * @throws Error if the user is not part of the session
+   * @throws Error if the artifact is not found in user's foundArtifacts
+   */
+  async removeFoundArtifact(sessionId: string, userId: string, artifactId: string): Promise<void> {  
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (!session.participants[userId]) throw new Error('User is not part of this session');
+
+    const found = await this.getData(
+      `sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`
+    );
+    if (!found) throw new Error('Artifact not found in user’s foundArtifacts');
+
+    await this.removeData(`sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`);
+  }
+
+  /**
+   * Updates a participant’s total points within a session
+   * - Adjusts the participant’s score by a delta (positive or negative)
+   * - In other words, either add or subtract the current user amount
+   * 
+   * Validation Rules:
+   * - Session must exist
+   * - User must be a participant of the session
+   * 
+   * Key Behaviors:
+   * - Retrieves current point total
+   * - Adds delta (can be positive or negative)
+   * - Writes updated point total to session
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID of the participant
+   * @param delta - Amount to adjust user’s points by (positive or negative)
+   * @throws Error if the session does not exist
+   * @throws Error if the user is not part of the session
+   */
+  async updatePoints(sessionId: string, userId: string, delta: number): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (!session.participants[userId]) throw new Error('User is not part of this session');
+
+    const pointsPath = `sessions/${sessionId}/participants/${userId}/points`;
+    const current = (await this.getData<number>(pointsPath)) ?? 0;
+    await this.setData(pointsPath, current + delta);
+  }
+
 
   /**
    * Lists all participants in a session
