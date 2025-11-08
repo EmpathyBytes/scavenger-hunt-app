@@ -188,7 +188,6 @@ async addArtifact(sessionId: string, artifactId: string): Promise<void>
 ```
 - Makes an artifact available in the session
 - Validates both session and artifact existence
-
 ```typescript
 async addFoundArtifact(sessionId: string, userId: string, artifactId: string):Promise<void>
 ```
@@ -198,18 +197,32 @@ async addFoundArtifact(sessionId: string, userId: string, artifactId: string):Pr
 - Add artifact to respective user's foundArtifacts within participants
 
 ```typescript
-async removeArtifact(sessionId: string, userId: string, artifactId: string): Promise<void>
+async removeFoundArtifact(userId: string, sessionId: string, artifactId: string): Promise<void>
+```
+- Validates user is part of the session
+- Ensures artifact is part of the session participant's found artifacts
+- Updates the participants's found artifacts set
+
+```typescript
+async removeArtifact(sessionId: string, artifactId: string): Promise<void>
 ```
 - Validates artifact is part of the session
 - Ensures no users have found this artifact in the session
 - Updates the session's participants map to remove artifact from user's foundArtifacts
 
 ```typescript
-async updatePoints(sessionId: string, userId: string, points: number): Promise<void>
+async setPoints(sessionId: string, userId: string, points: number): Promise<void>
 ```
 - Validates user is part of the session
 - Updates a user's points within participants object in the session
 - Sets the absolute point value (not incremental)
+
+```typescript
+async addPoints(sessionId: string, userId: string, delta: number): Promise<void>
+```
+- Validates user is part of the session
+- Updates a user's points within participants object in the session
+- Adds (or subtract if negative) a number of points to the user's current points
 
 #### **Session Queries**
 ```typescript

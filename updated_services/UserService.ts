@@ -1,7 +1,15 @@
 import { BaseService } from './BaseService';
 import { User } from '../types/updated_database';
+import { SessionService } from './SessionService';
 
 export class UserService extends BaseService {
+  private sessionService: SessionService;
+
+  constructor() {
+    super();
+    this.sessionService = new SessionService();
+  }
+
   /**
    * Creates a new blank user with default values
    * 
@@ -139,6 +147,7 @@ export class UserService extends BaseService {
    * - Ensures user isn't already in the session
    * - Initializes user with empty foundArtifacts and zero points
    * - Updates both user and session records
+   * - Add user to session's participant map
    * 
    * @param userId - Unique identifier for the user
    * @param sessionId - Session to add the user to
@@ -158,11 +167,9 @@ export class UserService extends BaseService {
       throw new Error('User is already part of this session');
     }
 
-    await this.setData(`users/${userId}/sessionsJoined/${sessionId}`, {
-      points: 0,
-      foundArtifacts: {}
-    });
-    await this.setData(`sessions/${sessionId}/participants/${userId}`, true);
+    // Add user to session's participants and updates user's sessionJoined set
+    await this.sessionService.addParticipant(sessionId, userId);
+    await this.setData(`users/${userId}/sessionsJoined/${sessionId}`, true);
     await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 
@@ -188,13 +195,9 @@ export class UserService extends BaseService {
       throw new Error('User is not part of this session');
     }
 
-    // const sessionData = user.sessionsJoined[sessionId];
-    // if (sessionData && sessionData.teamId) {
-    //   throw new Error('Remove user from team first before removing from session');
-    // }
-
     await this.removeData(`users/${userId}/sessionsJoined/${sessionId}`);
-    await this.removeData(`sessions/${sessionId}/participants/${userId}`);
+    await this.sessionService.removeParticipant(sessionId, userId);
+    // await this.removeData(`sessions/${sessionId}/participants/${userId}`);
     
     if (user.currentSession === sessionId) {
       await this.setData(`users/${userId}/currentSession`, null);
@@ -203,176 +206,6 @@ export class UserService extends BaseService {
     await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 
-  // /**
-  //  * Assigns a user to a team within a session
-  //  * 
-  //  * Following schema requirements:
-  //  * - Validates session and team existence
-  //  * - Ensures user is part of the session
-  //  * - Ensures team belongs to the session
-  //  * - If user was in another team, removes them first
-  //  * - Updates user, team, and session records atomically
-  //  * 
-  //  * @param userId - Unique identifier for the user
-  //  * @param sessionId - Session in which to assign the team
-  //  * @param teamId - Team to assign the user to
-  //  * @throws Error if the user does not exist
-  //  * @throws Error if the user is not in the session
-  //  * @throws Error if the team does not exist
-  //  * @throws Error if the team is not part of the session
-  //  */
-  // async assignUserToTeam(userId: string, sessionId: string, teamId: string): Promise<void> {
-  //   const user = await this.getUser(userId);
-  //   if (!user) throw new Error('User not found');
-
-  //   if (!user.sessionsJoined || !user.sessionsJoined[sessionId]) {
-  //     throw new Error('User is not part of this session');
-  //   }
-
-  //   const teamExists = await this.exists(`teams/${teamId}`);
-  //   if (!teamExists) throw new Error('Team does not exist');
-
-  //   const team = await this.getData<Team>(`teams/${teamId}`);
-  //   if (!team) throw new Error('Team not found');
-
-  //   if (team.sessionId !== sessionId) {
-  //     throw new Error('Team does not belong to this session');
-  //   }
-
-  //   // If user is already in another team in this session, remove them first
-  //   const currentTeamId = user.sessionsJoined[sessionId].teamId;
-  //   if (currentTeamId) {
-  //     await this.removeData(`teams/${currentTeamId}/members/${userId}`);
-  //   }
-
-  //   await this.setData(`users/${userId}/sessionsJoined/${sessionId}/teamId`, teamId);
-  //   await this.setData(`teams/${teamId}/members/${userId}`, true);
-  //   await this.setData(`sessions/${sessionId}/participants/${userId}`, teamId);
-  //   await this.setData(`users/${userId}/updatedAt`, Date.now());
-  // }
-
-  // /**
-  //  * Removes a user from their team in a session
-  //  * 
-  //  * Following schema requirements:
-  //  * - Validates user is part of the session
-  //  * - Validates user is part of a team in that session
-  //  * - Updates user, team, and session records atomically
-  //  * 
-  //  * @param userId - Unique identifier for the user
-  //  * @param sessionId - Session from which to remove the team assignment
-  //  * @throws Error if the user does not exist
-  //  * @throws Error if the user is not in the session
-  //  * @throws Error if the user is not in any team in this session
-  //  */
-  // async removeUserFromTeam(userId: string, sessionId: string): Promise<void> {
-  //   const user = await this.getUser(userId);
-  //   if (!user) throw new Error('User not found');
-
-  //   const sessionData = user.sessionsJoined?.[sessionId];
-  //   if (!sessionData) throw new Error('User is not part of this session');
-
-  //   const teamId = sessionData.teamId;
-  //   if (!teamId) throw new Error('User is not part of any team in this session');
-
-  //   await this.removeData(`teams/${teamId}/members/${userId}`);
-  //   await this.setData(`users/${userId}/sessionsJoined/${sessionId}/teamId`, null);
-  //   await this.setData(`sessions/${sessionId}/participants/${userId}`, '');
-  //   await this.setData(`users/${userId}/updatedAt`, Date.now());
-  // }
-
-  /**
-   * Marks an artifact as found by a user in a session
-   * 
-   * Following schema requirements:
-   * - Validates user is part of the session
-   * - Validates artifact is part of the session
-   * - Updates the user's found artifacts list
-   * 
-   * @param userId - Unique identifier for the user
-   * @param sessionId - Session in which the artifact was found
-   * @param artifactId - Artifact that was found
-   * @throws Error if the user does not exist
-   * @throws Error if the user is not in the session
-   * @throws Error if the artifact is not part of the session
-   */
-  async addFoundArtifact(userId: string, sessionId: string, artifactId: string): Promise<void> {
-    const user = await this.getUser(userId);
-    if (!user) throw new Error('User not found');
-
-    if (!user.sessionsJoined || !user.sessionsJoined[sessionId]) {
-      throw new Error('User is not part of this session');
-    }
-
-    const sessionExists = await this.exists(`sessions/${sessionId}/artifacts/${artifactId}`);
-    if (!sessionExists) {
-      throw new Error('Artifact is not part of this session');
-    }
-
-    await this.setData(
-      `users/${userId}/sessionsJoined/${sessionId}/foundArtifacts/${artifactId}`, 
-      true
-    );
-    await this.setData(`users/${userId}/updatedAt`, Date.now());
-  }
-
-  /**
-   * Removes an artifact from a user's found artifacts in a session
-   * 
-   * Following schema requirements:
-   * - Validates user is part of the session
-   * - Validates artifact was previously found by the user
-   * - Updates the user's found artifacts list
-   * 
-   * @param userId - Unique identifier for the user
-   * @param sessionId - Session from which to remove the found artifact
-   * @param artifactId - Artifact to remove from found list
-   * @throws Error if the user does not exist
-   * @throws Error if the user is not in the session
-   * @throws Error if the artifact is not in the user's found artifacts
-   */
-  async removeFoundArtifact(userId: string, sessionId: string, artifactId: string): Promise<void> {
-    const user = await this.getUser(userId);
-    if (!user) throw new Error('User not found');
-
-    const sessionData = user.sessionsJoined?.[sessionId];
-    if (!sessionData) throw new Error('User is not part of this session');
-
-    if (!sessionData.foundArtifacts || !sessionData.foundArtifacts[artifactId]) {
-      throw new Error('Artifact is not in user\'s found artifacts');
-    }
-
-    await this.removeData(
-      `users/${userId}/sessionsJoined/${sessionId}/foundArtifacts/${artifactId}`
-    );
-    await this.setData(`users/${userId}/updatedAt`, Date.now());
-  }
-
-  /**
-   * Updates a user's points in a session
-   * 
-   * Points are tracked per-session for each user
-   * 
-   * @param userId - Unique identifier for the user
-   * @param sessionId - Session in which to update the points
-   * @param points - New point value (not incremental)
-   * @throws Error if the user does not exist
-   * @throws Error if the user is not in the session
-   */
-  async updatePoints(userId: string, sessionId: string, points: number): Promise<void> {
-    const user = await this.getUser(userId);
-    if (!user) throw new Error('User not found');
-
-    if (!user.sessionsJoined || !user.sessionsJoined[sessionId]) {
-      throw new Error('User is not part of this session');
-    }
-
-    await this.setData(
-      `users/${userId}/sessionsJoined/${sessionId}/points`,
-      points
-    );
-    await this.setData(`users/${userId}/updatedAt`, Date.now());
-  }
 
   /**
    * Deletes a user completely from the system

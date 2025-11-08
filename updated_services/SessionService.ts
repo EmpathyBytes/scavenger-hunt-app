@@ -294,23 +294,49 @@ export class SessionService extends BaseService {
    * @param artifactId - Artifact ID to remove from user's found list
    * @throws Error if the session does not exist
    * @throws Error if the user is not part of the session
-   * @throws Error if the artifact is not found in user's foundArtifacts
+   * @throws Error if the artifact is not found in participant's foundArtifacts
    */
   async removeFoundArtifact(sessionId: string, userId: string, artifactId: string): Promise<void> {  
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
     if (!session.participants[userId]) throw new Error('User is not part of this session');
-
+    if (!session.participants[userId].foundArtifacts) throw new Error('Participant does not have foundArtifacts object');
+    
     const found = await this.getData(
       `sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`
     );
-    if (!found) throw new Error('Artifact not found in user’s foundArtifacts');
+    if (!found) throw new Error('Artifact not found in user\'s foundArtifacts');
 
     await this.removeData(`sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`);
   }
 
   /**
-   * Updates a participant’s total points within a session
+   * Sets a participant’s total points within a session to a specific value
+   * 
+   * Validation Rules:
+   * - Session must exist
+   * - User must be a participant of the session
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID of the participant
+   * @param points - Amount to set user points to
+   * @throws Error if the session does not exist
+   * @throws Error if the user is not part of the session
+   */
+  async setPoints(sessionId: string, userId: string, points: number): Promise<void> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (!session.participants[userId]) throw new Error('User is not part of this session');
+
+    // const pointsPath = `sessions/${sessionId}/participants/${userId}/points`;
+    // const current = (await this.getData<number>(pointsPath)) ?? 0;
+    // await this.setData(pointsPath, current + points);
+
+    await this.setData(`sessions/${sessionId}/participants/${userId}/points`, points)
+  }
+
+  /**
+   * Adds to a participant’s total points within a session
    * - Adjusts the participant’s score by a delta (positive or negative)
    * - In other words, either add or subtract the current user amount
    * 
@@ -329,7 +355,7 @@ export class SessionService extends BaseService {
    * @throws Error if the session does not exist
    * @throws Error if the user is not part of the session
    */
-  async updatePoints(sessionId: string, userId: string, delta: number): Promise<void> {
+  async addPoints(sessionId: string, userId: string, delta: number): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
     if (!session.participants[userId]) throw new Error('User is not part of this session');
