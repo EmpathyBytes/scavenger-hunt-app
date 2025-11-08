@@ -197,7 +197,7 @@ async addFoundArtifact(sessionId: string, userId: string, artifactId: string):Pr
 - Add artifact to respective user's foundArtifacts within participants
 
 ```typescript
-async removeFoundArtifact(userId: string, sessionId: string, artifactId: string): Promise<void>
+async removeFoundArtifact(sessionId: string, userId: string, artifactId: string): Promise<void>
 ```
 - Validates user is part of the session
 - Ensures artifact is part of the session participant's found artifacts
@@ -209,6 +209,21 @@ async removeArtifact(sessionId: string, artifactId: string): Promise<void>
 - Validates artifact is part of the session
 - Ensures no users have found this artifact in the session
 - Updates the session's participants map to remove artifact from user's foundArtifacts
+
+#### **User Management**
+```typescript
+async addParticipant(sessionId: string, userId: string): 
+Promise<void>  
+```
+- Validates session exists and user is not already part of the session
+- Initialize participant entry with 0 points and empty foundArtifacts
+
+```typescript
+async removeParticipant(sessionId: string, userId: string): 
+Promise<void>  
+```
+- Validates session exists and user is part of the session
+- Delete user entry from participants
 
 ```typescript
 async setPoints(sessionId: string, userId: string, points: number): Promise<void>
