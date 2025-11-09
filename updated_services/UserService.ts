@@ -5,9 +5,10 @@ import { SessionService } from './SessionService';
 export class UserService extends BaseService {
   private sessionService: SessionService;
 
-  constructor() {
-    super();
-    this.sessionService = new SessionService();
+  // constructor should accept baseNode, as in BaseService
+  constructor(baseNode: string = '') {
+    super(baseNode);
+    this.sessionService = new SessionService(baseNode);
   }
 
   /**
