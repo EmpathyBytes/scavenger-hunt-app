@@ -135,7 +135,7 @@ export interface Session {
   creatorId: string;
   startTime: number;
   endTime: number;
-  isActive: boolean;
+  gameState: GameState;
   participants: {
     [userId: string]: {
       points: number;
@@ -151,7 +151,7 @@ export interface Session {
 - **creatorId**: ID of the user who created the session
 - **startTime**: Unix timestamp when the session begins
 - **endTime**: Unix timestamp when the session ends
-- **isActive**: Boolean flag for active status
+- **gameState**: Current state of session represented by enum
 - **participants**: Map of user IDs with their points and foundArtifacts set
 - **artifacts**: Map of artifact IDs to boolean (availability indicator)
 
@@ -178,9 +178,9 @@ async setTimes(sessionId: string, startTime: number, endTime: number): Promise<v
 - Validates that startTime is before endTime
 
 ```typescript
-async setActiveStatus(sessionId: string, isActive: boolean): Promise<void>
+async setGameState(sessionId: string, newState: GameState): Promise<void>
 ```
-- Sets whether the session is currently active
+- Sets the game state for a session
 
 #### **Artifact Management**
 ```typescript

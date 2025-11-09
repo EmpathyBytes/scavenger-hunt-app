@@ -88,21 +88,28 @@ export interface User {
  * State Management:
  * @property startTime - Session start timestamp
  * @property endTime - Session end timestamp
- * @property isActive - Current session status
+ * @property gameState - Current session status
  */
+export enum GameState {
+  LOBBY = "lobby",      // Waiting for players to join
+  ACTIVE = "active",    // Game in progress
+  PAUSED = "paused",    // Game temporarily paused
+  FINISHED = "finished" // Game completed
+}
+
 export interface Session {
   sessionName: string;
   creatorId: string;
   startTime: number;
   endTime: number;
-  isActive: boolean;
+  gameState: GameState; // instead of "isActive" bool, have enum of game states
   participants: {
     [userId: string]: {
       points: number;
       foundArtifacts: { [artifactId: string]: boolean };
     }
-  } // map of users within session -> user's points and mapping of foundArtifacts; easier for leaderboard queries
-  artifacts: { [artifactId: string]: boolean }; // Available artifacts in this session
+  };
+  artifacts: { [artifactId: string]: boolean };
 }
 
 // /**

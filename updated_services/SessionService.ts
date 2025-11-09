@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService';
-import { Session } from '../types/updated_database';
+import { GameState, Session } from '../types/updated_database';
 
 export class SessionService extends BaseService {
   /**
@@ -9,7 +9,7 @@ export class SessionService extends BaseService {
    * - Empty sessionName
    * - Specified creatorId
    * - Default time values (0)
-   * - isActive set to false
+   * - GameState set to LOBBY
    * - Empty participants and artifacts objects
    * 
    * @param sessionId - Unique identifier for the session
@@ -27,7 +27,7 @@ export class SessionService extends BaseService {
       creatorId,
       startTime: 0,
       endTime: 0,
-      isActive: false,
+      gameState: GameState.LOBBY, // Initialized as Lobby by default
       participants: {},
       artifacts: {}
     };
@@ -84,20 +84,18 @@ export class SessionService extends BaseService {
   }
 
   /**
-   * Sets the active status for a session
-   * 
-   * Active status determines whether the session is currently running
-   * and available for user participation.
+   * Sets the game state for a session
    * 
    * @param sessionId - Unique identifier for the session
-   * @param isActive - Whether the session should be active
+   * @param newState - The GameState to apply to the session
    * @throws Error if the session does not exist
    */
-  async setActiveStatus(sessionId: string, isActive: boolean): Promise<void> {
+  async setGameState(sessionId: string, newState: GameState): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
     
-    await this.setData(`sessions/${sessionId}/isActive`, isActive);
+    // Update the 'gameState' property instead of 'isActive'
+    await this.setData(`sessions/${sessionId}/gameState`, newState);
   }
 
   /**
