@@ -698,9 +698,320 @@ async function runTest1() {
   }
 }
 
+// Tests basic handling for participants and foundArtifact logic under sessions
+async function runTest2() {
+  console.log('\nStarting Test 2: Test Participant and FoundArtifact');
+  const baseNode = 'SchemaTest_NoTeams_Test2';
+  await clearTestNode(baseNode);
+
+  const userService = new UserService(baseNode);
+  const sessionService = new SessionService(baseNode);
+  const artifactService = new ArtifactService(baseNode);
+
+  try {
+    console.log('\nStep 1: Create 1 user, 1 session, and 1 artifact');
+    await userService.createUser('user1');
+    await sessionService.createSession('session1', 'admin1');
+    await artifactService.createArtifact('artifact1');
+    
+    await userService.setDisplayName('user1', 'Test User');
+    await sessionService.setSessionName('session1', 'Test Session');
+    await artifactService.setName('artifact1', 'Test Artifact');
+    console.log('✓ Created user, session, and artifact');
+
+    // Step 2: Add user to session
+    console.log('\nStep 2: Add user to session');
+    await userService.addUserToSession('user1', 'session1');
+    console.log('✓ Added user to session');
+
+    // Step 3: Test duplicate participant prevention
+    console.log('\nStep 3: Test duplicate participant prevention');
+    try {
+      await userService.addUserToSession('user1', 'session1');
+      throw new Error('❌ Should have thrown error for duplicate participant');
+    } catch (error: any) {
+      if (!error.message.includes('already part')) {
+        throw new Error(`❌ Wrong error message: ${error.message}`);
+      }
+      console.log('✓ Correctly prevented duplicate participant');
+    }
+
+    // Step 4: Verify session participants
+    console.log('\nStep 4: Verify session participants');
+    const participants = await sessionService.listSessionParticipants('session1');
+    if (participants.length !== 1 || !participants.includes('user1')) {
+      throw new Error(`❌ Session should have 1 participant (user1), got: ${participants}`);
+    }
+    console.log('✓ Session participants correctly contains user1');
+
+    // Step 5: Try addFoundArtifact before adding user to session (should error)
+    console.log('\nStep 5: Try addFoundArtifact before user joins session');
+    try {
+      await sessionService.addFoundArtifact('session1', 'nonexistentUser', 'artifact1');
+      throw new Error('❌ Should have thrown error for non-participant user');
+    } catch (error: any) {
+      if (!error.message.includes('not part')) {
+        throw new Error(`❌ Wrong error message: ${error.message}`);
+      }
+      console.log('✓ Correctly prevented found artifact for non-participant');
+    }
+
+    // Step 6: Try addFoundArtifact before adding artifact to session (should error)
+    console.log('\nStep 6: Try addFoundArtifact before artifact added to session');
+    try {
+      await sessionService.addFoundArtifact('session1', 'user1', 'artifact1');
+      throw new Error('❌ Should have thrown error for artifact not in session');
+    } catch (error: any) {
+      if (!error.message.includes('not part of this session')) {
+        throw new Error(`❌ Wrong error message: ${error.message}`);
+      }
+      console.log('✓ Correctly prevented found artifact for non-session artifact');
+    }
+
+    // Step 7: Add artifact to session and successfully add found artifact
+    console.log('\nStep 7: Add artifact to session and record found artifact');
+    await sessionService.addArtifact('session1', 'artifact1');
+    await sessionService.addFoundArtifact('session1', 'user1', 'artifact1');
+    console.log('✓ Successfully added artifact to session and recorded found artifact');
+
+    // Step 8: Verify found artifact was recorded
+    console.log('\nStep 8: Verify found artifact was recorded');
+    const session = await sessionService.getSession('session1');
+    const userFoundArtifacts = session?.participants?.['user1']?.foundArtifacts;
+    if (!userFoundArtifacts?.['artifact1']) {
+      throw new Error('❌ Found artifact not recorded in participant data');
+    }
+    console.log('✓ Found artifact correctly recorded in participant data');
+
+    // Step 9: Try to delete session with participants (should error)
+    console.log('\nStep 9: Try to delete session with participants');
+    try {
+      await sessionService.deleteSession('session1');
+      throw new Error('❌ Should have thrown error for session with participants');
+    } catch (error: any) {
+      if (!error.message.includes('active participants')) {
+        throw new Error(`❌ Wrong error message: ${error.message}`);
+      }
+      console.log('✓ Correctly prevented session deletion with participants');
+    }
+
+    // Step 10: Try to delete artifact used in session (should error)
+    console.log('\nStep 10: Try to delete artifact used in session');
+    try {
+      await artifactService.deleteArtifact('artifact1');
+      throw new Error('❌ Should have thrown error for artifact in active session');
+    } catch (error: any) {
+      if (!error.message.includes('part of an active session')) {
+        throw new Error(`❌ Wrong error message: ${error.message}`);
+      }
+      console.log('✓ Correctly prevented artifact deletion while in session');
+    }
+
+    // Step 11: Cleanup in correct order
+    console.log('\nStep 11: Cleanup in correct order');
+    
+    // Remove found artifact first
+    await sessionService.removeFoundArtifact('session1', 'user1', 'artifact1');
+    console.log('✓ Removed found artifact');
+    
+    // Remove artifact from session
+    await sessionService.removeArtifact('session1', 'artifact1');
+    console.log('✓ Removed artifact from session');
+    
+    // Remove user from session
+    await userService.removeUserFromSession('user1', 'session1');
+    console.log('✓ Removed user from session');
+    
+    // Verify session has no participants
+    const finalParticipants = await sessionService.listSessionParticipants('session1');
+    if (finalParticipants.length !== 0) {
+      throw new Error(`❌ Session should have 0 participants after cleanup, got: ${finalParticipants.length}`);
+    }
+    console.log('✓ Session has no participants after cleanup');
+
+    // Step 12: Final deletions
+    console.log('\nStep 12: Final deletions');
+    await sessionService.deleteSession('session1');
+    await userService.deleteUser('user1');
+    await artifactService.deleteArtifact('artifact1');
+    console.log('✓ Successfully deleted all objects');
+
+    console.log('\n🎉 Test 2 completed successfully! All participant and found artifact logic working correctly.');
+
+  } catch (error) {
+    console.error('❌ Test 2 failed: ', error);
+    throw error;
+  }
+}
+
+
+async function runTest3() {
+  console.log('\nStarting Test 3: Multiple Session Participation & User Deletion Cascading');
+  const baseNode = 'SchemaTest_NoTeams_Test3';
+  await clearTestNode(baseNode);
+
+  const userService = new UserService(baseNode);
+  const sessionService = new SessionService(baseNode);
+  const artifactService = new ArtifactService(baseNode);
+
+  try {
+    console.log('\nStep 1: Create user and multiple sessions');
+    await userService.createUser('multiUser');
+    await sessionService.createSession('sessionA', 'admin1');
+    await sessionService.createSession('sessionB', 'admin1');
+    await sessionService.createSession('sessionC', 'admin1');
+    
+    await userService.setDisplayName('multiUser', 'Multi Session User');
+    await sessionService.setSessionName('sessionA', 'Morning Hunt');
+    await sessionService.setSessionName('sessionB', 'Afternoon Hunt');
+    await sessionService.setSessionName('sessionC', 'Evening Hunt');
+    console.log('✓ Created user and three sessions');
+
+    // Step 2: Add user to multiple sessions
+    console.log('\nStep 2: Add user to multiple sessions');
+    await userService.addUserToSession('multiUser', 'sessionA');
+    await userService.addUserToSession('multiUser', 'sessionB');
+    await userService.addUserToSession('multiUser', 'sessionC');
+    console.log('✓ User added to all three sessions');
+
+    // Step 3: Verify user appears in all session participant lists
+    console.log('\nStep 3: Verify user in all session participant lists');
+    const participantsA = await sessionService.listSessionParticipants('sessionA');
+    const participantsB = await sessionService.listSessionParticipants('sessionB');
+    const participantsC = await sessionService.listSessionParticipants('sessionC');
+    
+    if (!participantsA.includes('multiUser') || !participantsB.includes('multiUser') || !participantsC.includes('multiUser')) {
+      throw new Error('❌ User not found in all session participant lists');
+    }
+    console.log('✓ User correctly appears in all session participant lists');
+
+    // Step 4: Verify user sessionsJoined tracking
+    console.log('\nStep 4: Verify user sessionsJoined tracking');
+    const userSessions = await userService.listUserSessions('multiUser');
+    if (userSessions.length !== 3 || !userSessions.includes('sessionA') || !userSessions.includes('sessionB') || !userSessions.includes('sessionC')) {
+      throw new Error(`❌ User sessionsJoined incorrect: ${userSessions}`);
+    }
+    console.log('✓ User sessionsJoined correctly tracks all sessions');
+
+    // Step 5: Test current session management across multiple sessions
+    console.log('\nStep 5: Test current session management');
+    await userService.setCurrentSession('multiUser', 'sessionA');
+    let user = await userService.getUser('multiUser');
+    if (user?.currentSession !== 'sessionA') {
+      throw new Error('❌ Current session not set correctly');
+    }
+    console.log('✓ Current session set to sessionA');
+
+    await userService.setCurrentSession('multiUser', 'sessionB');
+    user = await userService.getUser('multiUser');
+    if (user?.currentSession !== 'sessionB') {
+      throw new Error('❌ Current session not switched correctly');
+    }
+    console.log('✓ Current session switched to sessionB');
+
+    // Step 6: Test session-specific data isolation
+    console.log('\nStep 6: Test session-specific data isolation');
+    await artifactService.createArtifact('sharedArtifact');
+    await sessionService.addArtifact('sessionA', 'sharedArtifact');
+    await sessionService.addArtifact('sessionB', 'sharedArtifact');
+    
+    await sessionService.addFoundArtifact('sessionA', 'multiUser', 'sharedArtifact');
+    await sessionService.addPoints('sessionA', 'multiUser', 10);
+    
+    // Verify data is isolated to sessionA only
+    const sessionAData = await sessionService.getSession('sessionA');
+    const sessionBData = await sessionService.getSession('sessionB');
+    
+    if (!sessionAData?.participants?.['multiUser']?.foundArtifacts?.['sharedArtifact']) {
+      throw new Error('❌ Found artifact not recorded in sessionA');
+    }
+    if (sessionAData?.participants?.['multiUser']?.points !== 10) {
+      throw new Error('❌ Points not recorded in sessionA');
+    }
+    if (sessionBData?.participants?.['multiUser']?.foundArtifacts?.['sharedArtifact']) {
+      throw new Error('❌ Found artifact incorrectly appears in sessionB');
+    }
+    if (sessionBData?.participants?.['multiUser']?.points !== 0) {
+      throw new Error('❌ Points incorrectly appear in sessionB');
+    }
+    console.log('✓ Session-specific data properly isolated');
+
+    // Step 7: Test user deletion cascading prevention
+    console.log('\nStep 7: Test user deletion cascading prevention');
+    try {
+      await userService.deleteUser('multiUser');
+      throw new Error('❌ Should have prevented user deletion with active session associations');
+    } catch (error: any) {
+      if (!error.message.includes('session associations')) {
+        throw new Error(`❌ Wrong error message: ${error.message}`);
+      }
+      console.log('✓ Correctly prevented user deletion with active sessions');
+    }
+
+    // Step 8: Test proper user deletion with cleanup
+    console.log('\nStep 8: Test proper user deletion with cleanup');
+    
+    // Remove user from all sessions first
+    await userService.removeUserFromSession('multiUser', 'sessionA');
+    await userService.removeUserFromSession('multiUser', 'sessionB');
+    await userService.removeUserFromSession('multiUser', 'sessionC');
+    console.log('✓ Removed user from all sessions');
+
+    // Verify user removed from all session participant lists
+    const finalParticipantsA = await sessionService.listSessionParticipants('sessionA');
+    const finalParticipantsB = await sessionService.listSessionParticipants('sessionB');
+    const finalParticipantsC = await sessionService.listSessionParticipants('sessionC');
+    
+    if (finalParticipantsA.includes('multiUser') || finalParticipantsB.includes('multiUser') || finalParticipantsC.includes('multiUser')) {
+      throw new Error('❌ User still appears in session participant lists after removal');
+    }
+    console.log('✓ User removed from all session participant lists');
+
+    // Verify user sessionsJoined is empty
+    const finalUserSessions = await userService.listUserSessions('multiUser');
+    if (finalUserSessions.length !== 0) {
+      throw new Error(`❌ User sessionsJoined should be empty, got: ${finalUserSessions}`);
+    }
+    console.log('✓ User sessionsJoined correctly empty');
+
+    // Now user deletion should succeed
+    await userService.deleteUser('multiUser');
+    console.log('✓ Successfully deleted user after session cleanup');
+
+    // Step 9: Verify sessions are still intact and functional
+    console.log('\nStep 9: Verify sessions remain functional after user deletion');
+    await userService.createUser('newUser');
+    await userService.addUserToSession('newUser', 'sessionA');
+    
+    const sessionAAfter = await sessionService.getSession('sessionA');
+    if (!sessionAAfter?.participants?.['newUser']) {
+      throw new Error('❌ Session not functional after original user deletion');
+    }
+    console.log('✓ Sessions remain functional after user deletion');
+
+    // Step 10: Final cleanup
+    console.log('\nStep 10: Final cleanup');
+    await userService.removeUserFromSession('newUser', 'sessionA');
+    await userService.deleteUser('newUser');
+    await sessionService.deleteSession('sessionA');
+    await sessionService.deleteSession('sessionB');
+    await sessionService.deleteSession('sessionC');
+    await artifactService.deleteArtifact('sharedArtifact');
+    console.log('✓ All objects cleaned up successfully');
+
+    console.log('\n🎉 Test 3 completed successfully! Multiple session participation and user deletion cascading working correctly.');
+
+  } catch (error) {
+    console.error('❌ Test 3 failed: ', error);
+    throw error;
+  }
+}
+
 async function runAllTests() {
   try {
     await runTest1();
+    await runTest2();
+    await runTest3();
     /*
     await runTest1();
     await runTest2();
