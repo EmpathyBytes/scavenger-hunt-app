@@ -45,6 +45,7 @@ import { UserService } from '../updated_services/UserService';
 import { SessionService } from '../updated_services/SessionService';
 import { ArtifactService } from '../updated_services/ArtifactService';
 import { database } from '../firebase_config';
+import { GameState } from '../types/updated_database';
 import { ref, remove } from 'firebase/database';
 
 async function sleep(ms: number) {
@@ -57,7 +58,8 @@ async function clearTestNode(baseNode: string) {
   await sleep(1000); // Wait for cleanup to complete
   console.log('Test node cleared');
 }
-
+// Tests for schema before foundArtifact logic changed (when users contained this data)
+/*
 async function runTest1() {
   console.log('\nStarting Test 1: Basic CRUD Operations');
   const baseNode = 'SchemaTest_NoTeams_Test1';
@@ -556,9 +558,150 @@ async function runBulkOperationsTest() {
     throw error;
   }
 }
+*/
+
+// Tests for current schema; foundArtifact logic contained in session's participants
+async function runTest1() {
+  console.log('\nStarting Test 1: Basic CRUD Operations');
+  const baseNode = 'SchemaTest_NoTeams_Test1';
+  await clearTestNode(baseNode);
+
+  const userService = new UserService(baseNode);
+  const sessionService = new SessionService(baseNode);
+  const artifactService = new ArtifactService(baseNode);
+
+  try {
+    // Step 1: Create blank objects
+    console.log('\nStep 1: Creating blank objects...');
+    await userService.createUser('user1');
+    await userService.createUser('user2');
+    await sessionService.createSession('session1', 'admin1');
+    await artifactService.createArtifact('artifact1');
+    console.log('✓ Created blank objects');
+
+    // Step 2: Set basic attributes
+    console.log('\nStep 2: Setting basic attributes...');
+    await userService.setDisplayName('user1', 'Alice');
+    await userService.setEmail('user1', 'alice@test.com');
+    await userService.setDisplayName('user2', 'Bob');
+    await userService.setEmail('user2', 'bob@test.com');
+    
+    await sessionService.setSessionName('session1', 'Test Hunt');
+    await sessionService.setTimes('session1', Date.now(), Date.now() + 3600000);
+    
+    await artifactService.setName('artifact1', 'Golden Key');
+    await artifactService.setDescription('artifact1', 'A special key');
+    await artifactService.setCoordinates('artifact1', 1.234, 5.678);
+    console.log('✓ Set basic attributes');
+
+    // Step 3: Test GameState transitions
+    console.log('\nStep 3: Testing GameState transitions...');
+    await sessionService.setGameState('session1', GameState.LOBBY);
+    console.log('✓ Set session to LOBBY state');
+
+    // Step 4: Test associations in correct order
+    console.log('\nStep 4: Testing associations...');
+    // Add artifact to session
+    await sessionService.addArtifact('session1', 'artifact1');
+    console.log('✓ Added artifact to session');
+
+    // Add users to session
+    await userService.addUserToSession('user1', 'session1');
+    await userService.addUserToSession('user2', 'session1');
+    console.log('✓ Added users to session');
+
+    // Test current session setting
+    await userService.setCurrentSession('user1', 'session1');
+    console.log('✓ Set current session for user1');
+
+    // Step 5: Start the game
+    console.log('\nStep 5: Starting the game...');
+    await sessionService.setGameState('session1', GameState.ACTIVE);
+    console.log('✓ Set session to ACTIVE state');
+
+    // Step 6: Test artifact discovery and points (using SessionService methods instead of User)
+    console.log('\nStep 6: Testing artifact discovery and points...');
+    // Add found artifact using SessionService (not UserService)
+    await sessionService.addFoundArtifact('session1', 'user1', 'artifact1');
+    console.log('✓ Added found artifact for user1');
+
+    // Update points using SessionService methods
+    await sessionService.addPoints('session1', 'user1', 10);
+    console.log('✓ Added 10 points to user1');
+    // Verify user1 points after addition
+    const sessionAfterAdd = await sessionService.getSession('session1');
+    const user1PointsAfterAdd = sessionAfterAdd?.participants['user1']?.points;
+    if (user1PointsAfterAdd !== 10) {
+        throw new Error(`Expected user1 points to be 10, but got ${user1PointsAfterAdd}`);
+    }
+    console.log(`✓ Verified user1 points: ${user1PointsAfterAdd}`);
+
+    await sessionService.setPoints('session1', 'user2', 5);
+    console.log('✓ Set user2 points to 5');
+    const sessionAfterSet = await sessionService.getSession('session1');
+    const user2PointsAfterSet = sessionAfterSet?.participants['user2']?.points;
+    if (user2PointsAfterSet !== 5) {
+        throw new Error(`Expected user2 points to be 5, but got ${user2PointsAfterSet}`);
+    }
+    console.log(`✓ Verified user2 points: ${user2PointsAfterSet}`);
+
+    // Step 7: Test queries
+    console.log('\nStep 7: Testing queries...');
+    const user1Sessions = await userService.listUserSessions('user1');
+    const sessionParticipants = await sessionService.listSessionParticipants('session1');
+    const sessionArtifacts = await sessionService.listSessionArtifacts('session1');
+    
+    if (!user1Sessions.includes('session1')) throw new Error('User sessions query failed');
+    if (!sessionParticipants.includes('user1')) throw new Error('Session participants query failed');
+    if (!sessionArtifacts.includes('artifact1')) throw new Error('Session artifacts query failed');
+    console.log('✓ All queries working correctly');
+
+    // Step 8: Test game state transitions
+    console.log('\nStep 8: Testing game state transitions...');
+    await sessionService.setGameState('session1', GameState.PAUSED);
+    console.log('✓ Set session to PAUSED state');
+
+    await sessionService.setGameState('session1', GameState.FINISHED);
+    console.log('✓ Set session to FINISHED state');
+
+    // Step 9: Test removal in reverse order
+    console.log('\nStep 9: Testing removal in reverse order...');
+    // Remove found artifact using SessionService
+    await sessionService.removeFoundArtifact('session1', 'user1', 'artifact1');
+    console.log('✓ Removed found artifact from user1 in session 1');
+
+    // Clear current session for target user
+    await userService.setCurrentSession('user1', null);
+    console.log('✓ Cleared current session');
+
+    // Remove users from session
+    await userService.removeUserFromSession('user1', 'session1');
+    await userService.removeUserFromSession('user2', 'session1');
+    console.log('✓ Removed users from session');
+
+    // Remove artifact from session
+    await sessionService.removeArtifact('session1', 'artifact1');
+    console.log('✓ Removed artifact from session');
+
+    // Step 10: Delete blank objects
+    console.log('\nStep 10: Deleting blank objects...');
+    await sessionService.deleteSession('session1');
+    await userService.deleteUser('user1');
+    await userService.deleteUser('user2');
+    await artifactService.deleteArtifact('artifact1');
+    console.log('✓ Deleted all objects');
+
+    console.log('\nTest 1 completed successfully! ✨');
+  } catch (error) {
+    console.error('Test 1 failed:', error);
+    throw error;
+  }
+}
 
 async function runAllTests() {
   try {
+    await runTest1();
+    /*
     await runTest1();
     await runTest2();
     await runTest3();
@@ -571,6 +714,7 @@ async function runAllTests() {
     console.log('  ✅ Artifact discovery and point tracking');
     console.log('  ✅ User session management');
     console.log (' ✅ Bulk Test');
+    */
   } catch (error) {
     console.error('❌ Tests failed:', error);
     process.exit(1);

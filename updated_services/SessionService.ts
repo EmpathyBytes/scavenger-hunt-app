@@ -210,7 +210,7 @@ export class SessionService extends BaseService {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
 
-    if (session.participants[userId]) {
+    if (session.participants && session.participants[userId]) {
       throw new Error('User is already part of this session');
     }
 
@@ -240,7 +240,7 @@ export class SessionService extends BaseService {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
 
-    if (!session.participants[userId]) {
+    if (!session.participants || !session.participants[userId]) {
       throw new Error('User is not part of this session');
     }
 
@@ -270,8 +270,8 @@ export class SessionService extends BaseService {
   async addFoundArtifact(sessionId: string, userId: string, artifactId: string): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
-    if (!session.participants[userId]) throw new Error('User is not part of this session');
-    if (!session.artifacts[artifactId]) throw new Error('Artifact is not part of this session');
+    if (!session.participants || !session.participants[userId]) throw new Error('User is not part of this session');
+    if (!session.artifacts || !session.artifacts[artifactId]) throw new Error('Artifact is not part of this session');
 
     await this.setData(`sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`, true);
   }
@@ -297,13 +297,13 @@ export class SessionService extends BaseService {
   async removeFoundArtifact(sessionId: string, userId: string, artifactId: string): Promise<void> {  
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
-    if (!session.participants[userId]) throw new Error('User is not part of this session');
+    if (!session.participants || !session.participants[userId]) throw new Error('User is not part of this session');
     if (!session.participants[userId].foundArtifacts) throw new Error('Participant does not have foundArtifacts object');
     
     const found = await this.getData(
       `sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`
     );
-    if (!found) throw new Error('Artifact not found in user\'s foundArtifacts');
+    if (!found) throw new Error('Artifact not found in participant\'s foundArtifacts');
 
     await this.removeData(`sessions/${sessionId}/participants/${userId}/foundArtifacts/${artifactId}`);
   }
@@ -324,7 +324,7 @@ export class SessionService extends BaseService {
   async setPoints(sessionId: string, userId: string, points: number): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
-    if (!session.participants[userId]) throw new Error('User is not part of this session');
+    if (!session.participants || !session.participants[userId]) throw new Error('User is not part of this session');
 
     // const pointsPath = `sessions/${sessionId}/participants/${userId}/points`;
     // const current = (await this.getData<number>(pointsPath)) ?? 0;
@@ -356,7 +356,7 @@ export class SessionService extends BaseService {
   async addPoints(sessionId: string, userId: string, delta: number): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
-    if (!session.participants[userId]) throw new Error('User is not part of this session');
+    if (!session.participants || !session.participants[userId]) throw new Error('User is not part of this session');
 
     const pointsPath = `sessions/${sessionId}/participants/${userId}/points`;
     const current = (await this.getData<number>(pointsPath)) ?? 0;
