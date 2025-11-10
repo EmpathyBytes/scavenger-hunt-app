@@ -490,7 +490,3 @@ To delete a user, team, or session, UI programmers should:
 2. After artifact is not in any session, call `deleteArtifact()`
 
 ---
-
-
-
-
