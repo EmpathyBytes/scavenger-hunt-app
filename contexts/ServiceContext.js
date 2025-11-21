@@ -11,7 +11,7 @@ import { DATABASE_CONFIG } from '../config/config';
  * Services are initialized with the application-wide base node
  * to maintain consistency across the application.
  */
-const services = {
+export const services = {
   userService: new UserService(DATABASE_CONFIG.baseNode),
   sessionService: new SessionService(DATABASE_CONFIG.baseNode),
   teamService: new TeamService(DATABASE_CONFIG.baseNode),

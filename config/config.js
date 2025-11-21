@@ -6,5 +6,5 @@
  */
 export const DATABASE_CONFIG = {
   // Use environment variable or default to 'development_node'
-  baseNode: process.env.FIREBASE_BASE_NODE || 'development_node'
+  baseNode: process.env.FIREBASE_BASE_NODE || 'script_test'
 };
