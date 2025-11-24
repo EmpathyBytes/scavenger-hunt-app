@@ -42,7 +42,7 @@ const LeaderboardScreen = ({ navigation, route }) => {
   });
 
   const { sessionService } = useServices();
-  const { sessionID } = route.params;
+  const { sessionId } = route.params;
 
   const [entries, setEntries] = useState([]);
   const [sessionName, setSessionName] = useState("");
@@ -51,11 +51,11 @@ const LeaderboardScreen = ({ navigation, route }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const session = await sessionService.getSession(sessionID);
+        const session = await sessionService.getSession(sessionId);
         if (session) {
           setSessionName(session.sessionName || "Session");
         }
-        const leaderboard = await sessionService.getSessionLeaderboardEntries(sessionID);
+        const leaderboard = await sessionService.getSessionLeaderboardEntries(sessionId);
         setEntries(leaderboard);
       } catch (error) {
         console.error("Error fetching leaderboard:", error);
@@ -65,7 +65,7 @@ const LeaderboardScreen = ({ navigation, route }) => {
     };
 
     fetchData();
-  }, [sessionID, sessionService]);
+  }, [sessionId, sessionService]);
 
   if (!fontsLoaded) {
     return null;
@@ -94,7 +94,7 @@ const LeaderboardScreen = ({ navigation, route }) => {
           backgroundColor={COLORS.beige}
           onPress={() => navigation.goBack()}
         />
-        <Text style={styles.title}>{sessionName}</Text>
+        <Text style={styles.title}>{"Leaderboard"}</Text>
         <FlatList
           data={entries}
           renderItem={({ item, index }) => (

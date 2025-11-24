@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import MapScreen from "./home_screens/MapScreen";
+import LocationsScreen from "./home_screens/LocationsScreen";
 import ArtifactsScreen from "./home_screens/ArtifactsScreen";
 import SettingsScreen from "./home_screens/SettingsScreen";
 import { COLORS, SIZES } from "../components/theme"; //colors and font sizes
@@ -188,11 +188,6 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
-        <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
-        <Tab.Screen name="MapScreen" component={MapScreen} />
-        <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
-      </Tab.Navigator> */}
 
       <MapView
         key={forceReload}
@@ -285,10 +280,10 @@ const HomeScreen = ({ navigation }) => {
           {screenIndex == 0 && (
             <LeaderboardScreen
               navigation={navigation}
-              route={{ params: { sessionID: 1 } }}
+              route={{ params: { sessionId: currentSession } }}
             />
           )}
-          {screenIndex == 1 && <MapScreen setScreenIndex={setScreenIndex} />}
+          {screenIndex == 1 && <LocationsScreen setScreenIndex={setScreenIndex} />}
           {screenIndex == 2 && (
             <ArtifactsScreen setScreenIndex={setScreenIndex} />
           )}
