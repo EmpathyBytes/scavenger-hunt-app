@@ -311,4 +311,57 @@ export class SessionService extends BaseService {
   public async getLocationsForSession(sessionId: string): Promise<any> {
     return this.getData(`sessions/${sessionId}/locations`);
   }
+
+  /**
+   
+Gets the leaderboard for a session, ordered by points (I did descending)*
+Returns all participants in the session with their display names and points.
+*
+@param sessionId - Unique identifier for the session
+@returns Array of leaderboard entries with userId, displayName, and points
+@throws Error if the session does not exist*/
+
+  // Could throw this array block into a type alisas for readability
+  async getSessionLeaderboardEntries(
+    sessionId: string
+  ): Promise<Array<{ userId: string; displayName: string; points: number }>> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error("Session not found");
+
+    const entries: Array<{
+      userId: string;
+      displayName: string;
+      points: number;
+    }> = [];
+
+    if (session.participants) {
+      for (const userId of Object.keys(session.participants)) {
+        const displayName =
+          (await this.getData<string>(`users/${userId}/displayName`)) ??
+          "Unknown User";
+
+        const points =
+          (await this.getData<number>(
+            `users/${userId}/sessionsJoined/${sessionId}/points`
+          )) ?? 0;
+
+        entries.push({ userId, displayName, points });
+      }
+    }
+
+    // Selection sort — unchanged logic
+    for (let i = 0; i < entries.length - 1; i++) {
+      for (let j = i + 1; j < entries.length; j++) {
+        const a = entries[i];
+        const b = entries[j];
+
+        if (b.points > a.points) {
+          entries[i] = b;
+          entries[j] = a;
+        }
+      }
+    }
+
+    return entries;
+  }
 }

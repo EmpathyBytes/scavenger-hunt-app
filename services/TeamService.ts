@@ -187,4 +187,5 @@ export class TeamService extends BaseService {
 
     return team.sessionId || null;
   }
+  
 }
