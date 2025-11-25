@@ -12,11 +12,11 @@ import {
   Figtree_600SemiBold,
   useFonts,
 } from "@expo-google-fonts/figtree";
-import BackButton from "../../components/BackButton";
 import LocationButton from "../../components/LocationButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { useServices } from "../../contexts/ServiceContext";
 import { ArtifactsContext } from "../../contexts/ArtifactsContext";
+import { LocationsContext } from "../../contexts/LocationsContext";
 import { database } from "../../firebase_config";
 import { ref, onValue } from "firebase/database";
 import { DATABASE_CONFIG } from "../../config/config";
@@ -26,6 +26,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
   const { user } = useAuth();
   const { userService } = useServices();
   const { artifacts } = useContext(ArtifactsContext);
+  const { locations } = useContext(LocationsContext);
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
@@ -95,7 +96,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
                 }}
               >
                 <Text
-                  style={{ fontSize: 16, color: "green", textAlign: "center" }}
+                  style={{ fontSize: 16, textAlign: "center" }}
                   onPress={() =>
                     navigation?.navigate &&
                     navigation.navigate("FoundItemInfoScreen", {
@@ -103,7 +104,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
                     })
                   }
                 >
-                  {item.name} ⭐
+                  {item.name}
                 </Text>
               </View>
             );
@@ -112,7 +113,6 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
               <View style={{ margin: 4 }}>
                 <LocationButton
                   image={require("../../assets/QuestionMark.png")}
-                  onPress={() => {}}
                 />
               </View>
             );

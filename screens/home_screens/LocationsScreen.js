@@ -88,7 +88,7 @@ const LocationsScreen = ({ setScreenIndex, navigation }) => {
                 }}
               >
                 <Text
-                  style={{ fontSize: 16, color: "green", textAlign: "center" }}
+                  style={{ fontSize: 16, textAlign: "center" }}
                   onPress={() =>
                     navigation?.navigate &&
                     navigation.navigate("FoundItemInfoScreen", {
@@ -96,16 +96,28 @@ const LocationsScreen = ({ setScreenIndex, navigation }) => {
                     })
                   }
                 >
-                  {item.name || item.id} ⭐
+                  {item.name || item.id}
                 </Text>
               </View>
             );
           } else {
+            console.log(item)
             return (
               <View style={{ margin: 4 }}>
                 <LocationButton
                   image={require("../../assets/QuestionMark.png")}
-                  onPress={() => {}}
+                  onPress={() =>
+                    navigation?.navigate &&
+                    navigation.navigate("FoundItemInfoScreen", {
+                      foundItem: {
+                        name: "Hint",
+                        description:
+                          item?.hint ||
+                          item?.locationHint ||
+                          "Hint coming soon.",
+                      },
+                    })
+                  }
                 />
               </View>
             );

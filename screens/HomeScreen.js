@@ -243,10 +243,11 @@ const HomeScreen = ({ navigation }) => {
         });
         setModalVisible(true);
       } else {
-        Alert.alert(
-          "No Location Nearby",
-          "You are not near any target location."
-        );
+        setLocationModalContent({
+          title: "No Location Nearby",
+          description: "Keep looking!",
+        });
+        setModalVisible(true);
       }
     } catch (err) {
       Alert.alert("Error", `Failed to check nearby location: ${err}`);
