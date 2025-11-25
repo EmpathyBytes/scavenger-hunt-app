@@ -99,7 +99,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
                   style={{ fontSize: 16, textAlign: "center" }}
                   onPress={() =>
                     navigation?.navigate &&
-                    navigation.navigate("FoundItemInfoScreen", {
+                    navigation.navigate("ArtifactInfoScreen", {
                       foundItem: item,
                     })
                   }

@@ -189,7 +189,7 @@ const HomeScreen = ({ navigation }) => {
             loc.latitude,
             loc.longitude
           );
-          if (dist <= 250) {
+          if (dist <= 50) {
             found = loc;
             break;
           }
