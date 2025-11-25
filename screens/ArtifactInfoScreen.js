@@ -19,6 +19,23 @@ const ArtifactInfoScreen = ({ navigation, route }) => {
   if (!fontsLoaded) {
     return null;
   }
+  function Model({ asset }) {
+    const [uri, setUri] = useState(null);
+
+    useEffect(() => {
+      (async () => {
+        const expoAsset = Asset.fromModule(asset);
+        await expoAsset.downloadAsync();
+        setUri(expoAsset.localUri || expoAsset.uri);
+      })();
+    }, [asset]);
+
+    // Only call useGLTF if uri is available
+    if (!uri) return null;
+    const { scene } = useGLTF(uri);
+    return <primitive object={scene} />;
+  }
+  const image = require("../assets/Buzz_Statue.png"); // Placeholder image
 
   return (
     <View style={styles.container}>
@@ -29,7 +46,7 @@ const ArtifactInfoScreen = ({ navigation, route }) => {
       />
       <Text style={styles.infoLabel}>{foundItem?.name || "No Name"}</Text>
       {/* Placeholder image. You may use foundItem?.imageUrl if it exists */}
-      {/* <Image source={{ uri: foundItem?.imageUrl }} style={styles.image} /> */}
+      <Image source={image} style={styles.image} />
 
       <Text style={styles.infoText}>
         {foundItem?.description || "No description available."}
@@ -61,12 +78,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   // Uncomment if using image
-  // image: {
-  //     width: 120,
-  //     height: 120,
-  //     alignSelf: 'center',
-  //     marginBottom: 16,
-  // },
+  image: {
+      width: 120,
+      height: 120,
+      alignSelf: 'center',
+      marginBottom: 16,
+  },
 });
 
 export default ArtifactInfoScreen;
