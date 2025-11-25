@@ -175,6 +175,7 @@ export class UserService extends BaseService {
     await this.setData(`users/${userId}/sessionsJoined/${sessionId}`, {
       points: 0,
       foundArtifacts: {},
+      locationsFound: {},
     });
     await this.setData(`sessions/${sessionId}/participants/${userId}`, "");
     await this.setData(`users/${userId}/updatedAt`, Date.now());
@@ -415,20 +416,12 @@ export class UserService extends BaseService {
       throw new Error(`User is not part of session ${sessionId}.`);
     }
 
-    const sessionData = user.sessionsJoined[sessionId] as {
-      locationsFound?: string[];
-      points: number;
-      foundArtifacts: { [artifactId: string]: boolean };
-    };
-    const locationsFound = sessionData.locationsFound || [];
-
-    if (!locationsFound.includes(locationId)) {
-      locationsFound.push(locationId);
-      await this.setData(
-        `users/${userId}/sessionsJoined/${sessionId}/locationsFound`,
-        locationsFound
-      );
-    }
+    // Atomic write - same pattern as addFoundArtifact
+    await this.setData(
+      `users/${userId}/sessionsJoined/${sessionId}/locationsFound/${locationId}`,
+      true
+    );
+    await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 
   /**
@@ -456,25 +449,24 @@ export class UserService extends BaseService {
     }
 
     const sessionData = user.sessionsJoined[sessionId] as {
-      locationsFound?: string[];
+      locationsFound?: { [locationId: string]: boolean };
       points: number;
       foundArtifacts: { [artifactId: string]: boolean };
     };
-    const locationsFound = sessionData.locationsFound || [];
 
-    if (!locationsFound.includes(locationId)) {
+    if (
+      !sessionData.locationsFound ||
+      !sessionData.locationsFound[locationId]
+    ) {
       throw new Error(
         `Location ${locationId} is not in the user's found locations.`
       );
     }
 
-    const updatedLocations = locationsFound.filter(
-      (id: string) => id !== locationId
+    await this.removeData(
+      `users/${userId}/sessionsJoined/${sessionId}/locationsFound/${locationId}`
     );
-    await this.setData(
-      `users/${userId}/sessionsJoined/${sessionId}/locationsFound`,
-      updatedLocations
-    );
+    await this.setData(`users/${userId}/updatedAt`, Date.now());
   }
 
   /**

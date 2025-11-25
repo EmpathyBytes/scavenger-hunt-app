@@ -17,6 +17,9 @@ import LocationButton from "../../components/LocationButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { useServices } from "../../contexts/ServiceContext";
 import { ArtifactsContext } from "../../contexts/ArtifactsContext";
+import { database } from "../../firebase_config";
+import { ref, onValue } from "firebase/database";
+import { DATABASE_CONFIG } from "../../config/config";
 
 const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
   const [foundArtifactIds, setFoundArtifactIds] = useState([]);
@@ -29,21 +32,35 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
   });
 
   useEffect(() => {
-    const fetchFoundArtifacts = async () => {
-      if (user && user.uid && userService) {
-        const userObj = await userService.getUser(user.uid);
-        if (
-          !userObj ||
-          !userObj.currentSession ||
-          !userObj.sessionsJoined[userObj.currentSession]
-        )
-          return;
-        const foundMap =
-          userObj.sessionsJoined[userObj.currentSession].foundArtifacts;
-        setFoundArtifactIds(Object.keys(foundMap));
+    if (!user?.uid || !userService) return;
+
+    let unsubscribe = null;
+
+    const setupListener = async () => {
+      try {
+        const sessionId = await userService.getCurrentSession(user.uid);
+        if (!sessionId) return;
+
+        // Set up real-time listener for found artifacts
+        const foundArtifactsPath = `${DATABASE_CONFIG.baseNode}/users/${user.uid}/sessionsJoined/${sessionId}/foundArtifacts`;
+        const foundArtifactsRef = ref(database, foundArtifactsPath);
+
+        unsubscribe = onValue(foundArtifactsRef, (snapshot) => {
+          const foundMap = snapshot.val() || {};
+          setFoundArtifactIds(Object.keys(foundMap));
+        });
+      } catch (error) {
+        console.error("Error setting up found artifacts listener:", error);
       }
     };
-    fetchFoundArtifacts();
+
+    setupListener();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [user, userService]);
 
   if (!fontsLoaded) {
@@ -79,6 +96,12 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
               >
                 <Text
                   style={{ fontSize: 16, color: "green", textAlign: "center" }}
+                  onPress={() =>
+                    navigation?.navigate &&
+                    navigation.navigate("FoundItemInfoScreen", {
+                      foundItem: item,
+                    })
+                  }
                 >
                   {item.name} ⭐
                 </Text>
@@ -89,9 +112,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
               <View style={{ margin: 4 }}>
                 <LocationButton
                   image={require("../../assets/QuestionMark.png")}
-                  onPress={() => {
-                    setScreenIndex(5);
-                  }}
+                  onPress={() => {}}
                 />
               </View>
             );
@@ -107,8 +128,7 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
           justifyContent: "center",
           paddingTop: 20,
         }}
-      >
-      </View>
+      ></View>
     </View>
   );
 };

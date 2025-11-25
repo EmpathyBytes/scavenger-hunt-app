@@ -8,7 +8,6 @@ import {
   Text,
   Dimensions,
 } from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LocationsScreen from "./home_screens/LocationsScreen";
 import ArtifactsScreen from "./home_screens/ArtifactsScreen";
 import SettingsScreen from "./home_screens/SettingsScreen";
@@ -27,15 +26,19 @@ import MapView from "react-native-maps";
 import * as Location from "expo-location";
 import LeaderboardScreen from "./home_screens/LeaderboardScreen";
 import * as TaskManager from "expo-task-manager";
-import ArtifactInfoScreen from "./ArtifactInfoScreen";
 import LocationModal from "../components/LocationModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useServices } from "../contexts/ServiceContext";
 import { LocationsContext } from "../contexts/LocationsContext";
+import { UserService } from "../services/UserService";
+import { DATABASE_CONFIG } from "../config/config";
 
 const { height, width } = Dimensions.get("window");
 
 const GEOFENCE_TASK = "geofenceTask";
+
+// Create service instance for use in background task (can't use hooks)
+const userService = new UserService(DATABASE_CONFIG.baseNode);
 
 // This will be triggered when the user enters or exits a region
 TaskManager.defineTask(
@@ -50,20 +53,36 @@ TaskManager.defineTask(
       console.log(`Entered geofence: ${region.identifier}`);
 
       try {
-        const { user } = useAuth();
-        const { userService } = useServices();
-        const userId = user?.uid;
-        // Dynamically fetch sessionId
-        const sessionId = await userService.getCurrentSession(userId);
-        const { locations } = LocationsContext._currentValue;
+        // Access contexts directly (they're available at module level)
+        const { locations } = LocationsContext._currentValue || {
+          locations: [],
+        };
         const { artifacts } = require("../contexts/ArtifactsContext")
           .ArtifactsContext._currentValue || { artifacts: [] };
-        const location = locations.find((loc) => loc.id === region.identifier); // Match by id
 
+        const location = locations.find((loc) => loc.id === region.identifier);
         if (!location) {
           console.error(
             `Location with ID ${region.identifier} not found in context.`
           );
+          return;
+        }
+
+        // Get user from auth context
+        const { auth } = require("../firebase_config");
+
+        // Get current user synchronously from auth state
+        const currentUser = auth.currentUser;
+        if (!currentUser?.uid) {
+          console.error("No authenticated user found for geofence task");
+          return;
+        }
+
+        const userId = currentUser.uid;
+        const sessionId = await userService.getCurrentSession(userId);
+
+        if (!sessionId) {
+          console.error("No current session found for user");
           return;
         }
 
@@ -108,13 +127,15 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     const fetchCurrentSession = async () => {
-      if (user?.uid && !currentSession) {
+      if (user?.uid) {
         try {
           const session = await userService.getCurrentSession(user.uid);
           setCurrentSession(session);
         } catch (error) {
           console.error("Error fetching current session:", error);
         }
+      } else {
+        setCurrentSession(null);
       }
     };
 
@@ -170,7 +191,6 @@ const HomeScreen = ({ navigation }) => {
   const [screenIndex, setScreenIndex] = useState(1);
 
   const handlePress = (idx) => {
-    bottomSheetRef.current?.expand();
     setScreenIndex(idx);
   };
 
@@ -188,7 +208,6 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-
       <MapView
         key={forceReload}
         style={styles.map}
@@ -222,6 +241,7 @@ const HomeScreen = ({ navigation }) => {
         ref={bottomSheetRef}
         snapPoints={["13%", "90%"]}
         index={0}
+        enableDynamicSizing={false}
         backgroundStyle={{ backgroundColor: "#FFF9D9" }}
       >
         <BottomSheetView style={styles.contentContainer}>
@@ -277,15 +297,23 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
-          {screenIndex == 0 && (
+          {screenIndex == 0 && currentSession && (
             <LeaderboardScreen
               navigation={navigation}
               route={{ params: { sessionId: currentSession } }}
             />
           )}
-          {screenIndex == 1 && <LocationsScreen setScreenIndex={setScreenIndex} />}
+          {screenIndex == 1 && (
+            <LocationsScreen
+              setScreenIndex={setScreenIndex}
+              navigation={navigation}
+            />
+          )}
           {screenIndex == 2 && (
-            <ArtifactsScreen setScreenIndex={setScreenIndex} />
+            <ArtifactsScreen
+              setScreenIndex={setScreenIndex}
+              navigation={navigation}
+            />
           )}
           {screenIndex == 3 && <SettingsScreen />}
         </BottomSheetView>

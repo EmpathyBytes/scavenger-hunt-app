@@ -1,55 +1,72 @@
-import React from 'react'
-import { Text, View, StyleSheet, Image } from 'react-native';
-import { COLORS, SIZES } from '../components/theme';
-import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
-import BackButton from '../components/BackButton';
+import React from "react";
+import { Text, View, StyleSheet, Image } from "react-native";
+import { COLORS, SIZES } from "../components/theme";
+import {
+  Figtree_400Regular,
+  Figtree_600SemiBold,
+  useFonts,
+} from "@expo-google-fonts/figtree";
+import BackButton from "../components/BackButton";
 
-const ArtifactInfoScreen = ({ navigation, setScreenIndex }) => {
-
-    //load font
-    const [fontsLoaded] = useFonts({
+const FoundItemInfoScreen = ({ navigation, route }) => {
+  const foundItem = route?.params?.foundItem;
+  //load font
+  const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
-    });
+  });
 
-    if (!fontsLoaded) {
+  if (!fontsLoaded) {
     return null;
-    }
+  }
 
-    return (
-        <View style={styles.container}>
-            <BackButton style={{marginBottom: 20, size:48}} backgroundColor={COLORS.beige} onPress={() => {setScreenIndex(2)}} />
+  return (
+    <View style={styles.container}>
+      <BackButton
+        style={{ marginTop: 50, marginLeft: 30, marginBottom: 10, size: 48 }}
+        backgroundColor={COLORS.beige}
+        onPress={() => navigation.goBack()}
+      />
+      <Text style={styles.infoLabel}>{foundItem?.name || "No Name"}</Text>
+      {/* Placeholder image. You may use foundItem?.imageUrl if it exists */}
+      {/* <Image source={{ uri: foundItem?.imageUrl }} style={styles.image} /> */}
 
-            <Text style={styles.infoLabel}> Buzz's Converse </Text>
-            <Image source={require('../assets/buzzconverse.png')} style={styles.image} />
-            <Text style={styles.infoLabel}> Fun Fact: </Text>
-            <Text style={styles.infoText}>
-                When Adidas took over as Georgia Tech's apparel provider in 2018, Buzz ditched his old Converse Chuck's for some custom-designed Adidas sneakers!
-            </Text>
-        </View>
-    )
-}
+      <Text style={styles.infoText}>
+        {foundItem?.description || "No description available."}
+      </Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: COLORS.beige,
-        width: '100%',
-    },
-    infoLabel: {
-        fontFamily: "Figtree_600SemiBold",
-        fontSize: 30,
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    infoText: {
-        fontFamily: "Figtree_400Regular",
-        fontSize: 20,
-        marginBottom: 20,
-        textAlignVertical: "center",
-        paddingHorizontal: 20,
-        textAlign: 'center',
-    }
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.beige,
+    width: "100%",
+  },
+  infoLabel: {
+    fontFamily: "Figtree_600SemiBold",
+    fontSize: 50,
+    marginTop: 50,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  infoText: {
+    fontFamily: "Figtree_400Regular",
+    fontSize: 20,
+    marginTop: 50,
+    marginBottom: 20,
+    textAlignVertical: "center",
+    paddingHorizontal: 20,
+    textAlign: "center",
+  },
+  // Uncomment if using image
+  // image: {
+  //     width: 120,
+  //     height: 120,
+  //     alignSelf: 'center',
+  //     marginBottom: 16,
+  // },
 });
 
-export default ArtifactInfoScreen;
+export default FoundItemInfoScreen;
