@@ -8,7 +8,7 @@ import {
 } from "@expo-google-fonts/figtree";
 import BackButton from "../components/BackButton";
 
-const ArtifactInfoScreen = ({ navigation, route }) => {
+const LocationInfoScreen = ({ navigation, route }) => {
   const foundItem = route?.params?.foundItem;
   //load font
   const [fontsLoaded] = useFonts({
@@ -69,4 +69,4 @@ const styles = StyleSheet.create({
   // },
 });
 
-export default ArtifactInfoScreen;
+export default LocationInfoScreen;
