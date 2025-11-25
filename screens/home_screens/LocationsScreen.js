@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { Text, View, FlatList } from "react-native";
 import { COLORS, SIZES } from "../../components/theme";
 import {
   Figtree_400Regular,
@@ -15,17 +9,15 @@ import {
 import LocationButton from "../../components/LocationButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { useServices } from "../../contexts/ServiceContext";
-import { ArtifactsContext } from "../../contexts/ArtifactsContext";
 import { LocationsContext } from "../../contexts/LocationsContext";
 import { database } from "../../firebase_config";
 import { ref, onValue } from "firebase/database";
 import { DATABASE_CONFIG } from "../../config/config";
 
-const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
-  const [foundArtifactIds, setFoundArtifactIds] = useState([]);
+const LocationsScreen = ({ setScreenIndex, navigation }) => {
+  const [foundLocations, setFoundLocations] = useState([]);
   const { user } = useAuth();
   const { userService } = useServices();
-  const { artifacts } = useContext(ArtifactsContext);
   const { locations } = useContext(LocationsContext);
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -42,16 +34,16 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
         const sessionId = await userService.getCurrentSession(user.uid);
         if (!sessionId) return;
 
-        // Set up real-time listener for found artifacts
-        const foundArtifactsPath = `${DATABASE_CONFIG.baseNode}/users/${user.uid}/sessionsJoined/${sessionId}/foundArtifacts`;
-        const foundArtifactsRef = ref(database, foundArtifactsPath);
+        // Set up real-time listener for found locations
+        const foundLocationsPath = `${DATABASE_CONFIG.baseNode}/users/${user.uid}/sessionsJoined/${sessionId}/locationsFound`;
+        const foundLocationsRef = ref(database, foundLocationsPath);
 
-        unsubscribe = onValue(foundArtifactsRef, (snapshot) => {
-          const foundMap = snapshot.val() || {};
-          setFoundArtifactIds(Object.keys(foundMap));
+        unsubscribe = onValue(foundLocationsRef, (snapshot) => {
+          const locationsMap = snapshot.val() || {};
+          setFoundLocations(Object.keys(locationsMap));
         });
       } catch (error) {
-        console.error("Error setting up found artifacts listener:", error);
+        console.error("Error setting up found locations listener:", error);
       }
     };
 
@@ -78,10 +70,10 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
       }}
     >
       <FlatList
-        data={artifacts}
+        data={locations}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
-          const found = foundArtifactIds.includes(item.id);
+          const found = foundLocations.includes(item.id);
           if (found) {
             return (
               <View
@@ -104,33 +96,38 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
                     })
                   }
                 >
-                  {item.name}
+                  {item.name || item.id}
                 </Text>
               </View>
             );
           } else {
+            console.log(item)
             return (
               <View style={{ margin: 4 }}>
                 <LocationButton
                   image={require("../../assets/QuestionMark.png")}
+                  onPress={() =>
+                    navigation?.navigate &&
+                    navigation.navigate("FoundItemInfoScreen", {
+                      foundItem: {
+                        name: "Hint",
+                        description:
+                          item?.hint ||
+                          item?.locationHint ||
+                          "Hint coming soon.",
+                      },
+                    })
+                  }
                 />
               </View>
             );
           }
         }}
         numColumns={3}
-        columnWrapperStyle={{ gap: "12%", marginBottom: "8%" }}
+        columnWrapperStyle={{ gap: "15%", marginBottom: "5%" }}
       />
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          paddingTop: 20,
-        }}
-      ></View>
     </View>
   );
 };
 
-export default ArtifactsScreen;
+export default LocationsScreen;
