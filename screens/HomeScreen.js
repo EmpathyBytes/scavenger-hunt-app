@@ -168,6 +168,7 @@ const HomeScreen = ({ navigation }) => {
 
   const bottomSheetRef = useRef(null);
   const [screenIndex, setScreenIndex] = useState(1);
+  const [selectedArtifactId, setSelectedArtifactId] = useState(null);
 
   const handlePress = (idx) => {
     bottomSheetRef.current?.expand();
@@ -290,9 +291,15 @@ const HomeScreen = ({ navigation }) => {
           )}
           {screenIndex == 1 && <MapScreen setScreenIndex={setScreenIndex} />}
           {screenIndex == 2 && (
-            <ArtifactsScreen setScreenIndex={setScreenIndex} />
+            <ArtifactsScreen
+              setScreenIndex={setScreenIndex}
+              setSelectedArtifactId={setSelectedArtifactId}
+            />
           )}
           {screenIndex == 3 && <SettingsScreen />}
+          {screenIndex == 5 && selectedArtifactId && (
+              <ArtifactInfoScreen route={{ params: { id: selectedArtifactId } }} setScreenIndex={setScreenIndex} />
+          )}  
         </BottomSheetView>
       </BottomSheet>
       <LocationModal visible={modalVisible} setModalVisible={setModalVisible} />
