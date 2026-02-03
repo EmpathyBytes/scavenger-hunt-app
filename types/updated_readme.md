@@ -253,6 +253,13 @@ async listSessionArtifacts(sessionId: string): Promise<string[]>
 - Lists all participants or artifacts in a session
 - Return empty arrays if none exist
 
+#### **Check if active**
+```typescript
+  async sessionIsActive(sessionId: string): Promise<boolean>
+```
+- Returns a boolean based on if session is active (lobby or active states)
+
+
 #### **Delete Session**
 ```typescript
 async deleteSession(sessionId: string): Promise<void>

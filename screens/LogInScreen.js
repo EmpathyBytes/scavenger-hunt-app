@@ -8,11 +8,15 @@ import BasicButton from '../components/BasicButton'
 import BackButton from '../components/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { useServices } from '../contexts/ServiceContext';
+
 const LogInScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const { userService } = useServices();
   
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -47,6 +51,16 @@ const LogInScreen = ({ navigation }) => {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+
+      // Temp fix: Since migrating to updated_node and services, create new user in realtime database if auth exists
+      
+      const userExists = await userService.getUser(userCredential.user.uid);
+      if (!userExists) {
+        const userId = userCredential.user.uid;
+        await userService.createUser(userId);
+        await userService.setEmail(userId, trimmedEmail);
+      }
+
       navigation.navigate('JoinSessionScreen');
     } catch (error) {
       // Focus on the most common Firebase error codes
