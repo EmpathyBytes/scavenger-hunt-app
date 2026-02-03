@@ -14,7 +14,8 @@ export const LocationsProvider = ({ children }) => {
       if (user?.uid) {
         try {
           const sessionId = await userService.getCurrentSession(user.uid);
-          const raw = await sessionService.getLocationsForSession(sessionId);
+          // const raw = await sessionService.getLocationsForSession(sessionId);
+          const raw = null;
           if (raw) {
             setLocations(
               Object.entries(raw).map(([id, rest]) => ({ id, ...rest }))
