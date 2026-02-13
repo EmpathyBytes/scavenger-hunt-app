@@ -5,6 +5,6 @@
  * that can be imported throughout the application.
  */
 export const DATABASE_CONFIG = {
-  // Use environment variable or default to 'development_node'
-  baseNode: process.env.FIREBASE_BASE_NODE || 'development_node'
+  // Use environment variable or default to 'updated_development_node'
+  baseNode: process.env.FIREBASE_BASE_NODE || 'updated_development_node'
 };

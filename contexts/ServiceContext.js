@@ -1,8 +1,7 @@
 import React, { createContext, useContext } from 'react';
-import { UserService } from '../services/UserService';
-import { SessionService } from '../services/SessionService';
-import { TeamService } from '../services/TeamService';
-import { ArtifactService } from '../services/ArtifactService';
+import { UserService } from '../updated_services/UserService';
+import { SessionService } from '../updated_services/SessionService';
+import { ArtifactService } from '../updated_services/ArtifactService';
 import { DATABASE_CONFIG } from '../config/config';
 
 /**
@@ -14,7 +13,6 @@ import { DATABASE_CONFIG } from '../config/config';
 const services = {
   userService: new UserService(DATABASE_CONFIG.baseNode),
   sessionService: new SessionService(DATABASE_CONFIG.baseNode),
-  teamService: new TeamService(DATABASE_CONFIG.baseNode),
   artifactService: new ArtifactService(DATABASE_CONFIG.baseNode),
 };
 
