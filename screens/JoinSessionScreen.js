@@ -126,7 +126,7 @@ const JoinSessionScreen = ({ navigation }) => {
       Alert.alert(
         "Success!",
         `You've joined the session: ${sessionExists.sessionName}`,
-        [{ text: "Let's go!", onPress: () => navigation.navigate('HomeScreen') }]
+        [{ text: "Let's go!", onPress: () => navigation.replace('HomeScreen') }]
       );
       
     } catch (error) {
