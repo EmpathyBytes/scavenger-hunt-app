@@ -192,7 +192,7 @@ export class SessionService extends BaseService {
    * Adds a user to a session as a participant
    * 
    * Creation Requirements:
-   * - Session must exist
+   * - Session must exist and be in a valid state (ACTIVE or LOBBY)
    * - User must not already be part of the session
    * 
    * Key Behaviors:
@@ -209,6 +209,14 @@ export class SessionService extends BaseService {
   async addParticipant(sessionId: string, userId: string): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
+
+    if (session.gameState == GameState.FINISHED) {
+      throw new Error('This game session has already finished');
+    }
+
+    if (session.gameState != GameState.LOBBY && session.gameState != GameState.ACTIVE) {
+      throw new Error('This game session is curently unavailable');
+    }
 
     if (session.participants && session.participants[userId]) {
       throw new Error('User is already part of this session');
