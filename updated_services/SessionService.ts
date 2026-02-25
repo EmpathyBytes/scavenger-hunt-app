@@ -1,5 +1,6 @@
 import { BaseService } from './BaseService';
 import { GameState, Session } from '../types/updated_database';
+import { useAuth } from '../contexts/AuthContext';
 
 export class SessionService extends BaseService {
   /**
@@ -93,9 +94,53 @@ export class SessionService extends BaseService {
   async setGameState(sessionId: string, newState: GameState): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
+
+    const{user} = useAuth();
+    if (user.uid != session.creatorId) {
+      throw new Error('Must be the creator to change game state');
+    }
+    
+    if (!this.gameStateTransitionHelper(session.gameState, newState)) {
+      throw new Error("This game state is invalid");
+    }
+
+    if (newState == GameState.ACTIVE) {
+      session.startTime = new Date().getTime();
+    }
+
+    if (newState == GameState.FINISHED) {
+      session.endTime = new Date().getTime();
+    }
     
     // Update the 'gameState' property instead of 'isActive'
     await this.setData(`sessions/${sessionId}/gameState`, newState);
+  }
+
+  private gameStateTransitionHelper(currState: GameState, newState: GameState) {
+    
+    if (currState == GameState.LOBBY) {
+      if (newState == GameState.ACTIVE) {
+        return true;
+      }
+    }
+
+    if (currState == GameState.ACTIVE) {
+      if (newState == GameState.PAUSED || newState == GameState.FINISHED) {
+        return true;
+      }
+    }
+
+    if (currState == GameState.PAUSED) {
+      if (newState == GameState.ACTIVE || newState == GameState.FINISHED) {
+        return true;
+      }
+    }
+
+    if (currState == GameState.FINISHED) {
+      return false;
+    }
+
+    return false;
   }
 
   /**
