@@ -4,6 +4,15 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { DATABASE_CONFIG } from '../config/config';
 
+/**
+ * Running this file:
+ * 1. Ensure you have the serviceAccountKey.json in scripts/
+ * 
+ * 2. Run the script using:
+ *    tsx dummy_data/upload_artifact_catalog.ts 
+ *
+ */
+
 // __dirname workaround for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
