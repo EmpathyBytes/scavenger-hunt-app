@@ -70,8 +70,23 @@ async function uploadAllArtifacts(): Promise<void> {
   process.exit(0);
 }
 
-// Start the upload process
-uploadAllArtifacts().catch(error => {
-  console.error('Upload failed:', error);
-  process.exit(1);
-});
+/**
+ * 
+ * @param sessionArtifacts String - array of artifact ID included in session
+ */
+async function uploadSessionArtifacts(sessionArtifacts: Array<string>): Promise<void> {
+  console.log('Starting artifact upload...');
+  
+  for (const artifactId of sessionArtifacts) {
+    await uploadArtifact(artifactId, artifactsData[artifactId]);
+  }
+  
+  console.log('Artifact upload complete!');
+
+}
+
+// // Start the upload process
+// uploadAllArtifacts().catch(error => {
+//   console.error('Upload failed:', error);
+//   process.exit(1);
+// });
