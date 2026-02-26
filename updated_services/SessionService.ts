@@ -16,23 +16,56 @@ export class SessionService extends BaseService {
    * @param creatorId - User ID of the session creator
    * @throws Error if the session already exists
    */
-  async createSession(sessionId: string, creatorId: string): Promise<void> {
+  async createSession(sessionId: string, creatorId: string): Promise<void>;
+  async createSession(sessionId: string, sessionData: Session & Record<string, any>): Promise<void>;
+  async createSession(
+    sessionId: string,
+    creatorIdOrSessionData: string | (Session & Record<string, any>)
+  ): Promise<void> {
     const exists = await this.exists(`sessions/${sessionId}`);
     if (exists) {
       throw new Error('Session already exists');
     }
 
-    const newSession: Session = {
-      sessionName: '',
-      creatorId,
-      startTime: 0,
-      endTime: 0,
-      gameState: GameState.LOBBY, // Initialized as Lobby by default
-      participants: {},
-      artifacts: {}
-    };
+    // Backwards compatible: old signature (sessionId, creatorId)
+    if (typeof creatorIdOrSessionData === 'string') {
+      const creatorId = creatorIdOrSessionData;
+      const newSession: Session = {
+        sessionName: '',
+        creatorId,
+        startTime: 0,
+        endTime: 0,
+        gameState: GameState.LOBBY, // Initialized as Lobby by default
+        participants: {},
+        artifacts: {},
+      };
 
-    await this.setData(`sessions/${sessionId}`, newSession);
+      await this.setData(`sessions/${sessionId}`, newSession);
+      return;
+    }
+
+    // New signature: (sessionId, full session object)
+    const incoming = creatorIdOrSessionData;
+    const sessionToWrite = { ...incoming } as Session & Record<string, any>;
+    sessionToWrite.sessionName = sessionToWrite.sessionName ?? '';
+    sessionToWrite.startTime = sessionToWrite.startTime ?? 0;
+    sessionToWrite.endTime = sessionToWrite.endTime ?? 0;
+    sessionToWrite.gameState = sessionToWrite.gameState ?? GameState.LOBBY;
+    sessionToWrite.participants = sessionToWrite.participants ?? {};
+    sessionToWrite.artifacts = sessionToWrite.artifacts ?? {};
+
+    if (!sessionToWrite.creatorId) {
+      throw new Error('creatorId is required');
+    }
+
+    await this.setData(`sessions/${sessionId}`, sessionToWrite);
+  }
+
+  async listSessions(): Promise<Array<{ id: string } & Session & Record<string, any>>> {
+    const sessions = await this.getData<Record<string, any>>('sessions');
+    if (!sessions) return [];
+
+    return Object.entries(sessions).map(([id, session]) => ({ id, ...(session ?? {}) }));
   }
 
   /**

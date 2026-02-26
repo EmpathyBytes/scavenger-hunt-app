@@ -121,7 +121,8 @@ const JoinSessionScreen = ({ navigation }) => {
       }
       
       // Check if the session is active
-      if (!sessionService.sessionIsActive(sessionExists)) {
+      const isActive = await sessionService.sessionIsActive(sessionCode);
+      if (!isActive) {
         setErrorMessage("This session is not currently active.");
         setJoiningSession(false);
         return;

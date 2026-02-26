@@ -2,6 +2,15 @@ import { BaseService } from './BaseService';
 import { Artifact, Session } from '../types/updated_database';
 
 export class ArtifactService extends BaseService {
+  async getAllArtifacts(): Promise<Array<{ id: string } & Artifact>> {
+    const artifacts = await this.getData<Record<string, Artifact>>('artifacts');
+    if (!artifacts) return [];
+
+    return Object.entries(artifacts)
+      .map(([id, artifact]) => ({ id, ...(artifact ?? ({} as Artifact)) }))
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  }
+
   /**
    * Creates a new blank artifact with default values
    * 

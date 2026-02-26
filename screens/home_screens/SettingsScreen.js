@@ -227,6 +227,12 @@ useEffect(() => { //dynamically updates points
         <View style={styles.buttonsContainer}>
           <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} onPress={() => navigation.navigate('PastResultsScreen')}/>
           <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
+          <BasicButton
+            text={"Host / Create Game"}
+            backgroundColor={COLORS.navy}
+            textColor={COLORS.beige}
+            onPress={() => navigation.navigate("ViewGamesScreen")}
+          />
           <BasicButton 
             text={leavingSession ? 'Leaving...' : 'Leave Session'} 
             backgroundColor={COLORS.navy} 
