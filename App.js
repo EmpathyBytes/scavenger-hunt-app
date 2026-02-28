@@ -15,6 +15,7 @@ import AboutUsScreen from "./screens/AboutUsScreen";
 import PastResultsScreen from "./screens/PastResultsScreen";
 import ArtifactInfoScreen from "./screens/ArtifactInfoScreen";
 import LocationInfoScreen from "./screens/LocationInfoScreen";
+import CreateGameScreen from "./screens/CreateGameScreen";
 // ...other imports
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,10 @@ export default function App() {
                 <Stack.Screen
                   name="LocationInfoScreen"
                   component={LocationInfoScreen}
+                />
+                <Stack.Screen
+                  name="CreateGameScreen"
+                  component={CreateGameScreen}
                 />
                 {/* Add other screens here */}
               </Stack.Navigator>
