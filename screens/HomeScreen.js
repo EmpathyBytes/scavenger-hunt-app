@@ -7,9 +7,9 @@ import {
   Modal,
   Text,
   Dimensions,
+  Alert,
 } from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import MapScreen from "./home_screens/MapScreen";
+import LocationsScreen from "./home_screens/LocationsScreen";
 import ArtifactsScreen from "./home_screens/ArtifactsScreen";
 import SettingsScreen from "./home_screens/SettingsScreen";
 import { COLORS, SIZES } from "../components/theme"; //colors and font sizes
@@ -23,143 +23,105 @@ import BottomSheet, {
   TouchableOpacity,
 } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import LeaderboardScreen from "./home_screens/LeaderboardScreen";
-import * as TaskManager from "expo-task-manager";
-import ArtifactInfoScreen from "./ArtifactInfoScreen";
-import LocationModal from "../components/LocationModal";
 import { useAuth } from "../contexts/AuthContext";
 import { useServices } from "../contexts/ServiceContext";
 import { LocationsContext } from "../contexts/LocationsContext";
+import { ArtifactsContext } from "../contexts/ArtifactsContext";
+import { UserService } from "../services/UserService";
+import { DATABASE_CONFIG } from "../config/config";
+import { database } from "../firebase_config";
+import { ref, onValue } from "firebase/database";
+import LocationModal from "../components/LocationModal";
 
 const { height, width } = Dimensions.get("window");
 
-const GEOFENCE_TASK = "geofenceTask";
-
-// This will be triggered when the user enters or exits a region
-TaskManager.defineTask(
-  GEOFENCE_TASK,
-  async ({ data: { eventType, region }, error }) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    if (eventType === Location.GeofencingEventType.Enter) {
-      console.log(`Entered geofence: ${region.identifier}`);
-
-      try {
-        const { user } = useAuth();
-        const { userService } = useServices();
-        const userId = user?.uid;
-        // Dynamically fetch sessionId
-        const sessionId = await userService.getCurrentSession(userId);
-        const { locations } = LocationsContext._currentValue;
-        const { artifacts } = require("../contexts/ArtifactsContext")
-          .ArtifactsContext._currentValue || { artifacts: [] };
-        const location = locations.find((loc) => loc.id === region.identifier); // Match by id
-
-        if (!location) {
-          console.error(
-            `Location with ID ${region.identifier} not found in context.`
-          );
-          return;
-        }
-
-        await userService.addFoundLocation(userId, sessionId, location.id);
-
-        // Robust: Only process if artifacts can be found and are arrays
-        const artifactIds = Array.isArray(location.artifacts)
-          ? location.artifacts
-          : [];
-
-        let pointsToAdd = 0;
-        for (const artifactId of artifactIds) {
-          await userService.addFoundArtifact(userId, sessionId, artifactId);
-          const artifactObj = Array.isArray(artifacts)
-            ? artifacts.find((a) => a && a.id === artifactId)
-            : null;
-          if (artifactObj && typeof artifactObj.points === "number") {
-            pointsToAdd += artifactObj.points;
-          }
-        }
-        await userService.updatePoints(userId, sessionId, pointsToAdd);
-
-        console.log(
-          `Geofence entry handled for user ${userId}, session ${sessionId}`
-        );
-      } catch (error) {
-        console.error("Error processing geofence entry:", error);
-      }
-    } else if (eventType === Location.GeofencingEventType.Exit) {
-      console.log(`Exited geofence: ${region.identifier}`);
-    }
+// Add new helper to calculate distance
+function getDistanceMeters(lat1, lon1, lat2, lon2) {
+  function toRad(x) {
+    return (x * Math.PI) / 180;
   }
-);
+  const R = 6371e3; // earth radius meters
+  const φ1 = toRad(lat1);
+  const φ2 = toRad(lat2);
+  const Δφ = toRad(lat2 - lat1);
+  const Δλ = toRad(lon2 - lon1);
+  const a =
+    Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // in meters
+}
 
 const HomeScreen = ({ navigation }) => {
   const location = useRef({});
-  const { locations } = useContext(LocationsContext); // Access locations from unified context
+  const { locations } = useContext(LocationsContext); // Always up-to-date
+  const { artifacts } = useContext(ArtifactsContext); // Access artifacts from context
   const { user } = useAuth();
   const { userService } = useServices();
   const [errorMsg, setErrorMsg] = useState({});
   const [currentSession, setCurrentSession] = useState(null);
+  const [foundLocationIds, setFoundLocationIds] = useState([]);
 
   useEffect(() => {
     const fetchCurrentSession = async () => {
-      if (user?.uid && !currentSession) {
+      if (user?.uid) {
         try {
           const session = await userService.getCurrentSession(user.uid);
           setCurrentSession(session);
         } catch (error) {
           console.error("Error fetching current session:", error);
         }
+      } else {
+        setCurrentSession(null);
       }
     };
 
     fetchCurrentSession();
   }, [user, userService]);
 
+  // Set up real-time listener for found locations
+  useEffect(() => {
+    if (!user?.uid || !userService) return;
+
+    let unsubscribe = null;
+
+    const setupListener = async () => {
+      try {
+        const sessionId = await userService.getCurrentSession(user.uid);
+        if (!sessionId) return;
+
+        // Set up real-time listener for found locations
+        const foundLocationsPath = `${DATABASE_CONFIG.baseNode}/users/${user.uid}/sessionsJoined/${sessionId}/locationsFound`;
+        const foundLocationsRef = ref(database, foundLocationsPath);
+
+        unsubscribe = onValue(foundLocationsRef, (snapshot) => {
+          const locationsMap = snapshot.val() || {};
+          setFoundLocationIds(Object.keys(locationsMap));
+        });
+      } catch (error) {
+        console.error("Error setting up found locations listener:", error);
+      }
+    };
+
+    setupListener();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user, userService, currentSession]);
+
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
 
   const [modalVisible, setModalVisible] = useState(false);
-
-  // const [enteredRegion, setEnteredRegion] = useState(null);
-
-  //On mount, start location tracking. Check if reload of map is necessary (likely is)
-  useEffect(() => {
-    async function startGeofencing() {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      const regions = locations.map((location) => ({
-        identifier: location.id, // Use id, not name, for geofence
-        latitude: location.latitude,
-        longitude: location.longitude,
-        radius: 1000, // meters — adjust as needed
-        notifyOnEnter: true,
-        notifyOnExit: true,
-      }));
-
-      if (!regions || regions.length === 0) return;
-
-      // stop any existing geofence session
-      try {
-        await Location.stopGeofencingAsync(GEOFENCE_TASK);
-      } catch (e) {}
-
-      console.log("Starting geofencing for", regions.length, "locations...");
-      await Location.startGeofencingAsync(GEOFENCE_TASK, regions);
-    }
-
-    startGeofencing();
-  }, [locations]);
-
+  const [locationModalContent, setLocationModalContent] = useState({
+    title: "",
+    description: "",
+  });
   // Load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
@@ -171,7 +133,6 @@ const HomeScreen = ({ navigation }) => {
   const [selectedArtifactId, setSelectedArtifactId] = useState(null);
 
   const handlePress = (idx) => {
-    bottomSheetRef.current?.expand();
     setScreenIndex(idx);
   };
 
@@ -187,14 +148,115 @@ const HomeScreen = ({ navigation }) => {
     return null;
   }
 
+  // Filter locations to get only found ones with coordinates
+  const foundLocations = locations.filter(
+    (location) =>
+      foundLocationIds.includes(location.id) &&
+      typeof location.latitude === "number" &&
+      typeof location.longitude === "number"
+  );
+
+  async function handleCheckNearbyLocation() {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Location permission required",
+          "Please allow location access in app settings."
+        );
+        return;
+      }
+      if (!Array.isArray(locations) || locations.length === 0) {
+        Alert.alert(
+          "Locations not loaded",
+          "Please wait a moment for locations to load, then try again."
+        );
+        return;
+      }
+      const pos = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Highest,
+      });
+      const { latitude, longitude } = pos.coords;
+      let found = null;
+      for (const loc of locations) {
+        if (
+          typeof loc.latitude === "number" &&
+          typeof loc.longitude === "number"
+        ) {
+          const dist = getDistanceMeters(
+            latitude,
+            longitude,
+            loc.latitude,
+            loc.longitude
+          );
+          if (dist <= 50) {
+            found = loc;
+            break;
+          }
+        }
+      }
+      if (found) {
+        if (foundLocationIds.includes(found.id)) {
+          Alert.alert(
+            "Already Found",
+            `You have already found: ${found.name || found.id}`
+          );
+          return;
+        }
+        const userId = user?.uid;
+        const sessionId = currentSession;
+        if (!userId || !sessionId) {
+          Alert.alert("Error", "User or session not found.");
+          return;
+        }
+        await userService.addFoundLocation(userId, sessionId, found.id);
+        // Before awarding artifacts on location found, collect artifact IDs correctly
+        const artifactIds =
+          found.artifacts &&
+          typeof found.artifacts === "object" &&
+          !Array.isArray(found.artifacts)
+            ? Object.keys(found.artifacts)
+            : [];
+        console.log("Artifact IDs for reward:", artifactIds);
+        let pointsToAdd = 0;
+        const artifactsArray = Array.isArray(artifacts) ? artifacts : [];
+        const artifactNames = [];
+        for (const artifactId of artifactIds) {
+          await userService.addFoundArtifact(userId, sessionId, artifactId);
+          const artifactObj = artifactsArray.find(
+            (a) => a && a.id === artifactId
+          );
+          const artifactLabel = artifactObj?.name || artifactId;
+          artifactNames.push(artifactLabel);
+          if (artifactObj && typeof artifactObj.points === "number") {
+            pointsToAdd += artifactObj.points;
+          }
+        }
+        await userService.updatePoints(userId, sessionId, pointsToAdd);
+
+        const artifactsDescription =
+          artifactNames.length > 0
+            ? `Artifacts:\n- ${artifactNames.join("\n- ")}`
+            : "Artifacts:\n- None";
+        setLocationModalContent({
+          title: found.name || found.id,
+          description: artifactsDescription,
+        });
+        setModalVisible(true);
+      } else {
+        setLocationModalContent({
+          title: "No Location Nearby",
+          description: "Keep looking!",
+        });
+        setModalVisible(true);
+      }
+    } catch (err) {
+      Alert.alert("Error", `Failed to check nearby location: ${err}`);
+    }
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* <Tab.Navigator screenOptions={{ headerShown: false }} initialRouteName="MapScreen">
-        <Tab.Screen name="ArtifactsScreen" component={ArtifactsScreen} />
-        <Tab.Screen name="MapScreen" component={MapScreen} />
-        <Tab.Screen name="SettingsScreen" component={SettingsScreen} />
-      </Tab.Navigator> */}
-
       <MapView
         key={forceReload}
         style={styles.map}
@@ -205,14 +267,21 @@ const HomeScreen = ({ navigation }) => {
         }}
         showsBuildings
         showsUserLocation
-        onPress={() => {
-          setModalVisible(true);
-        }}
       >
-        {/* Remove marker rendering logic */}
-        {/* No markers will be displayed on the map */}
+        {/* Render markers for found locations */}
+        {foundLocations.map((location) => (
+          <Marker
+            key={location.id}
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}
+            title={location.name || location.id}
+            description={location.description || ""}
+          />
+        ))}
       </MapView>
-      <View style={styles.buttonWrapper}>
+      <View style={styles.infoButtonWrapper}>
         <TouchableOpacity
           style={{ position: "absolute", top: "1%", right: "1%" }}
           onPress={() => navigation.navigate("AboutUsScreen")}
@@ -223,11 +292,23 @@ const HomeScreen = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
+      <View style={styles.findButtonWrapper}>
+        <TouchableOpacity
+          style={{ position: "absolute", top: "20%", right: "20%" }}
+          onPress={handleCheckNearbyLocation}
+        >
+          <Image
+            style={styles.infoIcon}
+            source={require("../assets/locations.png")}
+          />
+        </TouchableOpacity>
+      </View>
 
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={["13%", "90%"]}
         index={0}
+        enableDynamicSizing={false}
         backgroundStyle={{ backgroundColor: "#FFF9D9" }}
       >
         <BottomSheetView style={styles.contentContainer}>
@@ -283,17 +364,22 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
           {/*Object placed here is dependent on the screenIndex changed by buttons above*/}
-          {screenIndex == 0 && (
+          {screenIndex == 0 && currentSession && (
             <LeaderboardScreen
               navigation={navigation}
-              route={{ params: { sessionID: 1 } }}
+              route={{ params: { sessionId: currentSession } }}
             />
           )}
-          {screenIndex == 1 && <MapScreen setScreenIndex={setScreenIndex} />}
+          {screenIndex == 1 && (
+            <LocationsScreen
+              setScreenIndex={setScreenIndex}
+              navigation={navigation}
+            />
+          )}
           {screenIndex == 2 && (
             <ArtifactsScreen
               setScreenIndex={setScreenIndex}
-              setSelectedArtifactId={setSelectedArtifactId}
+              navigation={navigation}
             />
           )}
           {screenIndex == 3 && <SettingsScreen />}
@@ -302,7 +388,12 @@ const HomeScreen = ({ navigation }) => {
           )}  
         </BottomSheetView>
       </BottomSheet>
-      <LocationModal visible={modalVisible} setModalVisible={setModalVisible} />
+      <LocationModal
+        visible={modalVisible}
+        setModalVisible={setModalVisible}
+        title={locationModalContent.title}
+        description={locationModalContent.description}
+      />
     </GestureHandlerRootView>
   );
 };
@@ -364,10 +455,16 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
   },
-  buttonWrapper: {
+  infoButtonWrapper: {
     position: "absolute",
-    top: "8%",
-    right: "1%",
+    top: "6%",
+    right: "3%",
+    zIndex: 5,
+  },
+  findButtonWrapper: {
+    position: "absolute",
+    top: "6%",
+    right: "16%",
     zIndex: 5,
   },
   modal: {

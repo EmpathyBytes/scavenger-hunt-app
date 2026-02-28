@@ -7,41 +7,33 @@ export const ArtifactsContext = createContext(null);
 export const ArtifactsProvider = ({ children }) => {
   const [artifacts, setArtifacts] = useState([]);
   const { user } = useAuth();
-  const { artifactService, userService } = useServices();
+  const { sessionService, userService } = useServices();
 
   useEffect(() => {
     const fetchArtifacts = async () => {
-      if (user?.uid && artifactService && userService) {
+      if (user?.uid) {
         try {
           const sessionId = await userService.getCurrentSession(user.uid);
-          if (sessionId) {
-            // The session's artifacts field is a map of artifactIds to true
-            const path = `sessions/${sessionId}/artifacts`;
-            const artifactIdsObj = await artifactService.getData(path);
-            if (artifactIdsObj) {
-              // Fetch all artifact objects in parallel
-              const ids = Object.keys(artifactIdsObj);
-              const artifactObjs = await Promise.all(
-                ids.map((id) => artifactService.getArtifact(id))
-              );
-              setArtifacts(artifactObjs.filter(Boolean));
-            } else {
-              setArtifacts([]);
-            }
+          const session = await sessionService.getSession(sessionId);
+          if (session && session.artifacts) {
+            setArtifacts(
+              Object.entries(session.artifacts).map(([id, rest]) => ({
+                id,
+                ...rest,
+              }))
+            );
           } else {
             setArtifacts([]);
           }
         } catch (error) {
-          console.error("Error fetching artifacts from Firebase:", error);
           setArtifacts([]);
         }
       } else {
         setArtifacts([]);
       }
     };
-
     fetchArtifacts();
-  }, [user, artifactService, userService]);
+  }, [user, sessionService, userService]);
 
   return (
     <ArtifactsContext.Provider value={{ artifacts, setArtifacts }}>

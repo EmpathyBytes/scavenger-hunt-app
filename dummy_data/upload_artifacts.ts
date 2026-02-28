@@ -1,4 +1,4 @@
-import { ArtifactService } from '../services/ArtifactService';
+import { ArtifactService } from '../updated_services/ArtifactService';
 import { DATABASE_CONFIG } from '../config/config';
 import * as fs from 'fs';
 import * as path from 'path';

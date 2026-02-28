@@ -391,4 +391,20 @@ export class SessionService extends BaseService {
 
     return Object.keys(session.artifacts || {});
   }
+
+  /**
+   * Checks if a session is currently active, i.e., able to be joined
+   * in the LOBBY or ACTIVE game states.
+   * 
+   * @param sessionId - Unique identifier for the session
+   * @returns Boolean indicating if the session is active
+   * @throws Error if the session does not exist
+   */
+  async sessionIsActive(sessionId: string): Promise<boolean> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+
+    return session.gameState === GameState.ACTIVE 
+        || session.gameState === GameState.LOBBY;
+  }
 }

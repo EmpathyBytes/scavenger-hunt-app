@@ -109,7 +109,7 @@ useEffect(() => { //dynamically updates points
       Alert.alert(
         "Success",
         "You have left the session successfully.",
-        [{ text: "OK", onPress: () => navigation.navigate("JoinSessionScreen") }]
+        [{ text: "OK", onPress: () => navigation.replace("JoinSessionScreen") }]
       );
       
     } catch (error) {

@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
   View,
   FlatList,
-  TouchableOpacity,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import { COLORS, SIZES } from "../../components/theme";
 import {
@@ -13,240 +13,87 @@ import {
   Figtree_600SemiBold,
   useFonts,
 } from "@expo-google-fonts/figtree";
-import BackButton from "../../components/BackButton";
+import { useServices } from "../../contexts/ServiceContext";
 
-// eventually, pull this array from Firebase
-const results = [
-  {
-    id: 1,
-    name: "CS 1100 Fall 2024",
-    winner: "Team 4",
-    yourStanding: 4,
-    yourScore: 10,
-    teams: [
-      {
-        name: "Team 1",
-        score: 5,
-      },
-      {
-        name: "Team 2",
-        score: 4,
-      },
-      {
-        name: "Team 3",
-        score: 3,
-      },
-      {
-        name: "Team 4",
-        score: 2,
-      },
-      {
-        name: "Team 5",
-        score: 1,
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "CS 1100 Spring 2024",
-    winner: "Team 30",
-    yourStanding: 6,
-    yourScore: 15,
-    teams: [
-      {
-        name: "Team 1",
-        score: 5,
-      },
-      {
-        name: "Team 2",
-        score: 4,
-      },
-      {
-        name: "Team 3",
-        score: 3,
-      },
-      {
-        name: "Team 4",
-        score: 2,
-      },
-      {
-        name: "Team 5",
-        score: 1,
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "CS 1100 Fall 2023",
-    winner: "Team 19",
-    yourStanding: 2,
-    yourScore: 20,
-    teams: [
-      {
-        name: "Team 1",
-        score: 5,
-      },
-      {
-        name: "Team 2",
-        score: 4,
-      },
-      {
-        name: "Team 3",
-        score: 3,
-      },
-      {
-        name: "Team 4",
-        score: 2,
-      },
-      {
-        name: "Team 5",
-        score: 1,
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "CS 1100 Spring 2023",
-    winner: "Team 1",
-    yourStanding: 1,
-    yourScore: 22,
-    teams: [
-      {
-        name: "Team 1",
-        score: 5,
-      },
-      {
-        name: "Team 2",
-        score: 4,
-      },
-      {
-        name: "Team 3",
-        score: 3,
-      },
-      {
-        name: "Team 4",
-        score: 2,
-      },
-      {
-        name: "Team 5",
-        score: 1,
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: "CS 1100 Fall 2022",
-    winner: "Team 1",
-    yourStanding: 1,
-    yourScore: 22,
-    teams: [
-      {
-        name: "Team 1",
-        score: 5,
-      },
-      {
-        name: "Team 2",
-        score: 4,
-      },
-      {
-        name: "Team 3",
-        score: 3,
-      },
-      {
-        name: "Team 4",
-        score: 2,
-      },
-      {
-        name: "Team 5",
-        score: 1,
-      },
-    ],
-  },
-  {
-    id: 6,
-    name: "CS 1100 Spring 2022",
-    winner: "Team 1",
-    yourStanding: 1,
-    yourScore: 22,
-    teams: [
-      {
-        name: "Team 1",
-        score: 5,
-      },
-      {
-        name: "Team 2",
-        score: 4,
-      },
-      {
-        name: "Team 3",
-        score: 3,
-      },
-      {
-        name: "Team 4",
-        score: 2,
-      },
-      {
-        name: "Team 5",
-        score: 1,
-      },
-    ],
-  },
-];
-
-const Item = ({ item }) => {
+const Item = ({ item, rank }) => {
   const color =
-    item.rank == 1
+    rank === 1
       ? "#EEB210"
-      : item.rank == 2
+      : rank === 2
       ? "#D6DBD4"
-      : item.rank == 3
+      : rank === 3
       ? "#AB7325"
       : "white";
   return (
     <View style={[{ backgroundColor: color }, styles.team]}>
-      <View>
-        <Text style={styles.teamTitle}>
-          {item.rank} {item.name}
-        </Text>
-        <Text style={styles.teamText}>{"Score: " + item.score}</Text>
-      </View>
+      <Text style={styles.teamTitle}>
+        {rank}. {item.displayName}
+      </Text>
+      <Text style={styles.teamText}>Score: {item.points}</Text>
     </View>
   );
 };
 
 const LeaderboardScreen = ({ navigation, route }) => {
-  //load font
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
   });
 
+  const { sessionService } = useServices();
+  const { sessionId } = route.params;
+
+  const [entries, setEntries] = useState([]);
+  const [sessionName, setSessionName] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const session = await sessionService.getSession(sessionId);
+        if (session) {
+          setSessionName(session.sessionName || "Session");
+        }
+        const leaderboard = await sessionService.getSessionLeaderboardEntries(
+          sessionId
+        );
+        setEntries(leaderboard);
+      } catch (error) {
+        console.error("Error fetching leaderboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [sessionId, sessionService]);
+
   if (!fontsLoaded) {
     return null;
   }
 
-  // use paramerter session id to query relevant data from Firebase
-  const { sessionID } = route.params;
-  const sessionData = results.find((item) => item.id === sessionID);
-  const teams = sessionData.teams
-    .sort((a, b) => b.score - a.score)
-    .map((item, index) => ({
-      ...item,
-      rank: index + 1,
-    }));
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.screen} edges={["left", "right"]}>
+        <View style={styles.container}>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.navy} />
+          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.screen} edges={["left", "right"]}>
       <View style={styles.container}>
-        <BackButton
-          backgroundColor={COLORS.beige}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={styles.title}>{sessionData.name}</Text>
+        <Text style={styles.title}>{"Leaderboard"}</Text>
         <FlatList
-          data={teams}
-          renderItem={({ item }) => <Item item={item} />}
-          keyExtractor={(item) => item.name}
+          data={entries}
+          renderItem={({ item, index }) => (
+            <Item item={item} rank={index + 1} />
+          )}
+          keyExtractor={(item) => item.userId}
           contentContainerStyle={{ paddingBottom: 150 }}
         />
       </View>
@@ -271,6 +118,11 @@ const styles = StyleSheet.create({
   },
   container: {
     gap: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   team: {
     borderRadius: 15,
