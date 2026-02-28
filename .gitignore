@@ -37,3 +37,6 @@ yarn-error.*
 
 # firebase
 firebase_config.js
+
+# service account key
+config/serviceAccountKey.json
