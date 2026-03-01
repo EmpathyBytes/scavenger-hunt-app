@@ -132,7 +132,7 @@ const JoinSessionScreen = ({ navigation }) => {
         setErrorMessage('Session not found. Please check the code and try again.');
         return;
       }
-      if (!session.isActive && session.status !== 'lobby') {
+      if (session.gameState !== 'LOBBY' && session.gameState !== 'ACTIVE') {
         setErrorMessage('This session is not currently active.');
         return;
       }
