@@ -111,6 +111,9 @@ const CreateGameScreen = ({ navigation }) => {
     };
 
     console.log("Creating Game with data:", sessionData);
+    navigation.navigate("GamePreviewScreen", {
+    sessionCode: gameCode,
+    session: sessionData});
     Alert.alert("Success", "Game would be created! Check console for data.");
   };
 
@@ -229,10 +232,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.beige,
   },
   title: {
-    fontFamily: 'Figtree_400Regular',
-    fontSize: SIZES.title,
-    color: COLORS.navy,
-    textAlign: 'center',
+  fontFamily: 'Figtree_600SemiBold',
+  fontSize: SIZES.title,
+  color: COLORS.navy,
+  textAlign: 'center',
   },
   label: {
     fontSize: SIZES.body,
