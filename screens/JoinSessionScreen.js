@@ -213,7 +213,7 @@ const JoinSessionScreen = ({ navigation }) => {
 
         <TouchableOpacity
           style={[styles.topBtn, styles.topBtnGold]}
-          onPress={() => {/* TODO: navigate to CreateSessionScreen */}}
+          onPress={() => navigation.navigate("CreateGameScreen")}
           activeOpacity={0.8}
         >
           <Text style={[styles.topBtnText, { color: COLORS.navy }]}>Create Game</Text>

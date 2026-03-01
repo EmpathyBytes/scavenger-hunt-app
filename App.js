@@ -15,6 +15,7 @@ import AboutUsScreen from "./screens/AboutUsScreen";
 import PastResultsScreen from "./screens/PastResultsScreen";
 import ArtifactInfoScreen from "./screens/ArtifactInfoScreen";
 import LocationInfoScreen from "./screens/LocationInfoScreen";
+import CreateGameScreen from "./screens/CreateGameScreen";
 import GamePreviewScreen from "./screens/GamePreviewScreen";
 // ...other imports
 
@@ -51,6 +52,10 @@ export default function App() {
                 <Stack.Screen
                   name="LocationInfoScreen"
                   component={LocationInfoScreen}
+                />
+                <Stack.Screen
+                  name="CreateGameScreen"
+                  component={CreateGameScreen}
                 />
                 <Stack.Screen name="GamePreviewScreen" component={GamePreviewScreen} />
                 {/* Add other screens here */}
