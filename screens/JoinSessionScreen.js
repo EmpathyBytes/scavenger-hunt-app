@@ -156,7 +156,7 @@ const JoinSessionScreen = ({ navigation }) => {
   // ── Tap a game card -> navigate to game preview (placeholder for now) ──────────
   const handleGameCardPress = (game) => {
     // TODO: navigate to GamePreviewScreen once it exists
-    // navigation.navigate('GamePreviewScreen', { sessionCode: game.id, session: game });
+    navigation.navigate('GamePreviewScreen', { sessionCode: game.id, session: game });
     console.log('Tapped game:', game.id);
   };
 
