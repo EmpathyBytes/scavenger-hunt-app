@@ -14,6 +14,7 @@ import {
   Figtree_600SemiBold,
   useFonts,
 } from "@expo-google-fonts/figtree";
+import { useAuth } from '../contexts/AuthContext';
 
 // Mock session
 const MOCK_SESSION = {
@@ -53,7 +54,7 @@ const MOCK_ARTIFACTS = [
   },
 ];
 
-const CURRENT_USER = { uid: "uid_player_new", displayName: "Alex" };
+//const CURRENT_USER = { uid: "uid_player_new", displayName: "Alex" };
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("en-US", {
@@ -72,10 +73,14 @@ const STATE_COLORS = {
   FINISHED: { bg: COLORS.gray,  text: COLORS.navy },
 };
 
-export default function GamePreviewScreen({ navigation }) {
-  const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
 
-  const [session, setSession] = useState(MOCK_SESSION);
+export default function GamePreviewScreen({ navigation, route }) {
+  const { user } = useAuth();
+  const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
+  const { session: passedSession } = route.params ?? {};
+  const [session, setSession] = useState(passedSession ?? MOCK_SESSION);
+  //const isCreator = user?.uid === session.createdBy;
+  //const [session, setSession] = useState(MOCK_SESSION);
   const [artifacts] = useState(MOCK_ARTIFACTS);
   const [hasJoined, setHasJoined] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -89,10 +94,11 @@ export default function GamePreviewScreen({ navigation }) {
     );
   }
 
-  const isCreator = CURRENT_USER.uid === session.createdBy;
-  const participants = Object.entries(session.participants).map(([uid, data]) => ({
+  const isCreator = user?.uid === session.createdBy;
+  const participants = Object.entries(session.participants ?? {}).map(([uid, data]) => ({
     uid,
-    ...data,
+    displayName: data.displayName ?? uid,
+    points: data.points ?? 0,
   }));
 
   function showToast(msg, type = "success") {
@@ -108,7 +114,7 @@ export default function GamePreviewScreen({ navigation }) {
       ...prev,
       participants: {
         ...prev.participants,
-        [CURRENT_USER.uid]: { displayName: CURRENT_USER.displayName, points: 0 },
+        [user.uid]: { displayName: user.displayName, points: 0 },
       },
     }));
     setJoining(false);
@@ -117,7 +123,7 @@ export default function GamePreviewScreen({ navigation }) {
 
   function handleLeave() {
     const updated = { ...session.participants };
-    delete updated[CURRENT_USER.uid];
+    delete updated[user.uid];
     setSession((prev) => ({ ...prev, participants: updated }));
     setHasJoined(false);
     showToast("You left the game.", "info");
@@ -205,7 +211,7 @@ export default function GamePreviewScreen({ navigation }) {
         {/* Participants Card */}
         <View style={styles.card}>
           <Text style={styles.cardLabel}>
-            Participants ({Object.keys(session.participants).length})
+          Participants ({Object.keys(session.participants ?? {}).length})
           </Text>
           {participants.map((p) => (
             <View key={p.uid} style={styles.participantRow}>
