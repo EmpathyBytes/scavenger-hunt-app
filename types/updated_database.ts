@@ -91,10 +91,10 @@ export interface User {
  * @property gameState - Current session status
  */
 export enum GameState {
-  LOBBY = "lobby",      // Waiting for players to join
-  ACTIVE = "active",    // Game in progress
-  PAUSED = "paused",    // Game temporarily paused
-  FINISHED = "finished" // Game completed
+  LOBBY = "LOBBY",      // Waiting for players to join
+  ACTIVE = "ACTIVE",    // Game in progress
+  PAUSED = "PAUSED",    // Game temporarily paused
+  FINISHED = "FINISHED" // Game completed
 }
 
 export interface Session {
