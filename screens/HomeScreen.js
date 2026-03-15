@@ -35,6 +35,8 @@ import { DATABASE_CONFIG } from "../config/config";
 import { database } from "../firebase_config";
 import { ref, onValue } from "firebase/database";
 import LocationModal from "../components/LocationModal";
+import EndGameModal from "../components/EndGameModal";
+import BasicButton from "../components/BasicButton";
 
 const { height, width } = Dimensions.get("window");
 
@@ -117,7 +119,9 @@ const HomeScreen = ({ navigation }) => {
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [endGameModalVisible, setEndGameModalVisible] = useState(false);
+
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
   const [locationModalContent, setLocationModalContent] = useState({
     title: "",
     description: "",
@@ -281,6 +285,15 @@ const HomeScreen = ({ navigation }) => {
           />
         ))}
       </MapView>
+      <View style={styles.endGameButtonWrapper}>
+        <TouchableOpacity
+          onPress={()=> setEndGameModalVisible(true)}
+        >
+          <Text style={{color:"#FFFFFF", fontSize: 16}}>
+            End Game
+          </Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.infoButtonWrapper}>
         <TouchableOpacity
           style={{ position: "absolute", top: "1%", right: "1%" }}
@@ -389,10 +402,14 @@ const HomeScreen = ({ navigation }) => {
         </BottomSheetView>
       </BottomSheet>
       <LocationModal
-        visible={modalVisible}
-        setModalVisible={setModalVisible}
+        visible={locationModalVisible}
+        setModalVisible={setLocationModalVisible}
         title={locationModalContent.title}
         description={locationModalContent.description}
+      />
+      <EndGameModal
+       visible={endGameModalVisible}
+        setModalVisible={setEndGameModalVisible}
       />
     </GestureHandlerRootView>
   );
@@ -454,6 +471,15 @@ const styles = StyleSheet.create({
     objectFit: "contain",
     height: 50,
     width: 50,
+  },
+  endGameButtonWrapper: {
+    position: "absolute",
+    top: "6%",
+    left: "3%",
+    zIndex: 5,
+    padding: "2%",
+    borderRadius: "20%",
+    backgroundColor: "#E04F39",
   },
   infoButtonWrapper: {
     position: "absolute",
