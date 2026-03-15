@@ -12,6 +12,7 @@ import {
 import { COLORS, SIZES } from "../components/theme";
 import BackButton from '../components/BackButton';
 import { auth } from '../firebase_config'; // to get currentUser
+import BasicButton from "../components/BasicButton";
 
 const guidelineBaseWidth = 375;
 
