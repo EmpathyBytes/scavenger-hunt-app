@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   useWindowDimensions,
-  Alert
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { COLORS, SIZES } from "../components/theme";
 import BackButton from '../components/BackButton';
 import { auth } from '../firebase_config'; // to get currentUser
 import BasicButton from "../components/BasicButton";
+import { database } from "../firebase_config";
+import { ref, get, set } from "firebase/database";
+import { DATABASE_CONFIG } from "../config/config";
 
 const guidelineBaseWidth = 375;
 
@@ -22,17 +26,85 @@ const CreateGameScreen = ({ navigation }) => {
   const [selectedArtifacts, setSelectedArtifacts] = useState({});
   const [endTime, setEndTime] = useState(new Date());
   const [errors, setErrors] = useState({ gameName: "", gameCode: "", artifacts: "" });
+  const [artifactOptions, setArtifactOptions] = useState([]);
+  const [artifactsLoading, setArtifactsLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
 
   const { width } = useWindowDimensions();
   const scale = size => (width / guidelineBaseWidth) * size;
 
   const currentUser = auth.currentUser;
 
-  const artifacts = [
-    { id: "1", name: "Whistle", hint: "Iconic red-brick landmark" },
-    { id: "2", name: "2021 Buzz Plushie", hint: "Stacks of knowledge and caffeine" },
-    { id: "3", name: "Ramen", hint: "Late-night comfort food" }
-  ];
+  const baseNode = DATABASE_CONFIG.baseNode;
+
+  const artifacts = useMemo(() => artifactOptions, [artifactOptions]);
+
+  const normalizeCode = (code) => (code || "").trim();
+
+  const buildArtifactOptions = (value) => {
+    if (!value || typeof value !== "object") return [];
+
+    const options = Object.entries(value).map(([id, data]) => {
+      const name = data?.name ?? id;
+      const hint = data?.locationHint ?? data?.hint ?? "";
+      return { id, name, hint, raw: data ?? {} };
+    });
+
+    options.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    return options;
+  };
+
+  const fetchNodeValue = async (path) => {
+    const snapshot = await get(ref(database, path));
+    return snapshot.exists() ? snapshot.val() : null;
+  };
+
+  const fetchArtifactOptions = async () => {
+    const catalog = await fetchNodeValue(`${baseNode}/ArtifactCatalog`);
+    const fromCatalog = buildArtifactOptions(catalog);
+    if (fromCatalog.length > 0) return fromCatalog;
+
+    const artifacts = await fetchNodeValue(`${baseNode}/artifacts`);
+    return buildArtifactOptions(artifacts);
+  };
+
+  const buildArtifactsMapForSession = (selectedIds, allOptions) => {
+    const selectedSet = new Set(selectedIds);
+    const selected = allOptions.filter((a) => selectedSet.has(a.id));
+
+    const map = {};
+    for (const a of selected) {
+      const safeRaw = a.raw && typeof a.raw === "object" ? a.raw : {};
+      map[a.id] = {
+        ...safeRaw,
+        name: a.name ?? a.id,
+        hint: a.hint ?? "",
+      };
+    }
+    return map;
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const load = async () => {
+      setArtifactsLoading(true);
+      try {
+        const options = await fetchArtifactOptions();
+        if (isMounted) setArtifactOptions(options);
+      } catch (e) {
+        console.error("Failed to load artifacts:", e);
+        if (isMounted) setArtifactOptions([]);
+      } finally {
+        if (isMounted) setArtifactsLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, [baseNode]);
 
   const toggleArtifact = (id) => {
     setSelectedArtifacts(prev => ({
@@ -50,16 +122,11 @@ const CreateGameScreen = ({ navigation }) => {
   };
 
   // -----------------------
-  // Dummy async check for uniqueness
-  // Replace this with Firebase query later
   const checkGameCodeUnique = async (code) => {
-    // Simulate async call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const existingCodes = ["ABC123", "TEST1"]; // example taken codes
-        resolve(!existingCodes.includes(code));
-      }, 500);
-    });
+    const normalized = normalizeCode(code);
+    if (!normalized) return false;
+    const snapshot = await get(ref(database, `${baseNode}/sessions/${normalized}`));
+    return !snapshot.exists();
   };
 
   const validateForm = async () => {
@@ -100,22 +167,34 @@ const CreateGameScreen = ({ navigation }) => {
     const { valid, selectedArray } = await validateForm();
     if (!valid) return;
 
-    const artifactsForGame = artifacts.filter(a => selectedArray.includes(a.id));
+    const normalizedCode = normalizeCode(gameCode);
+    const artifactsMap = buildArtifactsMapForSession(selectedArray, artifactOptions);
+
     const sessionData = {
-      sessionName: gameName,
-      sessionCode: gameCode,
+      sessionName: gameName.trim(),
+      sessionCode: normalizedCode,
       createdBy: currentUser ? currentUser.uid : "unknown",
       gameState: "LOBBY",
-      startTime: new Date(),
-      endTime,
-      artifacts: artifactsForGame
+      startTime: new Date().toISOString(),
+      endTime: endTime.toISOString(),
+      participants: {},
+      artifacts: artifactsMap,
     };
 
-    console.log("Creating Game with data:", sessionData);
-    navigation.navigate("GamePreviewScreen", {
-    sessionCode: gameCode,
-    session: sessionData});
-    Alert.alert("Success", "Game would be created! Check console for data.");
+    setCreating(true);
+    try {
+      await set(ref(database, `${baseNode}/sessions/${normalizedCode}`), sessionData);
+      navigation.navigate("GamePreviewScreen", {
+        sessionCode: normalizedCode,
+        session: sessionData,
+      });
+      Alert.alert("Success", "Game created in Firebase.");
+    } catch (e) {
+      console.error("Failed to create session:", e);
+      Alert.alert("Error", e?.message || "Failed to create game. Please try again.");
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -177,20 +256,33 @@ const CreateGameScreen = ({ navigation }) => {
     </View>
 
       <Text style={[styles.label, { fontSize: scale(SIZES.body), marginTop: scale(15), marginBottom: scale(5) }]}>Select Artifacts</Text>
-      {artifacts.map((artifact) => (
-        <View key={artifact.id} style={[styles.artifactRow, { marginTop: scale(15) }]}>
-          <TouchableOpacity
-            style={[styles.checkbox, { width: scale(22), height: scale(22), marginRight: scale(10) }]}
-            onPress={() => toggleArtifact(artifact.id)}
-          >
-            {selectedArtifacts[artifact.id] && <View style={{ width: scale(14), height: scale(14), backgroundColor: COLORS.gold }} />}
-          </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontWeight: "600", fontSize: scale(14) }}>{artifact.name}</Text>
-            <Text style={{ fontSize: scale(12), color: "#666" }}>{artifact.hint}</Text>
-          </View>
+      {artifactsLoading ? (
+        <View style={{ marginTop: scale(15), alignItems: "center" }}>
+          <ActivityIndicator color={COLORS.navy} />
+          <Text style={{ marginTop: 8, color: COLORS.navy, fontFamily: 'Figtree_400Regular' }}>
+            Loading artifacts…
+          </Text>
         </View>
-      ))}
+      ) : artifacts.length === 0 ? (
+        <Text style={{ marginTop: scale(10), color: "#666", fontFamily: 'Figtree_400Regular' }}>
+          No artifacts found in Firebase.
+        </Text>
+      ) : (
+        artifacts.map((artifact) => (
+          <View key={artifact.id} style={[styles.artifactRow, { marginTop: scale(15) }]}>
+            <TouchableOpacity
+              style={[styles.checkbox, { width: scale(22), height: scale(22), marginRight: scale(10) }]}
+              onPress={() => toggleArtifact(artifact.id)}
+            >
+              {selectedArtifacts[artifact.id] && <View style={{ width: scale(14), height: scale(14), backgroundColor: COLORS.gold }} />}
+            </TouchableOpacity>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontWeight: "600", fontSize: scale(14) }}>{artifact.name}</Text>
+              {!!artifact.hint && <Text style={{ fontSize: scale(12), color: "#666" }}>{artifact.hint}</Text>}
+            </View>
+          </View>
+        ))
+      )}
       {errors.artifacts && <Text style={{ color: 'red', marginTop: 5 }}>{errors.artifacts}</Text>}
 
       <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: scale(30) }}>
@@ -216,9 +308,12 @@ const CreateGameScreen = ({ navigation }) => {
             paddingVertical: scale(12),
             alignItems: "center",
           }}
-          onPress={handleCreateGame}
+          onPress={creating ? undefined : handleCreateGame}
+          disabled={creating}
         >
-          <Text style={{ color: "white", fontFamily: 'Figtree_400Regular', fontSize: SIZES.body }}>Create Game</Text>
+          <Text style={{ color: "white", fontFamily: 'Figtree_400Regular', fontSize: SIZES.body }}>
+            {creating ? "Creating…" : "Create Game"}
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
