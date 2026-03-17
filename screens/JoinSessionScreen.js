@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     color: COLORS.navy,
     textAlign: 'center',
     marginBottom: 24,
-    marginTop: 10,
+    marginTop: 30,
   },
   // ── Top buttons ──────────────────────────────────────────────────
   topButtons: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   topBtn: {
     paddingVertical: 12,
     paddingHorizontal: 28,
-    borderRadius: 50,
+    borderRadius: 6,
   },
   topBtnNavy: {
     backgroundColor: COLORS.navy,
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5A623',
   },
   topBtnText: {
-    fontFamily: 'Figtree_600SemiBold',
+    fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body,
   },
   // ── Code input ───────────────────────────────────────────────────
@@ -452,26 +452,3 @@ const styles = StyleSheet.create({
 });
 
 export default JoinSessionScreen;
-
-/*
-===================================================================================
-  ADD THIS METHOD to the SessionService class to get all the sessions from Firebase
-===================================================================================
-
-  /**
-   * Fetches all sessions that are either in lobby or active state.
-   * Returns an array sorted by creation time (newest first).
-   *
-  async getAvailableSessions() {
-    const { collection, getDocs, query, orderBy } = require('firebase/firestore');
-    // Adjust 'sessions' to match your actual Firestore collection name
-    const q = query(collection(this.db, 'sessions'), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-  }
-
-=======================================================================
-*/
