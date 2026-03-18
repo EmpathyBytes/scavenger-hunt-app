@@ -1,6 +1,7 @@
 import { BaseService } from './BaseService';
 import { GameState, Session } from '../types/updated_database';
 import { useAuth } from '../contexts/AuthContext';
+import { get } from 'firebase/database';
 
 export class SessionService extends BaseService {
   /**
@@ -459,5 +460,26 @@ export class SessionService extends BaseService {
 
     return session.gameState === GameState.ACTIVE 
         || session.gameState === GameState.LOBBY;
+  }
+
+  /**
+   * Fetches all sessions from the database, ordered by creation time (newest first).
+   * Returns an array of session objects with their IDs.
+   */
+  async getAvailableSessions(): Promise<Array<Session & { id: string }>> {
+    const snapshot = await get(this.getRef('sessions'));
+    
+    if (!snapshot.exists()) return [];
+
+    const sessions: Array<Session & { id: string }> = [];
+
+    snapshot.forEach((childSnapshot) => {
+      sessions.push({
+        id: childSnapshot.key as string, // the session code (e.g. "session1")
+        ...(childSnapshot.val() as Session), // all the session data (name, isActive, etc.)
+      });
+    });
+
+    return sessions;
   }
 }
