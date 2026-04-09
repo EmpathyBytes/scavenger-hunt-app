@@ -482,4 +482,23 @@ export class SessionService extends BaseService {
 
     return sessions;
   }
+
+  /**
+   * Subscribes a listener for all sessions
+   * 
+   * @param callback Function called when data changes, receiving latest array of sessions
+   * @returns Function that unsubscribes the listener
+   */
+  subscribeToSessions(callback: (sessions: Session[]) => void): () => void {
+    return this.subscribe("sessions", (data) => {
+      // Callback contains array of Sessions (like above), rather than raw object
+      const sessionsArray = data ? Object.entries(data).map(([id, value]) => ({
+            id,
+            ...value,
+          }))
+        : [];
+
+      callback(sessionsArray);
+    });
+  }
 }
