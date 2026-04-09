@@ -1,5 +1,5 @@
 import { database } from '../firebase_config';
-import { ref, get, set, remove } from 'firebase/database';
+import { ref, get, set, remove, onValue } from 'firebase/database';
 
 /**
  * Base service class providing common Firebase database operations
@@ -108,5 +108,21 @@ export class BaseService {
    */
   protected async removeData(path: string): Promise<void> {
     await remove(this.getRef(path));
+  }
+
+  /**
+   * Sets up generic listener to specified path
+   * 
+   * @param path - Relative path to listen to
+   * @param callback - Callback function running when data changes
+   * @returns Unsubscribe function, which can be used to stop listening
+   */
+  protected subscribe<T>(path: string, callback: (data: T | null) => void) {
+    const ref = this.getRef(path);
+    // Attach listener to ref
+    return onValue(ref, (snapshot) => {
+      // when data updates, snapshot passes to callback function
+      callback(snapshot.val() as T);
+    });
   }
 }
