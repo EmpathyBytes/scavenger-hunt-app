@@ -91,6 +91,12 @@ const JoinSessionScreen = ({ navigation }) => {
     }
   }, [loading, fetchAvailableGames]);
 
+  // Test listener (should update live now in addition to current features)
+  useEffect(() => {
+    const unsubscribe = sessionService.subscribeToSessions(setAvailableGames);
+    return unsubscribe;
+  }, []);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchAvailableGames();
