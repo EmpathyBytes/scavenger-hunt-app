@@ -1,13 +1,21 @@
 import React from "react";
 import { Modal, View, StyleSheet, Text } from "react-native";
 import BasicButton from "./BasicButton";
+import { GameState } from '../types/updated_database';
+import { useServices } from '../contexts/ServiceContext';
+import { useAuth } from "../contexts/AuthContext.js";
 
 export default function EndGameModal({
   visible,
   setModalVisible,
+  navigation,
+  sessionId,
   title = "End Game",
   description = "Are you sure you want to end the game?\nThis action cannot be undone.",
 }) {
+
+    const { sessionService } = useServices();
+    const { user } = useAuth();
   return (
     <Modal
       transparent
@@ -16,9 +24,15 @@ export default function EndGameModal({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>{title}</Text>
-          <Text style={styles.modalDescription}>{description}</Text>
-          <BasicButton text="Close" onPress={() => setModalVisible(false)} />
+            <Text style={styles.modalTitle}>{title}</Text>
+            <Text style={styles.modalDescription}>{description}</Text>
+            <BasicButton text="Cancel" onPress={() => setModalVisible(false)} />
+            <BasicButton text="End Game" onPress={async () => {
+                await sessionService.setGameState(sessionId, GameState.FINISHED, user.uid);
+                setModalVisible(false);
+                //setScreenIndex(0); 
+                xnavigation.navigate("GameResultsScreen");
+            }} />
         </View>
       </View>
     </Modal>

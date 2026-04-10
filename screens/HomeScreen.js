@@ -66,16 +66,19 @@ const HomeScreen = ({ navigation }) => {
   const [currentSession, setCurrentSession] = useState(null);
   const [foundLocationIds, setFoundLocationIds] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
     const fetchCurrentSession = async () => {
       if (user?.uid) {
         try {
+          console.log("🔍 Fetching session for user:", user.uid);
           const session = await userService.getCurrentSession(user.uid);
+          console.log("📦 Session returned:", session);  // Is this null?
           setCurrentSession(session);
         } catch (error) {
-          console.error("Error fetching current session:", error);
+          console.error("❌ Error fetching current session:", error);
         }
       } else {
+        console.log("⚠️ No user UID available");
         setCurrentSession(null);
       }
     };
@@ -246,13 +249,13 @@ const HomeScreen = ({ navigation }) => {
           title: found.name || found.id,
           description: artifactsDescription,
         });
-        setModalVisible(true);
+        setLocationModalVisible(true);
       } else {
         setLocationModalContent({
           title: "No Location Nearby",
           description: "Keep looking!",
         });
-        setModalVisible(true);
+        setLocationModalVisible(true);
       }
     } catch (err) {
       Alert.alert("Error", `Failed to check nearby location: ${err}`);
@@ -408,8 +411,10 @@ const HomeScreen = ({ navigation }) => {
         description={locationModalContent.description}
       />
       <EndGameModal
-       visible={endGameModalVisible}
+        visible={endGameModalVisible}
         setModalVisible={setEndGameModalVisible}
+        navigation={navigation}
+        sessionId={currentSession ?? ""}
       />
     </GestureHandlerRootView>
   );
