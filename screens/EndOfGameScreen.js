@@ -213,8 +213,9 @@ const LeaderboardScreen = ({ navigation, route }) => {
 	}
 
     // use paramerter session id to query relevant data from Firebase
-    const { sessionID } = route.params;
-    const sessionData = results.find(item => item.id === sessionID);
+    const { session } = route.params;
+    const sessionId = session.id;
+    const sessionData = results.find(item => item.id === sessionId);
     const teams = sessionData.teams.sort((a,b) => b.score - a.score)
                                    .map((item, index) => ({
                                         ...item,

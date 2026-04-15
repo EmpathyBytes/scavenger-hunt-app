@@ -41,7 +41,8 @@ const LeaderboardScreen = ({ navigation, route }) => {
   });
 
   const { sessionService } = useServices();
-  const { sessionId } = route.params;
+  const { session } = route.params;
+  const sessionId = session.id;
 
   const [entries, setEntries] = useState([]);
   const [sessionName, setSessionName] = useState("");

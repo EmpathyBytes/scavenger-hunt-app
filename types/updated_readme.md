@@ -90,7 +90,7 @@ async setCurrentSession(userId: string, sessionId: string | null): Promise<void>
 - Set to null to clear the current session
 
 ```typescript
-async addUserToSession(userId: string, sessionId: string): Promise<void>
+async addUserToSession(userId: string, displayName: string, sessionId: string): Promise<void>
 ```
 - Validates both user and session existence
 - Ensures user isn't already in the session
@@ -212,7 +212,7 @@ async removeArtifact(sessionId: string, artifactId: string): Promise<void>
 
 #### **User Management**
 ```typescript
-async addParticipant(sessionId: string, userId: string): 
+async addParticipant(sessionId: string, userId: string, displayName: string): 
 Promise<void>  
 ```
 - Validates session exists and user is not already part of the session

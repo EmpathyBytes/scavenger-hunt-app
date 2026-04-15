@@ -163,7 +163,7 @@ export class UserService extends BaseService {
    * @throws Error if the session does not exist
    * @throws Error if the user is already in the session
    */
-  async addUserToSession(userId: string, sessionId: string): Promise<void> {
+  async addUserToSession(userId: string, displayName: string, sessionId: string): Promise<void> {
     const user = await this.getUser(userId);
     if (!user) throw new Error('User not found');
     
@@ -176,7 +176,7 @@ export class UserService extends BaseService {
     }
 
     // Add user to session's participants and updates user's sessionJoined set
-    await this.sessionService.addParticipant(sessionId, userId);
+    await this.sessionService.addParticipant(sessionId, userId, displayName);
     await this.setData(`users/${userId}/sessionsJoined/${sessionId}`, true);
     await this.setData(`users/${userId}/updatedAt`, Date.now());
   }

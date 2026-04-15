@@ -44,6 +44,8 @@ const JoinSessionScreen = ({ navigation }) => {
   const [joiningSession, setJoiningSession] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  //console.log("Display user: ", user);
+
   // ── Auth guard + initial user fetch ──────────────────────────────
   useEffect(() => {
     if (!isAuthenticated) {
@@ -146,7 +148,7 @@ const JoinSessionScreen = ({ navigation }) => {
       if (userData?.sessionsJoined?.[sessionCode]) {
         await userService.setCurrentSession(user.uid, sessionCode);
       } else {
-        await userService.addUserToSession(user.uid, sessionCode);
+        await userService.addUserToSession(user.uid, user.displayName, sessionCode);
         await userService.setCurrentSession(user.uid, sessionCode);
       }
 

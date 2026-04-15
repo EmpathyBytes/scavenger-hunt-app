@@ -252,9 +252,11 @@ export class SessionService extends BaseService {
    * @throws Error if the session does not exist
    * @throws Error if the user is already part of this session
    */
-  async addParticipant(sessionId: string, userId: string): Promise<void> {
+  async addParticipant(sessionId: string, userId: string, displayName: string): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
+
+    // added display name. may need to update schema
 
     if (session.gameState == GameState.FINISHED) {
       throw new Error('This game session has already finished');
@@ -269,6 +271,7 @@ export class SessionService extends BaseService {
     }
 
     await this.setData(`sessions/${sessionId}/participants/${userId}`, {
+      displayName: displayName,
       points: 0,
       foundArtifacts: {}
     });
@@ -499,6 +502,18 @@ export class SessionService extends BaseService {
         : [];
 
       callback(sessionsArray);
+    });
+  }
+
+  subscribeToSession(sessionId: string, callback: (session: Session | null) => void) {
+    return this.subscribe(`sessions/${sessionId}`, (data) => {
+      if (!data) {
+        callback(null);
+        return;
+      }
+
+      callback(data as Session);
+      
     });
   }
 }

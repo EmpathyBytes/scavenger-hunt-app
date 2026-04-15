@@ -26,7 +26,8 @@ export const LocationsProvider = ({ children }) => {
             setLocations([]);
           }
         } catch (error) {
-          console.error("Error fetching locations from Firebase:", error);
+          console.log("Error fetching locations from Firebase:", error);
+          //console.error("Error fetching locations from Firebase:", error);
         }
       } else {
         setLocations([]);
