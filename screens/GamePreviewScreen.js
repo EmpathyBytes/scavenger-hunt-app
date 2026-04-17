@@ -144,7 +144,7 @@ export default function GamePreviewScreen({ navigation, route }) {
       if (session.gameState === "LOBBY")
         return { primary: { label: "Start Game", action: handleStartGame, color: COLORS.navy }, secondary: { label: "Cancel" } };
       if (session.gameState === "ACTIVE")
-        return { primary: { label: "End Game", action: handleEndGame, color: COLORS.red }, secondary: { label: "Cancel" } };
+        return { primary: { label: "Go to Game →", action: () => navigation.replace("HomeScreen"), color: COLORS.navy }, secondary: { label: "Cancel" } };
       return { primary: null, secondary: { label: "Back to Games" } };
     }
     if (session.gameState === "LOBBY" && !hasJoined)
