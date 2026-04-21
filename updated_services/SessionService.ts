@@ -501,4 +501,22 @@ export class SessionService extends BaseService {
       callback(sessionsArray);
     });
   }
+
+  /**
+   * Subscribes a listener for one session
+   * @param sessionId Current session to listen to
+   * @param callback Function called when data changes, receiving updated session object
+   * @returns Function that unsubscribes the listener
+   */
+  subscribeToSession(sessionId: string, callback: (session: Session | null) => void) {
+    return this.subscribe(`sessions/${sessionId}`, (data) => {
+      if (!data) {
+        callback(null);
+        return;
+      }
+
+      callback(data as Session);
+      
+    });
+  }
 }
