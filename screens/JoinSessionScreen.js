@@ -114,6 +114,7 @@ const JoinSessionScreen = ({ navigation }) => {
   const handleFocus = () => setErrorMessage('');
 
   const handleJoinSession = async () => {
+    console.log("Joining session in JoinSessionScreen");
     setErrorMessage('');
 
     if (!sessionCode.trim()) {
