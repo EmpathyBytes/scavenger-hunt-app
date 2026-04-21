@@ -95,12 +95,8 @@ useEffect(() => { //dynamically updates points
       setLeavingSession(true);
       const sessionId = userData.currentSession;
       
-      // Check if user is in a team
+      // No longer need to check if user is in a team (deprecated)
       const sessionInfo = userData.sessionsJoined[sessionId];
-      if (sessionInfo?.teamId) {
-        // Remove from team first
-        await userService.removeUserFromTeam(user.uid, sessionId);
-      }
       
       // Remove from session
       await userService.removeUserFromSession(user.uid, sessionId);
