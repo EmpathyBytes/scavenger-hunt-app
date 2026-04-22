@@ -80,8 +80,8 @@ export default function GamePreviewScreen({ navigation, route }) {
   const { user } = useAuth();
   const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
   const { session: passedSession } = route.params ?? {};
-  const sessionId = passedSession?.id;
   const [session, setSession] = useState(passedSession ?? MOCK_SESSION);
+  const sessionId = passedSession?.id;
   //const isCreator = user?.uid === session.createdBy;
   //const [session, setSession] = useState(MOCK_SESSION);
   const [artifacts] = useState(MOCK_ARTIFACTS);
@@ -192,6 +192,8 @@ export default function GamePreviewScreen({ navigation, route }) {
   async function handleStartGame() {
     try {
       await sessionService.setGameState(sessionId, GameState.ACTIVE);
+      // TODO: currently, after creating a game, a new game is added to screen, but admin is not added to it
+      handleJoin(); // Just a temp fix for now...
 
       showToast("Game started! 🎉");
     } catch (err) {

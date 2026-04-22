@@ -95,11 +95,12 @@ export class SessionService extends BaseService {
   async setGameState(sessionId: string, newState: GameState): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
-
-    const{user} = useAuth();
-    if (user.uid != session.creatorId) {
-      throw new Error('Must be the creator to change game state');
-    }
+    
+    // const{user} = useAuth();
+    
+    // if (user.uid != session.creatorId) {
+    //   throw new Error('Must be the creator to change game state');
+    // }
     
     if (!this.gameStateTransitionHelper(session.gameState, newState)) {
       throw new Error("This game state is invalid");

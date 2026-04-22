@@ -150,7 +150,8 @@ const JoinSessionScreen = ({ navigation }) => {
         await userService.addUserToSession(user.uid, sessionCode);
         await userService.setCurrentSession(user.uid, sessionCode);
       }
-
+      console.log(sessionCode)
+      console.log(session)
       navigation.navigate('GamePreviewScreen', { sessionCode, session });
     } catch (err) {
       console.error('Error joining session:', err);
