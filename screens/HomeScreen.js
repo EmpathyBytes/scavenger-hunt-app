@@ -72,12 +72,11 @@ useEffect(() => {
         try {
           console.log("🔍 Fetching session for user:", user.uid);
           const session = await userService.getCurrentSession(user.uid);
-          console.log("📦 Session returned:", session);  // Is this null?
-          //setCurrentSession(session);
+          console.log("📦 Session returned:", session); 
 
           if (session) {
             const sessionData = await sessionService.getSession(session);
-            setCurrentSession(sessionData); // now has .creatorId
+            setCurrentSession(sessionData); 
           }
         } catch (error) {
           console.error("❌ Error fetching current session:", error);
