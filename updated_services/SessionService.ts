@@ -95,11 +95,12 @@ export class SessionService extends BaseService {
   async setGameState(sessionId: string, newState: GameState): Promise<void> {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error('Session not found');
-
-    const{user} = useAuth();
-    if (user.uid != session.creatorId) {
-      throw new Error('Must be the creator to change game state');
-    }
+    
+    // const{user} = useAuth();
+    
+    // if (user.uid != session.creatorId) {
+    //   throw new Error('Must be the creator to change game state');
+    // }
     
     if (!this.gameStateTransitionHelper(session.gameState, newState)) {
       throw new Error("This game state is invalid");
@@ -499,6 +500,24 @@ export class SessionService extends BaseService {
         : [];
 
       callback(sessionsArray);
+    });
+  }
+
+  /**
+   * Subscribes a listener for one session
+   * @param sessionId Current session to listen to
+   * @param callback Function called when data changes, receiving updated session object
+   * @returns Function that unsubscribes the listener
+   */
+  subscribeToSession(sessionId: string, callback: (session: Session | null) => void) {
+    return this.subscribe(`sessions/${sessionId}`, (data) => {
+      if (!data) {
+        callback(null);
+        return;
+      }
+
+      callback(data as Session);
+      
     });
   }
 }

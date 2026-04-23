@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,8 @@ import {
   useFonts,
 } from "@expo-google-fonts/figtree";
 import { useAuth } from '../contexts/AuthContext';
+import { useServices } from "../contexts/ServiceContext";
+import { GameState } from "../types/updated_database";
 
 // Mock session
 const MOCK_SESSION = {
@@ -79,12 +81,53 @@ export default function GamePreviewScreen({ navigation, route }) {
   const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
   const { session: passedSession } = route.params ?? {};
   const [session, setSession] = useState(passedSession ?? MOCK_SESSION);
+  const sessionId = passedSession?.id;
   //const isCreator = user?.uid === session.createdBy;
   //const [session, setSession] = useState(MOCK_SESSION);
   const [artifacts] = useState(MOCK_ARTIFACTS);
   const [hasJoined, setHasJoined] = useState(false);
   const [joining, setJoining] = useState(false);
   const [toast, setToast] = useState(null);
+
+  const [userData, setUserData] = useState(null);
+  // Fetch user data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user?.uid) return;
+      
+      try {
+        // setLoading(true);
+        const userData = await userService.getUser(user.uid);
+        setUserData(userData);
+        
+        /*
+        if (userData?.currentSession) {
+          const sessionData = await sessionService.getSession(userData.currentSession);
+          setSessionData(sessionData);
+        }
+        */
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        // setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [user, userService, sessionService]);
+
+
+  const { sessionService, userService } = useServices();
+  useEffect(() => {
+    if (!sessionId) return;
+    
+    const unsubscribe = sessionService.subscribeToSession(
+      sessionId,
+      setSession,
+    );
+
+    return unsubscribe;
+  }, [sessionId]);
 
   if (!fontsLoaded) {
     return (
@@ -108,35 +151,66 @@ export default function GamePreviewScreen({ navigation, route }) {
 
   async function handleJoin() {
     setJoining(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setHasJoined(true);
-    setSession((prev) => ({
-      ...prev,
-      participants: {
-        ...prev.participants,
-        [user.uid]: { displayName: user.displayName, points: 0 },
-      },
-    }));
+    try {
+      // await new Promise((r) => setTimeout(r, 800));
+
+      if (userData?.sessionsJoined?.[sessionId]) {
+        // User has already previously joined session, so update its current
+        await userService.setCurrentSession(user.uid, sessionId);
+      } else {
+        // User is joining a new session, so session also updates itself
+
+        console.log("User joining session");
+        console.log(userData)
+        console.log(session)
+        await userService.addUserToSession(user.uid, sessionId);
+        await userService.setCurrentSession(user.uid, sessionId);
+      }
+
+      setHasJoined(true);
+      showToast("You joined the game!");
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to join game", "error");
+    }
     setJoining(false);
-    showToast("You joined the game!");
   }
 
-  function handleLeave() {
-    const updated = { ...session.participants };
-    delete updated[user.uid];
-    setSession((prev) => ({ ...prev, participants: updated }));
-    setHasJoined(false);
-    showToast("You left the game.", "info");
+  async function handleLeave() {
+    try {
+      // Remove from session
+      await userService.removeUserFromSession(user.uid, sessionId);
+
+      setHasJoined(false);
+      showToast("You left the game.", "info");
+    } catch (err) {
+      console.error("Leave failed:", err);
+      showToast("Failed to leave game", "error");
+    }
   }
 
-  function handleStartGame() {
-    setSession((prev) => ({ ...prev, gameState: "ACTIVE" }));
-    showToast("Game started! 🎉");
+  async function handleStartGame() {
+    try {
+      await sessionService.setGameState(sessionId, GameState.ACTIVE);
+      // TODO: currently, after creating a game, a new game is added to screen, but admin is not added to it
+      handleJoin(); // Just a temp fix for now...
+
+      showToast("Game started! 🎉");
+    } catch (err) {
+      console.error("Start game failed:", err);
+      showToast("Failed to start game", "error");
+    }
   }
 
-  function handleEndGame() {
-    setSession((prev) => ({ ...prev, gameState: "FINISHED" }));
-    showToast("Game ended. Results are in.", "info");
+  async function handleEndGame() {
+    try {
+      await sessionService.setGameState(sessionId, GameState.FINISHED);
+
+      showToast("Game ended. Results are in.");
+    } catch (err) {
+      console.error("End game failed:", err);
+      showToast("Failed to end game", "error");
+    }
   }
 
   function getButtonConfig() {

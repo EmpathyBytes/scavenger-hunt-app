@@ -114,6 +114,7 @@ const JoinSessionScreen = ({ navigation }) => {
   const handleFocus = () => setErrorMessage('');
 
   const handleJoinSession = async () => {
+    console.log("Joining session in JoinSessionScreen");
     setErrorMessage('');
 
     if (!sessionCode.trim()) {
@@ -149,7 +150,8 @@ const JoinSessionScreen = ({ navigation }) => {
         await userService.addUserToSession(user.uid, sessionCode);
         await userService.setCurrentSession(user.uid, sessionCode);
       }
-
+      console.log(sessionCode)
+      console.log(session)
       navigation.navigate('GamePreviewScreen', { sessionCode, session });
     } catch (err) {
       console.error('Error joining session:', err);
