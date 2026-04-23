@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }) => {
   const { locations } = useContext(LocationsContext); // Always up-to-date
   const { artifacts } = useContext(ArtifactsContext); // Access artifacts from context
   const { user } = useAuth();
-  const { userService } = useServices();
+  const { userService, sessionService  } = useServices();
   const [errorMsg, setErrorMsg] = useState({});
   const [currentSession, setCurrentSession] = useState(null);
   const [foundLocationIds, setFoundLocationIds] = useState([]);
@@ -73,7 +73,12 @@ useEffect(() => {
           console.log("🔍 Fetching session for user:", user.uid);
           const session = await userService.getCurrentSession(user.uid);
           console.log("📦 Session returned:", session);  // Is this null?
-          setCurrentSession(session);
+          //setCurrentSession(session);
+
+          if (session) {
+            const sessionData = await sessionService.getSession(session);
+            setCurrentSession(sessionData); // now has .creatorId
+          }
         } catch (error) {
           console.error("❌ Error fetching current session:", error);
         }
@@ -211,7 +216,7 @@ useEffect(() => {
           return;
         }
         const userId = user?.uid;
-        const sessionId = currentSession;
+        const sessionId = currentSession.sessionId;
         if (!userId || !sessionId) {
           Alert.alert("Error", "User or session not found.");
           return;
@@ -288,7 +293,7 @@ useEffect(() => {
           />
         ))}
       </MapView>
-      <View style={styles.endGameButtonWrapper}>
+      {currentSession && currentSession?.creatorId === user?.uid && (<View style={styles.endGameButtonWrapper}>
         <TouchableOpacity
           onPress={()=> setEndGameModalVisible(true)}
         >
@@ -296,7 +301,7 @@ useEffect(() => {
             End Game
           </Text>
         </TouchableOpacity>
-      </View>
+      </View>)}
       <View style={styles.infoButtonWrapper}>
         <TouchableOpacity
           style={{ position: "absolute", top: "1%", right: "1%" }}
@@ -383,7 +388,7 @@ useEffect(() => {
           {screenIndex == 0 && currentSession && (
             <LeaderboardScreen
               navigation={navigation}
-              route={{ params: { sessionId: currentSession } }}
+              route={{ params: { sessionId: currentSession.sessionId } }}
             />
           )}
           {screenIndex == 1 && (
@@ -414,7 +419,7 @@ useEffect(() => {
         visible={endGameModalVisible}
         setModalVisible={setEndGameModalVisible}
         navigation={navigation}
-        sessionId={currentSession ?? ""}
+        sessionId={currentSession?.sessionId ?? ""}
       />
     </GestureHandlerRootView>
   );

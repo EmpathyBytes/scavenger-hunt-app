@@ -30,7 +30,6 @@ export default function EndGameModal({
             <BasicButton text="End Game" onPress={async () => {
                 await sessionService.setGameState(sessionId, GameState.FINISHED, user.uid);
                 setModalVisible(false);
-                //setScreenIndex(0); 
                 xnavigation.navigate("GameResultsScreen");
             }} />
         </View>
