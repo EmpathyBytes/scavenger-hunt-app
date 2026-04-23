@@ -178,7 +178,7 @@ async setTimes(sessionId: string, startTime: number, endTime: number): Promise<v
 - Validates that startTime is before endTime
 
 ```typescript
-async setGameState(sessionId: string, newState: GameState): Promise<void>
+async setGameState(sessionId: string, newState: GameState, userId: string): Promise<void>
 ```
 - Sets the game state for a session
 

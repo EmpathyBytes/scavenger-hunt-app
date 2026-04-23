@@ -35,6 +35,8 @@ import { DATABASE_CONFIG } from "../config/config";
 import { database } from "../firebase_config";
 import { ref, onValue } from "firebase/database";
 import LocationModal from "../components/LocationModal";
+import EndGameModal from "../components/EndGameModal";
+import BasicButton from "../components/BasicButton";
 
 const { height, width } = Dimensions.get("window");
 
@@ -59,21 +61,28 @@ const HomeScreen = ({ navigation }) => {
   const { locations } = useContext(LocationsContext); // Always up-to-date
   const { artifacts } = useContext(ArtifactsContext); // Access artifacts from context
   const { user } = useAuth();
-  const { userService } = useServices();
+  const { userService, sessionService  } = useServices();
   const [errorMsg, setErrorMsg] = useState({});
   const [currentSession, setCurrentSession] = useState(null);
   const [foundLocationIds, setFoundLocationIds] = useState([]);
 
-  useEffect(() => {
+useEffect(() => {
     const fetchCurrentSession = async () => {
       if (user?.uid) {
         try {
+          console.log("🔍 Fetching session for user:", user.uid);
           const session = await userService.getCurrentSession(user.uid);
-          setCurrentSession(session);
+          console.log("📦 Session returned:", session); 
+
+          if (session) {
+            const sessionData = await sessionService.getSession(session);
+            setCurrentSession(sessionData); 
+          }
         } catch (error) {
-          console.error("Error fetching current session:", error);
+          console.error("❌ Error fetching current session:", error);
         }
       } else {
+        console.log("⚠️ No user UID available");
         setCurrentSession(null);
       }
     };
@@ -117,7 +126,9 @@ const HomeScreen = ({ navigation }) => {
   const [mapReady, setMapReady] = useState(false);
   const [forceReload, setForceReload] = useState(0);
 
-  const [modalVisible, setModalVisible] = useState(false);
+  const [endGameModalVisible, setEndGameModalVisible] = useState(false);
+
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
   const [locationModalContent, setLocationModalContent] = useState({
     title: "",
     description: "",
@@ -204,7 +215,7 @@ const HomeScreen = ({ navigation }) => {
           return;
         }
         const userId = user?.uid;
-        const sessionId = currentSession;
+        const sessionId = currentSession.sessionId;
         if (!userId || !sessionId) {
           Alert.alert("Error", "User or session not found.");
           return;
@@ -242,13 +253,13 @@ const HomeScreen = ({ navigation }) => {
           title: found.name || found.id,
           description: artifactsDescription,
         });
-        setModalVisible(true);
+        setLocationModalVisible(true);
       } else {
         setLocationModalContent({
           title: "No Location Nearby",
           description: "Keep looking!",
         });
-        setModalVisible(true);
+        setLocationModalVisible(true);
       }
     } catch (err) {
       Alert.alert("Error", `Failed to check nearby location: ${err}`);
@@ -281,6 +292,15 @@ const HomeScreen = ({ navigation }) => {
           />
         ))}
       </MapView>
+      {currentSession && currentSession?.creatorId === user?.uid && (<View style={styles.endGameButtonWrapper}>
+        <TouchableOpacity
+          onPress={()=> setEndGameModalVisible(true)}
+        >
+          <Text style={{color:"#FFFFFF", fontSize: 16}}>
+            End Game
+          </Text>
+        </TouchableOpacity>
+      </View>)}
       <View style={styles.infoButtonWrapper}>
         <TouchableOpacity
           style={{ position: "absolute", top: "1%", right: "1%" }}
@@ -367,7 +387,7 @@ const HomeScreen = ({ navigation }) => {
           {screenIndex == 0 && currentSession && (
             <LeaderboardScreen
               navigation={navigation}
-              route={{ params: { sessionId: currentSession } }}
+              route={{ params: { sessionId: currentSession.sessionId } }}
             />
           )}
           {screenIndex == 1 && (
@@ -389,10 +409,16 @@ const HomeScreen = ({ navigation }) => {
         </BottomSheetView>
       </BottomSheet>
       <LocationModal
-        visible={modalVisible}
-        setModalVisible={setModalVisible}
+        visible={locationModalVisible}
+        setModalVisible={setLocationModalVisible}
         title={locationModalContent.title}
         description={locationModalContent.description}
+      />
+      <EndGameModal
+        visible={endGameModalVisible}
+        setModalVisible={setEndGameModalVisible}
+        navigation={navigation}
+        sessionId={currentSession?.sessionId ?? ""}
       />
     </GestureHandlerRootView>
   );
@@ -454,6 +480,15 @@ const styles = StyleSheet.create({
     objectFit: "contain",
     height: 50,
     width: 50,
+  },
+  endGameButtonWrapper: {
+    position: "absolute",
+    top: "6%",
+    left: "3%",
+    zIndex: 5,
+    padding: "2%",
+    borderRadius: "20%",
+    backgroundColor: "#E04F39",
   },
   infoButtonWrapper: {
     position: "absolute",
