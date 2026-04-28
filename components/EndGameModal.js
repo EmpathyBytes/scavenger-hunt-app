@@ -31,7 +31,7 @@ export default function EndGameModal({
                 console.log(sessionId);
                 await sessionService.setGameState(sessionId, GameState.FINISHED, user.uid);
                 setModalVisible(false);
-                xnavigation.navigate("GameResultsScreen");
+                navigation.navigate("GameResultScreen");
             }} />
         </View>
       </View>
