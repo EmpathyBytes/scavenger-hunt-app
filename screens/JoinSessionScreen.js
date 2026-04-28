@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Image, Text, View, StyleSheet, TextInput, ActivityIndicator,
@@ -110,6 +111,10 @@ const JoinSessionScreen = ({ navigation }) => {
     setSessionCode('');
     setTimeout(() => inputRef.current?.focus(), 100);
   };
+  
+  const handleXButton = () => {
+      setShowCodeInput(false);
+  }
 
   const handleFocus = () => setErrorMessage('');
 
@@ -207,7 +212,7 @@ const JoinSessionScreen = ({ navigation }) => {
       </View>
 
       {/* Title */}
-      <Text style={styles.title}>Find a Game</Text>
+      <Text style={styles.title}>Find a Game 🔍</Text>
 
       {/* Top action buttons */}
       <View style={styles.topButtons}>
@@ -216,7 +221,7 @@ const JoinSessionScreen = ({ navigation }) => {
           onPress={handleEnterCodePress}
           activeOpacity={0.8}
         >
-          <Text style={[styles.topBtnText, { color: COLORS.beige }]}>Enter Code</Text>
+          <Text style={[styles.topBtnText, { color: COLORS.beige }]}>Enter Code🔑</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -224,12 +229,13 @@ const JoinSessionScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("CreateGameScreen")}
           activeOpacity={0.8}
         >
-          <Text style={[styles.topBtnText, { color: COLORS.navy }]}>Create Game</Text>
+          <Text style={[styles.topBtnText, { color: COLORS.navy }]}>Create Game✨</Text>
         </TouchableOpacity>
+      
       </View>
 
       {/* Code input (shown when "Enter Code" is tapped) */}
-      {showCodeInput && (
+      {showCodeInput && ( 
         <View style={styles.codeInputWrapper}>
           <View style={styles.inputContainer}>
             <TextInput
@@ -238,7 +244,7 @@ const JoinSessionScreen = ({ navigation }) => {
               value={sessionCode}
               onChangeText={setSessionCode}
               onFocus={handleFocus}
-              placeholder="Enter Super Secret Game Code"
+              placeholder="Enter Super Secret Game Code 🤫"
               placeholderTextColor="#aaa"
               maxLength={20}
               autoCapitalize="none"
@@ -246,12 +252,18 @@ const JoinSessionScreen = ({ navigation }) => {
             {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           </View>
           <BasicButton
-            text={joiningSession ? 'Joining...' : 'Join Game'}
+            text={joiningSession ? 'Joining...' : 'Join Game 🎮'}
             backgroundColor={COLORS.navy}
             textColor={COLORS.beige}
             disabled={joiningSession}
             onPress={handleJoinSession}
           />
+        <TouchableOpacity
+        style = {[styles.dismissBtn]}
+          onPress={handleXButton}
+          hitSlop = {{top: 8, bottom: 8, left: 8, right: 8}}> 
+          <Text style = {styles.dismissBtnText}>x</Text>
+        </TouchableOpacity>
         </View>
       )}
 
@@ -277,7 +289,7 @@ const JoinSessionScreen = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={COLORS.navy} />
         }
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No games available right now. Try refreshing!</Text>
+          <Text style={styles.emptyText}>No games available right now. Try refreshing! 🔄️</Text>
         }
       />
     </View>
@@ -319,7 +331,7 @@ const styles = StyleSheet.create({
   },
   topBtn: {
     paddingVertical: 12,
-    paddingHorizontal: 28,
+    paddingHorizontal: 8,
     borderRadius: 6,
   },
   topBtnNavy: {
@@ -457,6 +469,21 @@ const styles = StyleSheet.create({
   badgeTextActive: {
     color: '#fff',
   },
+
+  // ── Other Buttons ────────────────────────────────────────────────────────
+  dismissBtnText: {
+    fontSize: 16,
+    color: COLORS.navy,
+    fontFamily:'Figtree_600SemiBold'
+  },
+
+  dismissBtn: {
+    position: 'absolute',
+    top: 14,
+    right: 0,
+    padding: 0,
+  }
+
 });
 
 export default JoinSessionScreen;

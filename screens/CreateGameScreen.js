@@ -269,18 +269,19 @@ const CreateGameScreen = ({ navigation }) => {
         </Text>
       ) : (
         artifacts.map((artifact) => (
-          <View key={artifact.id} style={[styles.artifactRow, { marginTop: scale(15) }]}>
-            <TouchableOpacity
-              style={[styles.checkbox, { width: scale(22), height: scale(22), marginRight: scale(10) }]}
-              onPress={() => toggleArtifact(artifact.id)}
-            >
+          <TouchableOpacity
+            key={artifact.id}
+            style={[styles.artifactRow, { marginTop: scale(15) }]}
+            onPress={() => toggleArtifact(artifact.id)}
+          >
+            <View style={[styles.checkbox, { width: scale(22), height: scale(22), marginRight: scale(10) }]}>
               {selectedArtifacts[artifact.id] && <View style={{ width: scale(14), height: scale(14), backgroundColor: COLORS.gold }} />}
-            </TouchableOpacity>
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontWeight: "600", fontSize: scale(14) }}>{artifact.name}</Text>
               {!!artifact.hint && <Text style={{ fontSize: scale(12), color: "#666" }}>{artifact.hint}</Text>}
             </View>
-          </View>
+          </TouchableOpacity>
         ))
       )}
       {errors.artifacts && <Text style={{ color: 'red', marginTop: 5 }}>{errors.artifacts}</Text>}
