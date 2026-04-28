@@ -28,6 +28,7 @@ export default function EndGameModal({
             <Text style={styles.modalDescription}>{description}</Text>
             <BasicButton text="Cancel" onPress={() => setModalVisible(false)} />
             <BasicButton text="End Game" onPress={async () => {
+                console.log(sessionId);
                 await sessionService.setGameState(sessionId, GameState.FINISHED, user.uid);
                 setModalVisible(false);
                 xnavigation.navigate("GameResultsScreen");

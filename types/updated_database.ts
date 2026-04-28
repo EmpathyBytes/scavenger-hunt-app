@@ -99,6 +99,7 @@ export enum GameState {
 
 export interface Session {
   sessionName: string;
+  sessionCode: string;
   creatorId: string;
   startTime: number;
   endTime: number;

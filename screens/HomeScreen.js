@@ -418,7 +418,7 @@ useEffect(() => {
         visible={endGameModalVisible}
         setModalVisible={setEndGameModalVisible}
         navigation={navigation}
-        sessionId={currentSession?.sessionId ?? ""}
+        sessionId={currentSession?.sessionCode?? ""}
       />
     </GestureHandlerRootView>
   );

@@ -26,6 +26,7 @@ export class SessionService extends BaseService {
 
     const newSession: Session = {
       sessionName: '',
+      sessionCode: sessionId,
       creatorId,
       startTime: 0,
       endTime: 0,
@@ -97,11 +98,12 @@ export class SessionService extends BaseService {
     if (!session) throw new Error('Session not found');
 
     if (userId != session.creatorId) {
-      console.log("Must be the creator to change game state" + userId + " " + session.creatorId);
+      console.log("Must be the creator to change game state " + userId + " " + session.creatorId + " " + session.sessionCode);
       throw new Error('Must be the creator to change game state');
     }
     
     if (!this.gameStateTransitionHelper(session.gameState, newState)) {
+      console.log("Game state is invalid " + session.gameState + " to " + newState);
       throw new Error("This game state is invalid");
     }
 
