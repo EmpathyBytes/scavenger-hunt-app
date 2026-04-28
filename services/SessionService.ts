@@ -314,12 +314,12 @@ export class SessionService extends BaseService {
 
   /**
    
-Gets the leaderboard for a session, ordered by points (I did descending)*
-Returns all participants in the session with their display names and points.
-*
-@param sessionId - Unique identifier for the session
-@returns Array of leaderboard entries with userId, displayName, and points
-@throws Error if the session does not exist*/
+  Gets the leaderboard for a session, ordered by points (I did descending)*
+  Returns all participants in the session with their display names and points.
+  *
+  @param sessionId - Unique identifier for the session
+  @returns Array of leaderboard entries with userId, displayName, and points
+  @throws Error if the session does not exist*/
 
   // Could throw this array block into a type alisas for readability
   async getSessionLeaderboardEntries(
