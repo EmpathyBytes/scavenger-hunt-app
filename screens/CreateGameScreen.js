@@ -12,11 +12,11 @@ import {
 } from "react-native";
 import { COLORS, SIZES } from "../components/theme";
 import BackButton from '../components/BackButton';
-import { auth } from '../firebase_config'; // to get currentUser
 import BasicButton from "../components/BasicButton";
 import { database } from "../firebase_config";
 import { ref, get, set } from "firebase/database";
 import { DATABASE_CONFIG } from "../config/config";
+import { useAuth } from '../contexts/AuthContext';
 
 const guidelineBaseWidth = 375;
 
@@ -33,7 +33,7 @@ const CreateGameScreen = ({ navigation }) => {
   const { width } = useWindowDimensions();
   const scale = size => (width / guidelineBaseWidth) * size;
 
-  const currentUser = auth.currentUser;
+  const { user } = useAuth();
 
   const baseNode = DATABASE_CONFIG.baseNode;
 
@@ -173,13 +173,16 @@ const CreateGameScreen = ({ navigation }) => {
     const sessionData = {
       sessionName: gameName.trim(),
       sessionCode: normalizedCode,
-      createdBy: currentUser ? currentUser.uid : "unknown",
+      creatorId: user?.uid ?? "unknown",
       gameState: "LOBBY",
       startTime: new Date().toISOString(),
       endTime: endTime.toISOString(),
       participants: {},
       artifacts: artifactsMap,
     };
+
+    console.log("current user ", user);
+    console.log(sessionData.creatorId);
 
     setCreating(true);
     try {

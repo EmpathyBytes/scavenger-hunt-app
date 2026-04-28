@@ -81,7 +81,7 @@ export default function GamePreviewScreen({ navigation, route }) {
   const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
   const { session: passedSession } = route.params ?? {};
   const [session, setSession] = useState(passedSession ?? MOCK_SESSION);
-  const sessionId = passedSession?.id;
+  const sessionId = passedSession?.sessionCode;
   //const isCreator = user?.uid === session.createdBy;
   //const [session, setSession] = useState(MOCK_SESSION);
   const [artifacts] = useState(MOCK_ARTIFACTS);
@@ -137,7 +137,7 @@ export default function GamePreviewScreen({ navigation, route }) {
     );
   }
 
-  const isCreator = user?.uid === session.createdBy;
+  const isCreator = user?.uid === session.creatorId;
   const participants = Object.entries(session.participants ?? {}).map(([uid, data]) => ({
     uid,
     displayName: data.displayName ?? uid,
@@ -191,7 +191,7 @@ export default function GamePreviewScreen({ navigation, route }) {
 
   async function handleStartGame() {
     try {
-      await sessionService.setGameState(sessionId, GameState.ACTIVE);
+      await sessionService.setGameState(sessionId, GameState.ACTIVE, user.uid);
       // TODO: currently, after creating a game, a new game is added to screen, but admin is not added to it
       handleJoin(); // Just a temp fix for now...
 
@@ -204,7 +204,7 @@ export default function GamePreviewScreen({ navigation, route }) {
 
   async function handleEndGame() {
     try {
-      await sessionService.setGameState(sessionId, GameState.FINISHED);
+      await sessionService.setGameState(sessionId, GameState.FINISHED, user.uid);
 
       showToast("Game ended. Results are in.");
     } catch (err) {
@@ -265,7 +265,7 @@ export default function GamePreviewScreen({ navigation, route }) {
           {[
             ["Name",    session.sessionName],
             ["Code",    session.sessionCode],
-            ["Creator", participants.find((p) => p.uid === session.createdBy)?.displayName || "—"],
+            ["Creator", session.creatorId || participants.find((p) => p.uid === session.createdBy)?.displayName || "—"],
             ["Start",   formatDate(session.startTime)],
             ["End",     formatDate(session.endTime)],
           ].map(([k, v]) => (
