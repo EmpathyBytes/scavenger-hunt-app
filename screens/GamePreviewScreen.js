@@ -80,11 +80,16 @@ export default function GamePreviewScreen({ navigation, route }) {
   const { user } = useAuth();
   const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
   const { session: passedSession } = route.params ?? {};
-  const [session, setSession] = useState(passedSession ?? MOCK_SESSION);
+  const [session, setSession] = useState(passedSession ?? null);
   const sessionId = passedSession?.sessionCode;
   //const isCreator = user?.uid === session.createdBy;
   //const [session, setSession] = useState(MOCK_SESSION);
-  const [artifacts] = useState(MOCK_ARTIFACTS);
+  // const [artifacts] = useState(MOCK_ARTIFACTS);
+  const artifacts = Object.entries(session.artifacts ?? {}).map(([id, data]) => ({
+    id,
+    name: typeof data === "object" ? (data.name ?? id) : id,
+    hint: typeof data === "object" ? (data.hint ?? data.locationHint ?? "") : "",
+  }));
   const [hasJoined, setHasJoined] = useState(false);
   const [joining, setJoining] = useState(false);
   const [toast, setToast] = useState(null);
@@ -161,7 +166,7 @@ export default function GamePreviewScreen({ navigation, route }) {
         // User is joining a new session, so session also updates itself
 
         console.log("User joining session");
-        console.log(userData)
+        //console.log(userData)
         console.log(session)
         await userService.addUserToSession(user.uid, sessionId);
         await userService.setCurrentSession(user.uid, sessionId);
@@ -191,11 +196,13 @@ export default function GamePreviewScreen({ navigation, route }) {
 
   async function handleStartGame() {
     try {
-      await sessionService.setGameState(sessionId, GameState.ACTIVE, user.uid);
-      // TODO: currently, after creating a game, a new game is added to screen, but admin is not added to it
-      handleJoin(); // Just a temp fix for now...
-
+      if (!session.participants?.[user.uid]) {
+        await userService.addUserToSession(user.uid, sessionId);
+      }
+      await sessionService.setGameState(sessionId, GameState.ACTIVE,user.uid);
+      await userService.setCurrentSession(user.uid, sessionId);
       showToast("Game started! 🎉");
+      navigation.replace("HomeScreen");
     } catch (err) {
       console.error("Start game failed:", err);
       showToast("Failed to start game", "error");
@@ -204,8 +211,8 @@ export default function GamePreviewScreen({ navigation, route }) {
 
   async function handleEndGame() {
     try {
-      await sessionService.setGameState(sessionId, GameState.FINISHED, user.uid);
-
+      await sessionService.setGameState(sessionId, GameState.FINISHED);
+      setSession((prev) => ({ ...prev, gameState: "FINISHED" }));
       showToast("Game ended. Results are in.");
     } catch (err) {
       console.error("End game failed:", err);
