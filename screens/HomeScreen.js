@@ -76,7 +76,7 @@ useEffect(() => {
 
           if (session) {
             const sessionData = await sessionService.getSession(session);
-            setCurrentSession(sessionData); 
+            setCurrentSession(sessionData ? {...sessionData, sessionId: session } : null);
           }
         } catch (error) {
           console.error("❌ Error fetching current session:", error);
