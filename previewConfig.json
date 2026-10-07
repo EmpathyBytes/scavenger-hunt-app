@@ -1,0 +1,9 @@
+{
+  "LocationModal": [
+    {
+      "propName": "visible",
+      "propType": "boolean",
+      "defaultValue": "true"
+    }
+  ]
+}
