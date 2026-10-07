@@ -12,8 +12,8 @@ export default function BackButton({ style = {}, backgroundColor = 'transparent'
 }
 const styles = StyleSheet.create({
     button: {
-        height: 30,
-		width: 30,
+        height: 32,
+		width: 32,
 		//marginHorizontal: 30,
     },
 })

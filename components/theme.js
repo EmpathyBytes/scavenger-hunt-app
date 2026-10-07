@@ -1,12 +1,13 @@
 const COLORS = {
-    beige: "#FFFADF",//beige
-    navy: "#061E39",//navy
-    yellow: "#EEB210",//yellow
-    gold: "#B39051", //gold
+    beige: "#FFFADF",
+    navy: "#061E39",
+    yellow: "#EEB210",
+    gold: "#B39051", 
   
     gray: "#D6DBD4",
   
     white: "#FFFFFF",
+    black: "#000000",
     red: "#E04F39",
 };
 
@@ -15,5 +16,18 @@ const SIZES = {
     heading: 32,
     body: 24,
     body_small: 16,
+    radius_component: 16,
+    radius_container: 24
 };
-export { COLORS, SIZES }
+
+// all padding or any sizes should be multiples of 4
+const SPACING = {
+    xs: 4, 
+    sm: 8,   
+    md: 12,  
+    lg: 16,  
+    xl: 20,  
+    xxl: 24, 
+    xxxl: 32,
+}
+export { COLORS, SIZES, SPACING }

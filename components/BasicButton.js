@@ -1,4 +1,4 @@
-import { COLORS, SIZES } from './theme';
+import { SPACING, SIZES } from './theme';
 import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 
@@ -34,9 +34,9 @@ const styles = StyleSheet.create({
         //flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        borderRadius: 16,
+        paddingVertical: SPACING.md,
+        paddingHorizontal: SPACING.md,
+        borderRadius: SIZES.radius_component,
     },
     text: {
         fontSize: SIZES.body,
