@@ -2,7 +2,7 @@ import { COLORS } from './theme';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
 
-export default function BackButton({ style = style, backgroundColor = 'transparent', color = COLORS.navy, size = 32, onPress }) {
+export default function BackButton({ style = {}, backgroundColor = 'transparent', color = COLORS.navy, size = 32, onPress }) {
 
     return (
         <TouchableOpacity style={[style, {backgroundColor: backgroundColor}, styles.button]} onPress={onPress}>
