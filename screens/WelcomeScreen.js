@@ -49,7 +49,8 @@ const WelcomeScreen = ({ navigation }) => {
 						text="Play"
 						backgroundColor={COLORS.navy}
 						textColor={COLORS.beige}
-						onPress={() => navigation.navigate('LogInScreen')}/>
+						onPress={() => navigation.navigate('LogInScreen')}
+						width={100}/>
 				</View>
 			</ImageBackground>
 		</View>

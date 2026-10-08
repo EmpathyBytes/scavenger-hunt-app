@@ -3,9 +3,10 @@ import {
   Image, Text, View, StyleSheet, TextInput, ActivityIndicator,
   FlatList, TouchableOpacity, RefreshControl,
 } from 'react-native';
-import { COLORS, SIZES } from '../components/theme';
+import { COLORS, SIZES, SPACING } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton';
+import Input from '../components/Input';
 import BackButton from '../components/BackButton';
 import { useAuth } from '../contexts/AuthContext';
 import { useServices } from '../contexts/ServiceContext';
@@ -211,38 +212,28 @@ const JoinSessionScreen = ({ navigation }) => {
 
       {/* Top action buttons */}
       <View style={styles.topButtons}>
-        <TouchableOpacity
-          style={[styles.topBtn, styles.topBtnNavy]}
-          onPress={handleEnterCodePress}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.topBtnText, { color: COLORS.beige }]}>Enter Code</Text>
-        </TouchableOpacity>
+        <BasicButton backgroundColor={COLORS.navy} text="Enter Code" textColor={COLORS.beige} fontSize={SIZES.body} onPress={handleEnterCodePress} activeOpacity={0.8} flex={1} width={"0%"}></BasicButton>
 
-        <TouchableOpacity
-          style={[styles.topBtn, styles.topBtnGold]}
-          onPress={() => navigation.navigate("CreateGameScreen")}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.topBtnText, { color: COLORS.navy }]}>Create Game</Text>
-        </TouchableOpacity>
+        <BasicButton backgroundColor={COLORS.yellow} text="Create Game" textColor={COLORS.navy} fontSize={SIZES.body} onPress={() => navigation.navigate("CreateGameScreen")} activeOpacity={0.8} flex={1} width={"0%"}></BasicButton>
       </View>
 
       {/* Code input (shown when "Enter Code" is tapped) */}
       {showCodeInput && (
         <View style={styles.codeInputWrapper}>
           <View style={styles.inputContainer}>
-            <TextInput
+            <Input 
               ref={inputRef}
-              style={[styles.input, errorMessage ? styles.inputError : null]}
+              style={[errorMessage ? styles.inputError : null]}
               value={sessionCode}
+              backgroundColor={COLORS.white}
               onChangeText={setSessionCode}
               onFocus={handleFocus}
               placeholder="Enter Super Secret Game Code"
-              placeholderTextColor="#aaa"
               maxLength={20}
               autoCapitalize="none"
-            />
+              flex={1}
+              ></Input>
+
             {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
           </View>
           <BasicButton
@@ -251,6 +242,7 @@ const JoinSessionScreen = ({ navigation }) => {
             textColor={COLORS.beige}
             disabled={joiningSession}
             onPress={handleJoinSession}
+            width={"100%"}
           />
         </View>
       )}
@@ -294,73 +286,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.beige,
-    paddingTop: 60,
-    paddingHorizontal: 20,
+    paddingTop: SPACING.v,
+    paddingHorizontal: SPACING.xl,
   },
   backButtonContainer: {
     position: 'absolute',
-    top: 50,
-    left: 10,
+    top: SPACING.v,
+    left: SPACING.md,
   },
   title: {
     fontFamily: 'Figtree_600SemiBold',
     fontSize: SIZES.title,
     color: COLORS.navy,
     textAlign: 'center',
-    marginBottom: 24,
-    marginTop: 30,
+    marginBottom: SPACING.xxl,
+    marginTop: SPACING.xxxl,
   },
   // ── Top buttons ──────────────────────────────────────────────────
   topButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 28,
-  },
-  topBtn: {
-    paddingVertical: 12,
-    paddingHorizontal: 28,
-    borderRadius: 6,
-  },
-  topBtnNavy: {
-    backgroundColor: COLORS.navy,
-  },
-  topBtnGold: {
-    backgroundColor: '#F5A623',
-  },
-  topBtnText: {
-    fontFamily: 'Figtree_400Regular',
-    fontSize: SIZES.body,
+    gap: SPACING.md,
+    marginBottom: SPACING.xxl,
   },
   // ── Code input ───────────────────────────────────────────────────
   codeInputWrapper: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: SPACING.xl,
+    paddingHorizontal: SPACING.xxl
   },
   inputContainer: {
+    flexDirection: "row",
     width: '100%',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: COLORS.navy,
-    padding: 10,
-    borderRadius: 15,
-    width: 310,
-    height: 50,
-    fontFamily: 'Figtree_400Regular',
-    fontSize: SIZES.body,
-    backgroundColor: '#fff',
+    marginBottom: SPACING.md,
   },
   inputError: {
-    borderColor: 'red',
+    borderColor: COLORS.red,
   },
   errorText: {
-    color: 'red',
+    color: COLORS.red,
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body_small,
-    marginTop: 5,
+    marginTop: SPACING.sm,
     textAlign: 'center',
   },
   // ── Section header ────────────────────────────────────────────────
@@ -368,7 +336,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.md,
   },
   sectionTitle: {
     fontFamily: 'Figtree_600SemiBold',
@@ -378,35 +346,35 @@ const styles = StyleSheet.create({
   sectionSub: {
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body_small,
-    color: '#999',
-    marginTop: 2,
+    color: COLORS.gray,
+    marginTop: SPACING.xs,
   },
   refreshBtn: {
-    padding: 4,
+    padding: SPACING.sm,
   },
   refreshIcon: {
-    fontSize: 20,
+    fontSize: SIZES.body,
     color: COLORS.navy,
   },
   // ── List ──────────────────────────────────────────────────────────
   listContent: {
-    paddingBottom: 40,
-    gap: 12,
+    paddingBottom: SPACING.v,
+    gap: SPACING.md,
   },
   emptyText: {
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body_small,
-    color: '#999',
+    color: COLORS.gray,
     textAlign: 'center',
-    marginTop: 40,
+    marginTop: SPACING.v,
   },
   // ── Game card ─────────────────────────────────────────────────────
   card: {
     backgroundColor: '#fff',
-    borderRadius: 14,
+    borderRadius: SIZES.radius_component,
     borderWidth: 1.5,
     borderColor: COLORS.navy,
-    padding: 16,
+    padding: SPACING.lg,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -418,7 +386,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree_600SemiBold',
     fontSize: SIZES.body,
     color: COLORS.navy,
-    marginBottom: 4,
+    marginBottom: SPACING.sm,
   },
   cardSub: {
     fontFamily: 'Figtree_400Regular',
@@ -427,7 +395,7 @@ const styles = StyleSheet.create({
   },
   cardRight: {
     alignItems: 'flex-end',
-    gap: 6,
+    gap: SPACING.sm,
   },
   cardCode: {
     fontFamily: 'Figtree_400Regular',
@@ -436,9 +404,9 @@ const styles = StyleSheet.create({
   },
   // ── Badges ────────────────────────────────────────────────────────
   badge: {
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: SIZES.radius_component_s,
   },
   badgeLobby: {
     backgroundColor: '#F5A623',
@@ -448,14 +416,13 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 11,
-    letterSpacing: 0.5,
+    fontSize: SIZES.body_small,
   },
   badgeTextLobby: {
-    color: '#fff',
+    color: COLORS.white,
   },
   badgeTextActive: {
-    color: '#fff',
+    color: COLORS.white,
   },
 });
 
