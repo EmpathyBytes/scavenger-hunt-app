@@ -14,7 +14,7 @@ export default function Input({style, ...props}) {
     }
 
     return (
-        <TextInput style={[styles.input, , style]}{...props} placeholderTextColor={COLORS.gray}></TextInput>
+        <TextInput style={[styles.input, style]}{...props} placeholderTextColor={COLORS.gray}></TextInput>
     );
 }
 
