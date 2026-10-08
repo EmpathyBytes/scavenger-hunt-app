@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree_400Regular',
     fontSize: SIZES.body_small,
     textAlign: 'center',
-    marginTop: SPACING.md,
+    marginTop: SPACING.xl,
   },
   signupLink: {
     color: COLORS.primary,

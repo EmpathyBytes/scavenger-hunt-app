@@ -12,9 +12,9 @@ const COLORS = {
 };
 
 const SIZES = {
-    title: 64,
-    heading: 32,
-    body: 24,
+    title: 48,
+    heading: 24,
+    body: 20,
     body_small: 16,
     radius_component_s: 8,
     radius_component: 16,
