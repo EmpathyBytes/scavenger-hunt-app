@@ -293,13 +293,7 @@ useEffect(() => {
         ))}
       </MapView>
       {currentSession && currentSession?.creatorId === user?.uid && (<View style={styles.endGameButtonWrapper}>
-        <TouchableOpacity
-          onPress={()=> setEndGameModalVisible(true)}
-        >
-          <Text style={{color:"#FFFFFF", fontSize: 16}}>
-            End Game
-          </Text>
-        </TouchableOpacity>
+        <BasicButton backgroundColor={COLORS.red} text={"End Game"} fontFamily={"Figtree_600SemiBold"} fontSize={SIZES.body_small} textColor={COLORS.white} onPress={()=> setEndGameModalVisible(true)}></BasicButton>
       </View>)}
       <View style={styles.infoButtonWrapper}>
         <TouchableOpacity
