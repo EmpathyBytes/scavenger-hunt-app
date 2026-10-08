@@ -2,7 +2,7 @@ import { SPACING, SIZES } from './theme';
 import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 
-export default function BasicButton({ text, backgroundColor, textColor, onPress, width}) {
+export default function BasicButton({ text, backgroundColor, textColor, fontSize=SIZES.body, onPress, width}) {
     //load font
     const [fontsLoaded] = useFonts({
         Figtree_400Regular,
@@ -15,7 +15,7 @@ export default function BasicButton({ text, backgroundColor, textColor, onPress,
 
     return (
         <TouchableOpacity style={[{backgroundColor: backgroundColor},  width ? {width} : null, styles.container]} onPress={onPress}>
-            <Text style={[{color: textColor}, styles.text]}>
+            <Text style={[{color: textColor}, fontSize=fontSize, styles.text]}>
                 {text}
             </Text>
         </TouchableOpacity>
@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
         borderRadius: SIZES.radius_component,
     },
     text: {
-        fontSize: SIZES.body,
         fontFamily: "Figtree_400Regular",
     }
 })

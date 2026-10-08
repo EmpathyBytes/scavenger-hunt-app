@@ -11,6 +11,7 @@ import {
 import { COLORS, SIZES } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton';
+import BackButton from '../components/BackButton';
 
 const STEPS = [
   {
@@ -48,9 +49,7 @@ const AboutUsScreen = ({ navigation }) => {
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.navigate('HomeScreen')} style={styles.backBtn}>
-          <Text style={styles.backArrow}>‹</Text>
-        </TouchableOpacity>
+        <BackButton onPress={() => navigation.navigate('HomeScreen')}></BackButton>
         <Text style={styles.pageTitle}>About Us</Text>
       </View>
 
@@ -110,17 +109,15 @@ const AboutUsScreen = ({ navigation }) => {
             <View key={i} style={styles.dash} />
           ))}
         </View>
-
-        {/* Website button — auto-sizes to text, no oversized box */}
-        <TouchableOpacity
-          style={styles.websiteBtn}
-          onPress={() => Linking.openURL('https://educast.library.gatech.edu')}
+        
+        <BasicButton 
+          onPress={() => Linking.openURL('https://educast.library.gatech.edu')} 
           activeOpacity={0.8}
-        >
-          <Text style={styles.websiteBtnText} numberOfLines={1}>
-            Visit the Empathy Bytes Website
-          </Text>
-        </TouchableOpacity>
+          backgroundColor={COLORS.gold}
+          text={"Visit the Empathy Bytes Website"}
+          textColor={COLORS.white}
+          fontSIze={SIZES.body_small}
+          ></BasicButton>
 
       </ScrollView>
     </View>
@@ -143,19 +140,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 6,
   },
-  backBtn: {
-    marginRight: 8,
-    paddingRight: 6,
-  },
-  backArrow: {
-    fontSize: 32,
-    color: COLORS.navy,
-    fontFamily: 'Figtree_600SemiBold',
-    lineHeight: 36,
-  },
   pageTitle: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 28,
+    fontSize: SIZES.heading,
     color: COLORS.navy,
     marginLeft: 96,
     marginTop: 15,
@@ -181,21 +168,21 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 22,
+    fontSize: SIZES.heading,
     color: COLORS.navy,
   },
   appSub: {
     fontFamily: 'Figtree_400Regular',
-    fontSize: 11,
-    color: '#999',
+    fontSize: SIZES.body_small,
+    color: COLORS.gray,
     letterSpacing: 1.2,
     marginTop: 3,
   },
 
   // Card
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius_container,
     padding: 18,
     width: '100%',
     alignItems: 'center',
@@ -203,15 +190,15 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 12,
+    fontSize: SIZES.body_small,
     color: COLORS.navy,
     letterSpacing: 1.2,
     marginBottom: 10,
   },
   cardBody: {
     fontFamily: 'Figtree_400Regular',
-    fontSize: 13.5,
-    color: '#555',
+    fontSize: SIZES.body_small,
+    color: COLORS.gray,
     lineHeight: 21,
     textAlign: 'center',
   },
@@ -233,7 +220,7 @@ const styles = StyleSheet.create({
   // Section label
   sectionLabel: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 12,
+    fontSize: SIZES.body_small,
     color: COLORS.navy,
     letterSpacing: 1.2,
     marginBottom: 12,
@@ -247,7 +234,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   stepRow: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     borderRadius: 16,
     padding: 13,
     flexDirection: 'row',
@@ -257,44 +244,30 @@ const styles = StyleSheet.create({
   stepNum: {
     width: 26,
     height: 26,
-    borderRadius: 13,
-    backgroundColor: '#fdefc8',
+    borderRadius: 100,
+    backgroundColor: COLORS.yellow,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
   },
   stepNumText: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 13,
-    color: '#b8720d',
+    fontSize: SIZES.body_small,
+    color: COLORS.white,
   },
   stepTextWrap: {
     flex: 1,
   },
   stepTitle: {
     fontFamily: 'Figtree_600SemiBold',
-    fontSize: 13.5,
+    fontSize: SIZES.body_small,
     color: COLORS.navy,
   },
   stepDesc: {
     fontFamily: 'Figtree_400Regular',
-    fontSize: 12,
-    color: '#777',
+    fontSize: SIZES.body_small,
+    color: COLORS.gray,
     lineHeight: 18,
     marginTop: 2,
-  },
-
-  // Website button — shrinks to fit text
-  websiteBtn: {
-    alignSelf: 'center',
-    backgroundColor: COLORS.gold,
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-  },
-  websiteBtnText: {
-    fontFamily: 'Figtree_600SemiBold',
-    fontSize: 14,
-    color: COLORS.navy,
   },
 });
