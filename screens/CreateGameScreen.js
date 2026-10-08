@@ -10,9 +10,10 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { COLORS, SIZES } from "../components/theme";
+import { COLORS, SIZES, SPACING } from "../components/theme";
 import BackButton from '../components/BackButton';
 import BasicButton from "../components/BasicButton";
+import Input from "../components/Input";
 import { database } from "../firebase_config";
 import { ref, get, set } from "firebase/database";
 import { DATABASE_CONFIG } from "../config/config";
@@ -205,12 +206,8 @@ const CreateGameScreen = ({ navigation }) => {
       <Text style={[styles.title, { fontSize: scale(SIZES.title), marginTop: scale(70) }]}>Create New Game</Text>
 
       <Text style={[styles.label, { fontSize: scale(SIZES.body), marginTop: scale(15), marginBottom: scale(5) }]}>Game Name</Text>
-      <TextInput
-        style={[styles.input, { padding: scale(12) }]}
-        placeholder="Enter game name"
-        value={gameName}
-        onChangeText={setGameName}
-      />
+      <Input placeholder="Enter game name" value={gameName} onChangeText={setGameName} backgroundColor={COLORS.white}></Input>
+
       {errors.gameName && <Text style={{ color: 'red' }}>{errors.gameName}</Text>}
 
       <View style={styles.backButtonContainer}>
@@ -218,12 +215,8 @@ const CreateGameScreen = ({ navigation }) => {
       </View>
 
       <Text style={[styles.label, { fontSize: scale(SIZES.body), marginTop: scale(15), marginBottom: scale(5) }]}>Game Code (no spaces)</Text>
-      <TextInput
-        style={[styles.input, { padding: scale(12) }]}
-        placeholder="Enter unique game code"
-        value={gameCode}
-        onChangeText={setGameCode}
-      />
+      <Input placeholder="Enter game name" value={gameCode} onChangeText={gameCode} backgroundColor={COLORS.white}></Input>
+      
       {errors.gameCode && <Text style={{ color: 'red' }}>{errors.gameCode}</Text>}
 
       <Text style={[styles.label, { fontSize: scale(SIZES.body), marginTop: scale(15), marginBottom: scale(5) }]}>Game End Time</Text>
@@ -250,7 +243,7 @@ const CreateGameScreen = ({ navigation }) => {
         </View>
 
         <View style={{ alignItems: "center", gap: 6 }}>
-        <TouchableOpacity style={[styles.timeButton, { backgroundColor: "#F5A623" }]} onPress={() => adjustTime(3)}>
+        <TouchableOpacity style={[styles.timeButton, { backgroundColor: COLORS.yellow }]} onPress={() => adjustTime(3)}>
             <Text style={styles.timeButtonText}>+</Text>
         </TouchableOpacity>
         <Text style={styles.timeButtonLabel}>3hrs</Text>
@@ -277,47 +270,21 @@ const CreateGameScreen = ({ navigation }) => {
               style={[styles.checkbox, { width: scale(22), height: scale(22), marginRight: scale(10) }]}
               onPress={() => toggleArtifact(artifact.id)}
             >
-              {selectedArtifacts[artifact.id] && <View style={{ width: scale(14), height: scale(14), backgroundColor: COLORS.gold }} />}
+              {selectedArtifacts[artifact.id] && <View style={{ width: scale(14), height: scale(14), backgroundColor: COLORS.yellow }} />}
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={{ fontWeight: "600", fontSize: scale(14) }}>{artifact.name}</Text>
-              {!!artifact.hint && <Text style={{ fontSize: scale(12), color: "#666" }}>{artifact.hint}</Text>}
+              {!!artifact.hint && <Text style={{ fontSize: scale(12), color: COLORS.gray }}>{artifact.hint}</Text>}
             </View>
           </View>
         ))
       )}
       {errors.artifacts && <Text style={{ color: 'red', marginTop: 5 }}>{errors.artifacts}</Text>}
 
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: scale(30) }}>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: "#999",
-            borderRadius: scale(12),
-            paddingVertical: scale(12),
-            alignItems: "center",
-            marginRight: scale(10),
-          }}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={{ color: "white", fontFamily: 'Figtree_400Regular', fontSize: SIZES.body }}>Cancel</Text>
-        </TouchableOpacity>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: scale(30), gap: SPACING.lg}}>
+        <BasicButton backgroundColor={COLORS.navy} onPress={() => navigation.goBack()} text="Cancel" textColor="white" width="45%"></BasicButton>
 
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: "#0B3D91",
-            borderRadius: scale(12),
-            paddingVertical: scale(12),
-            alignItems: "center",
-          }}
-          onPress={creating ? undefined : handleCreateGame}
-          disabled={creating}
-        >
-          <Text style={{ color: "white", fontFamily: 'Figtree_400Regular', fontSize: SIZES.body }}>
-            {creating ? "Creating…" : "Create Game"}
-          </Text>
-        </TouchableOpacity>
+        <BasicButton backgroundColor={COLORS.yellow} onPress={creating ? undefined : handleCreateGame} text={creating ? "Creating…" : "Create Game"} textColor="white" width={"45%"}disabled={creating}></BasicButton>
       </View>
     </ScrollView>
   );
@@ -342,16 +309,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: COLORS.navy,
   },
-  input: {
-    backgroundColor: "white",
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: COLORS.beige,
-    fontFamily: 'Figtree_400Regular',
-  },
   timeBox: {
     backgroundColor: "white",
-    borderColor: "#ccc",
+    borderColor: COLORS.beige,
     alignItems: "center",
   },
   timeText: {
@@ -366,7 +326,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderWidth: 1,
-    borderColor: "#333",
+    borderColor: COLORS.gray,
     marginRight: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -374,7 +334,7 @@ const styles = StyleSheet.create({
   checked: {
     width: 14,
     height: 14,
-    backgroundColor: "#FFD700", // gold
+    backgroundColor: COLORS.yellow, // gold
   },
   artifactName: {
     fontWeight: "600",
@@ -383,7 +343,7 @@ const styles = StyleSheet.create({
   },
   artifactHint: {
     fontSize: 12,
-    color: "#666",
+    color: COLORS.gray,
     fontFamily: 'Figtree_400Regular',
   },
   createButton: {
@@ -394,7 +354,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.body,
   },
   cancelButton: {
-    backgroundColor: "#999",
+    backgroundColor: COLORS.beige,
     borderRadius: 6,
     alignItems: "center",
   },
