@@ -6,9 +6,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase_config';
-import { COLORS, SIZES } from '../components/theme';
+import { COLORS, SIZES, SPACING } from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree';
 import BasicButton from '../components/BasicButton';
+import Input from '../components/Input';
 import { useServices } from '../contexts/ServiceContext';
 
 const SignUpScreen = ({ navigation }) => {
@@ -147,37 +148,19 @@ const SignUpScreen = ({ navigation }) => {
 				<Text style={styles.title}>Welcome!</Text>
 				<Text style={styles.subtitle}>Create an account to begin your quest!</Text>
 				{error ? <Text style={styles.errorText}>{error}</Text> : null}
-				<TextInput
-				  placeholder="Email"
-				  placeholderTextColor="#B0B0B0"
-				  style={styles.input}
-				  value={email}
-				  onChangeText={setEmail}
-				  keyboardType="email-address"
-				  autoCapitalize="none"
-				/>
-				<TextInput
-				  placeholder="Password"
-				  placeholderTextColor="#B0B0B0"
-				  style={styles.input}
-				  secureTextEntry
-				  value={password}
-				  onChangeText={setPassword}
-				/>
-				<TextInput
-				  placeholder="Confirm Password"
-				  placeholderTextColor="#B0B0B0"
-				  style={styles.input}
-				  secureTextEntry
-				  value={confirmPassword}
-				  onChangeText={setConfirmPassword}
-				/>
+				
+				<Input placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" editable={!loading} marginBottom={SPACING.xl} width="100%"></Input>
+				
+				<Input placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry={true} editable={!loading}  marginBottom={SPACING.xl} width="100%"></Input>
+
+				<Input placeholder="Confirm Password" value={confirmPassword} onChangeText={confirmPassword} secureTextEntry={true} editable={!loading}  marginBottom={SPACING.xl} width="100%"></Input>
+							
 				{loading ? (
 				  <ActivityIndicator size="large" color={COLORS.navy} />
 				) : (
 				  <BasicButton
 					text="Sign Up"
-					style={styles.signUpButton}
+					width="100%"
 					backgroundColor={COLORS.navy}
 					textColor={COLORS.beige}
 					onPress={handleSignUp}
@@ -298,11 +281,5 @@ const styles = StyleSheet.create({
 	signupLink: {
 		color: COLORS.primary,
 		fontFamily: 'Figtree_600SemiBold',
-	},
-	signUpButton: {
-		width: '60%',
-		height: height * 0.06,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
+	}
 });

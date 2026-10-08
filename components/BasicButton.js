@@ -14,7 +14,7 @@ export default function BasicButton({ text, backgroundColor, textColor, onPress,
     }
 
     return (
-        <TouchableOpacity style={[{backgroundColor: backgroundColor}, styles.container]} onPress={onPress} width={width}>
+        <TouchableOpacity style={[{backgroundColor: backgroundColor},  width ? {width} : null, styles.container]} onPress={onPress}>
             <Text style={[{color: textColor}, styles.text]}>
                 {text}
             </Text>

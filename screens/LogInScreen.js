@@ -129,6 +129,7 @@ const LogInScreen = ({ navigation }) => {
                   textColor={COLORS.beige}
                   onPress={handleLogin}
                   disabled={loading}
+                  width={"100%"}
                 />
                 
                 <Text style={styles.logInText}>
@@ -245,5 +246,5 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginTop: SPACING.sm,
     zIndex: 1,
-  },
+  }
 });
