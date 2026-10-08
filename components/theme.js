@@ -4,7 +4,7 @@ const COLORS = {
     yellow: "#EEB210",
     gold: "#B39051", 
   
-    gray: "#D6DBD4",
+    gray: "#959595",
   
     white: "#FFFFFF",
     black: "#000000",
@@ -16,6 +16,7 @@ const SIZES = {
     heading: 32,
     body: 24,
     body_small: 16,
+    radius_component_s: 8,
     radius_component: 16,
     radius_container: 24
 };
@@ -29,5 +30,9 @@ const SPACING = {
     xl: 20,  
     xxl: 24, 
     xxxl: 32,
+    v: 48,
+    vv: 64,
+    vvv: 128,
+    vvvv: 256
 }
 export { COLORS, SIZES, SPACING }
