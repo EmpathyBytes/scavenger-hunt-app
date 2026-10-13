@@ -4,6 +4,7 @@ import BasicButton from "./BasicButton";
 import { GameState } from '../types/updated_database';
 import { useServices } from '../contexts/ServiceContext';
 import { useAuth } from "../contexts/AuthContext.js";
+import {SPACING, SIZES, COLORS} from "./theme.js";
 
 export default function EndGameModal({
   visible,
@@ -47,25 +48,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    backgroundColor: "#FFF9D9",
-    padding: 20,
-    borderRadius: 20,
+    backgroundColor: COLORS.beige,
+    padding: SPACING.xl,
+    borderRadius: SIZES.radius_container,
     width: "80%",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: SIZES.heading,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: SPACING.md,
   },
   modalDescription: {
-    fontSize: 16,
+    fontSize: SIZES.body,
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: SPACING.xl,
   },
 });

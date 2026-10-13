@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Image, StyleSheet, ActivityIndicator, Alert, TextInput, TouchableOpacity, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES } from '../../components/theme'; //colors and sizes
+import { COLORS, SIZES, SPACING } from '../../components/theme'; //colors and sizes
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree' //font
 import BasicButton from '../../components/BasicButton';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,6 +9,7 @@ import { useServices } from '../../contexts/ServiceContext';
 import { getPlayerPoints } from '../../services/PointService';
 import { ref, onValue } from "firebase/database";
 import { database } from "../../firebase_config";
+import Input from "../../components/Input";
 
 const SettingsScreen = () => {
   const navigation = useNavigation();
@@ -183,13 +184,13 @@ useEffect(() => { //dynamically updates points
       <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 20, width: '100%' }}>
         <View style={styles.usernameContainer}>
           {editingDisplayName ? (
-            <TextInput
-              style={styles.input}
+            <Input
               value={newDisplayName}
               onChangeText={setNewDisplayName}
-              placeholder="Enter new display name"
+              placeholder="Enter new name"
               maxLength={30}
-            />
+              width={220}
+              ></Input>
           ) : (
             <Text style={styles.usernameText}>{userData?.displayName || "Username"}</Text>
           )}
@@ -221,20 +222,22 @@ useEffect(() => { //dynamically updates points
           )}
         </View>
         <View style={styles.buttonsContainer}>
-          <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} onPress={() => navigation.navigate('PastResultsScreen')}/>
-          <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} />
+          <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} onPress={() => navigation.navigate('PastResultsScreen')} width={"100%"}/>
+          <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} width={"100%"}/>
           <BasicButton 
             text={leavingSession ? 'Leaving...' : 'Leave Session'} 
             backgroundColor={COLORS.navy} 
             textColor={COLORS.beige}
             disabled={leavingSession || !userData?.currentSession}
             onPress={handleLeaveSession}
+            width={"100%"}
           />
           <BasicButton 
             text={'Log Out'} 
             backgroundColor={COLORS.navy} 
             textColor={COLORS.beige} 
             onPress={handleLogout}  // Add the onPress handler for logout
+            width={"100%"}
           />
         </View>
       </ScrollView>
@@ -288,18 +291,10 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     width: '100%',
+    paddingHorizontal: SPACING.vv,
+    marginTop: SPACING.lg,
     alignItems: 'center',
     gap: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: COLORS.navy,
-    padding: 8,
-    borderRadius: 8,
-    fontFamily: 'Figtree_400Regular',
-    fontSize: SIZES.body,
-    color: COLORS.navy,
-    width: 200,
   },
 });
 

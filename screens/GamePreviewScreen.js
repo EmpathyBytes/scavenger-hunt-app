@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
 } from "react-native";
-import { COLORS, SIZES } from "../components/theme";
+import { COLORS, SIZES, SPACING } from "../components/theme";
 import {
   Figtree_400Regular,
   Figtree_600SemiBold,
@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useServices } from "../contexts/ServiceContext";
 import { GameState } from "../types/updated_database";
+import BasicButton from "../components/BasicButton";
 
 // Mock session
 const MOCK_SESSION = {
@@ -339,12 +340,14 @@ export default function GamePreviewScreen({ navigation, route }) {
         )}
         <View style={styles.btnRow}>
           {btnConfig.secondary && (
-            <TouchableOpacity
-              style={styles.secondaryBtn}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.secondaryBtnText}>{btnConfig.secondary.label}</Text>
-            </TouchableOpacity>
+            <BasicButton backgroundColor={COLORS.beige} text={btnConfig.secondary.label} onPress={() => navigation.goBack()} borderColor={COLORS.navy} borderWidth={1} flex={1}></BasicButton>
+
+            // <TouchableOpacity
+            //   style={styles.secondaryBtn}
+            //   onPress={() => navigation.goBack()}
+            // >
+            //   <Text style={styles.secondaryBtnText}>{btnConfig.secondary.label}</Text>
+            // </TouchableOpacity>
           )}
           {btnConfig.primary && (
             <TouchableOpacity
@@ -386,9 +389,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 60,
     alignSelf: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    borderRadius: 24,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
+    borderRadius: SIZES.radius_container,
     zIndex: 999,
   },
   toastText: {
@@ -400,8 +403,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray,
     backgroundColor: COLORS.beige,
@@ -424,16 +427,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: SPACING.md,
   },
   card: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: SIZES.radius_component,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
     shadowColor: "#000",
     shadowOpacity: 0.06,
-    shadowRadius: 12,
+    shadowRadius: SIZES.radius_component,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
@@ -441,13 +444,13 @@ const styles = StyleSheet.create({
     fontFamily: "Figtree_600SemiBold",
     fontSize: SIZES.body,
     color: COLORS.navy,
-    marginBottom: 12,
+    marginBottom: SPACING.md,
   },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 4,
+    paddingVertical: SPACING.xs,
   },
   infoKey: {
     fontFamily: "Figtree_600SemiBold",
@@ -463,27 +466,26 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   badge: {
-    paddingHorizontal: 14,
-    paddingVertical: 3,
-    borderRadius: 20,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: SIZES.radius_component_s,
   },
   badgeText: {
     fontFamily: "Figtree_600SemiBold",
-    fontSize: 11,
-    letterSpacing: 0.8,
+    fontSize: SIZES.body_small,
   },
   participantRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingVertical: 8,
+    gap: SPACING.md,
+    paddingVertical: SPACING.sm,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray,
   },
   avatar: {
     width: 34,
     height: 34,
-    borderRadius: 17,
+    borderRadius: 100,
     backgroundColor: COLORS.beige,
     alignItems: "center",
     justifyContent: "center",
@@ -507,15 +509,15 @@ const styles = StyleSheet.create({
   artifactRow: {
     flexDirection: "row",
     gap: 12,
-    paddingTop: 12,
+    paddingVertical: SPACING.md,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray,
   },
   pinDot: {
     width: 12,
     height: 12,
-    borderRadius: 6,
-    marginTop: 3,
+    borderRadius: 100,
+    marginTop: SPACING.sm,
     flexShrink: 0,
   },
   artifactContent: {
@@ -525,19 +527,20 @@ const styles = StyleSheet.create({
     fontFamily: "Figtree_600SemiBold",
     fontSize: SIZES.body_small,
     color: COLORS.navy,
-    marginBottom: 4,
+    marginBottom: SPACING.sm,
   },
   artifactHint: {
     fontFamily: "Figtree_400Regular",
-    fontSize: 12,
+    fontSize: SIZES.body_small,
     color: COLORS.navy,
     lineHeight: 18,
   },
   bottomBar: {
     backgroundColor: COLORS.beige,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 28,
+    paddingHorizontal: SPACING.xl,
+    paddingTop: SPACING.mc,
+    paddingBottom: SPACING.xxl,
+    paddingTop: SPACING.lg,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray,
   },
@@ -545,16 +548,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   leaveMsg: {
     fontFamily: "Figtree_400Regular",
-    fontSize: 12,
+    fontSize: SPACING.md,
     color: COLORS.navy,
   },
   leaveLink: {
     fontFamily: "Figtree_400Regular",
-    fontSize: 12,
+    fontSize: SIZES.body_small,
     color: "#2563EB",
     textDecorationLine: "underline",
   },
@@ -564,12 +567,8 @@ const styles = StyleSheet.create({
   },
   secondaryBtn: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 28,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: COLORS.navy,
-    alignItems: "center",
-    justifyContent: "center",
   },
   secondaryBtnText: {
     fontFamily: "Figtree_600SemiBold",
@@ -577,14 +576,16 @@ const styles = StyleSheet.create({
     color: COLORS.navy,
   },
   primaryBtn: {
-    paddingVertical: 14,
-    borderRadius: 28,
+    flex: 1,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    borderRadius: SIZES.radius_component,
     alignItems: "center",
     justifyContent: "center",
   },
   primaryBtnText: {
-    fontFamily: "Figtree_600SemiBold",
-    fontSize: SIZES.body_small,
+    fontFamily: "Figtree_400SemiBold",
+    fontSize: SIZES.body,
     color: COLORS.beige,
   },
 });

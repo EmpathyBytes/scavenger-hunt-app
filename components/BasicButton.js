@@ -1,8 +1,9 @@
-import { COLORS, SIZES } from './theme';
+import { SPACING, SIZES } from './theme';
 import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 
-export default function BasicButton({ text, backgroundColor, textColor, onPress }) {
+// When redoing the UI redo this so it mathces Input where its just style and {...props} as arguements 
+export default function BasicButton({ text, backgroundColor, textColor, fontSize=SIZES.body, onPress, width, fontFamily="Figtree_400Regular", disabled, borderColor, borderWidth, flex}) {
     //load font
     const [fontsLoaded] = useFonts({
         Figtree_400Regular,
@@ -14,8 +15,8 @@ export default function BasicButton({ text, backgroundColor, textColor, onPress 
     }
 
     return (
-        <TouchableOpacity style={[{backgroundColor: backgroundColor}, styles.container]} onPress={onPress}>
-            <Text style={[{color: textColor}, styles.text]}>
+        <TouchableOpacity style={[{backgroundColor: backgroundColor}, {borderColor: borderColor}, {borderWidth: borderWidth}, width ? {width} : null, styles.container, {flex: flex}]} onPress={onPress} disabled={disabled} borderWidth={borderWidth}>
+            <Text style={[{color: textColor}, {fontSize: fontSize}, {fontFamily: fontFamily}]}>
                 {text}
             </Text>
         </TouchableOpacity>
@@ -34,12 +35,8 @@ const styles = StyleSheet.create({
         //flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        paddingVertical: 13,
-        width: "80%",
-        borderRadius: 15,
-    },
-    text: {
-        fontSize: SIZES.body,
-        fontFamily: "Figtree_400Regular",
+        paddingVertical: SPACING.md,
+        paddingHorizontal: SPACING.md,
+        borderRadius: SIZES.radius_component,
     }
 })

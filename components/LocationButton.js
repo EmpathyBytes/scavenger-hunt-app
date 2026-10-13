@@ -1,4 +1,4 @@
-import { COLORS, SIZES } from './theme';
+import { COLORS, SIZES, SPACING } from './theme';
 import { Image, TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 
@@ -31,15 +31,16 @@ export default function LocationButton({ image, text, backgroundColor, textColor
 const styles = StyleSheet.create({
     container: {
         //flex: 1,
+        display: "flex",
         alignItems: "center",
         justifyContent: "center",
         //paddingVertical: 13,
         //marginHorizontal: '9%',
         //marginVertical: '2%',
-        width: "75",
-        height: "75",
-        borderRadius: 15,
-        backgroundColor: "#D9D9D9",
+        width: "80",
+        height: "80",
+        borderRadius: SIZES.radius_component,
+        backgroundColor: COLORS.gray,
     },
     text: {
         fontSize: SIZES.body,
