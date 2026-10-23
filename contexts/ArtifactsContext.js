@@ -1,39 +1,56 @@
 import React, { createContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import { useServices } from "./ServiceContext";
+import { database } from "../firebase_config";
+import { DATABASE_CONFIG } from "../config/config";
+import { onValue, ref } from "firebase/database";
 
 export const ArtifactsContext = createContext(null);
 
 export const ArtifactsProvider = ({ children }) => {
   const [artifacts, setArtifacts] = useState([]);
   const { user } = useAuth();
-  const { sessionService, userService } = useServices();
 
   useEffect(() => {
-    const fetchArtifacts = async () => {
-      if (user?.uid) {
-        try {
-          const sessionId = await userService.getCurrentSession(user.uid);
-          const session = await sessionService.getSession(sessionId);
-          if (session && session.artifacts) {
-            setArtifacts(
-              Object.entries(session.artifacts).map(([id, rest]) => ({
-                id,
-                ...rest,
-              }))
-            );
-          } else {
-            setArtifacts([]);
-          }
-        } catch (error) {
-          setArtifacts([]);
-        }
-      } else {
+    if (!user?.uid) {
+      setArtifacts([]);
+      return undefined;
+    }
+
+    const currentSessionRef = ref(
+      database,
+      `${DATABASE_CONFIG.baseNode}/users/${user.uid}/currentSession`
+    );
+    let unsubscribeSession = () => {};
+
+    const unsubscribeUser = onValue(currentSessionRef, (snapshot) => {
+      const sessionId = snapshot.val();
+      unsubscribeSession();
+
+      if (!sessionId) {
         setArtifacts([]);
+        return;
       }
+
+      const sessionRef = ref(
+        database,
+        `${DATABASE_CONFIG.baseNode}/sessions/${sessionId}/artifacts`
+      );
+      unsubscribeSession = onValue(sessionRef, (sessionSnapshot) => {
+        const sessionArtifacts = sessionSnapshot.val() ?? {};
+        setArtifacts(
+          Object.entries(sessionArtifacts).map(([id, data]) => ({
+            id,
+            ...(data && typeof data === "object" ? data : {}),
+          }))
+        );
+      });
+    });
+
+    return () => {
+      unsubscribeSession();
+      unsubscribeUser();
     };
-    fetchArtifacts();
-  }, [user, sessionService, userService]);
+  }, [user]);
 
   return (
     <ArtifactsContext.Provider value={{ artifacts, setArtifacts }}>

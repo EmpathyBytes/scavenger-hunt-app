@@ -26,9 +26,16 @@ const CreateGameScreen = ({ navigation }) => {
   const [gameCode, setGameCode] = useState("");
   const [selectedArtifacts, setSelectedArtifacts] = useState({});
   const [endTime, setEndTime] = useState(new Date());
-  const [errors, setErrors] = useState({ gameName: "", gameCode: "", artifacts: "" });
+  const [errors, setErrors] = useState({
+    gameName: "",
+    gameCode: "",
+    artifacts: "",
+    locations: "",
+  });
   const [artifactOptions, setArtifactOptions] = useState([]);
+  const [locationOptions, setLocationOptions] = useState([]);
   const [artifactsLoading, setArtifactsLoading] = useState(true);
+  const [locationsLoading, setLocationsLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
   const { width } = useWindowDimensions();
@@ -42,12 +49,12 @@ const CreateGameScreen = ({ navigation }) => {
 
   const normalizeCode = (code) => (code || "").trim();
 
-  const buildArtifactOptions = (value) => {
+  const buildCatalogOptions = (value) => {
     if (!value || typeof value !== "object") return [];
 
     const options = Object.entries(value).map(([id, data]) => {
       const name = data?.name ?? id;
-      const hint = data?.locationHint ?? data?.hint ?? "";
+      const hint = data?.hint ?? data?.locationHint ?? "";
       return { id, name, hint, raw: data ?? {} };
     });
 
@@ -62,11 +69,61 @@ const CreateGameScreen = ({ navigation }) => {
 
   const fetchArtifactOptions = async () => {
     const catalog = await fetchNodeValue(`${baseNode}/ArtifactCatalog`);
-    const fromCatalog = buildArtifactOptions(catalog);
+    const fromCatalog = buildCatalogOptions(catalog);
     if (fromCatalog.length > 0) return fromCatalog;
 
     const artifacts = await fetchNodeValue(`${baseNode}/artifacts`);
-    return buildArtifactOptions(artifacts);
+    return buildCatalogOptions(artifacts);
+  };
+
+  const buildLocationsFromArtifacts = (value) => {
+    if (!value || typeof value !== "object") return [];
+
+    const locations = new Map();
+    for (const [artifactId, artifact] of Object.entries(value)) {
+      const locationName = artifact?.locationName?.trim();
+      if (!locationName) continue;
+
+      const id = locationName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_|_$/g, "");
+
+      if (!locations.has(id)) {
+        locations.set(id, {
+          id,
+          name: locationName,
+          hint: artifact?.locationHint ?? artifact?.hint ?? "",
+          raw: {
+            name: locationName,
+            hint: artifact?.locationHint ?? artifact?.hint ?? "",
+            description: artifact?.locationDescription ?? "",
+            latitude: artifact?.latitude,
+            longitude: artifact?.longitude,
+            artifacts: {},
+          },
+        });
+      }
+
+      locations.get(id).raw.artifacts[artifactId] = true;
+    }
+
+    return [...locations.values()].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+  };
+
+  const fetchLocationOptions = async () => {
+    const catalog = await fetchNodeValue(`${baseNode}/LocationCatalog`);
+    const fromCatalog = buildCatalogOptions(catalog);
+    if (fromCatalog.length > 0) return fromCatalog;
+
+    const locations = await fetchNodeValue(`${baseNode}/locations`);
+    const fromLocations = buildCatalogOptions(locations);
+    if (fromLocations.length > 0) return fromLocations;
+
+    const artifactCatalog = await fetchNodeValue(`${baseNode}/ArtifactCatalog`);
+    return buildLocationsFromArtifacts(artifactCatalog);
   };
 
   const buildArtifactsMapForSession = (selectedIds, allOptions) => {
@@ -85,6 +142,60 @@ const CreateGameScreen = ({ navigation }) => {
     return map;
   };
 
+  const getSelectedLocationsForArtifacts = (selectedIds) => {
+    const locations = new Map();
+
+    for (const artifactId of selectedIds) {
+      const artifact = artifactOptions.find((item) => item.id === artifactId);
+      if (!artifact) continue;
+
+      const locationName = artifact.raw?.locationName?.trim();
+      const locationId = artifact.raw?.locationId ||
+        (locationName
+          ? locationName
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "_")
+              .replace(/^_|_$/g, "")
+          : null);
+      if (!locationId) continue;
+
+      const catalogLocation = locationOptions.find(
+        (location) =>
+          location.id === locationId ||
+          location.name === locationName
+      );
+
+      locations.set(locationId, catalogLocation || {
+        id: locationId,
+        name: locationName || locationId,
+        hint: artifact.hint || "",
+        raw: {
+          name: locationName || locationId,
+          hint: artifact.hint || "",
+          latitude: artifact.raw?.latitude,
+          longitude: artifact.raw?.longitude,
+          artifacts: {
+            [artifactId]: true,
+          },
+        },
+      });
+    }
+
+    return [...locations.values()];
+  };
+
+  const buildLocationsMapForSession = (selectedIds) => {
+    const map = {};
+    for (const location of getSelectedLocationsForArtifacts(selectedIds)) {
+      map[location.id] = {
+        ...(location.raw || {}),
+        name: location.name,
+        hint: location.hint || location.raw?.hint || "",
+      };
+    }
+    return map;
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -98,6 +209,28 @@ const CreateGameScreen = ({ navigation }) => {
         if (isMounted) setArtifactOptions([]);
       } finally {
         if (isMounted) setArtifactsLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, [baseNode]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const load = async () => {
+      setLocationsLoading(true);
+      try {
+        const options = await fetchLocationOptions();
+        if (isMounted) setLocationOptions(options);
+      } catch (e) {
+        console.error("Failed to load locations:", e);
+        if (isMounted) setLocationOptions([]);
+      } finally {
+        if (isMounted) setLocationsLoading(false);
       }
     };
 
@@ -160,16 +293,20 @@ const CreateGameScreen = ({ navigation }) => {
       valid = false;
     }
 
+    const selectedLocationArray = getSelectedLocationsForArtifacts(selectedArray)
+      .map((location) => location.id);
+
     setErrors(newErrors);
-    return { valid, selectedArray };
+    return { valid, selectedArray, selectedLocationArray };
   };
 
   const handleCreateGame = async () => {
-    const { valid, selectedArray } = await validateForm();
+    const { valid, selectedArray, selectedLocationArray } = await validateForm();
     if (!valid) return;
 
     const normalizedCode = normalizeCode(gameCode);
     const artifactsMap = buildArtifactsMapForSession(selectedArray, artifactOptions);
+    const locationsMap = buildLocationsMapForSession(selectedArray);
 
     const sessionData = {
       sessionName: gameName.trim(),
@@ -180,6 +317,7 @@ const CreateGameScreen = ({ navigation }) => {
       endTime: endTime.toISOString(),
       participants: {},
       artifacts: artifactsMap,
+      locations: locationsMap,
     };
 
     console.log("current user ", user);
@@ -215,7 +353,13 @@ const CreateGameScreen = ({ navigation }) => {
       </View>
 
       <Text style={[styles.label, { fontSize: scale(SIZES.body), marginTop: scale(15), marginBottom: scale(5) }]}>Game Code (no spaces)</Text>
-      <Input placeholder="Enter game name" value={gameCode} onChangeText={gameCode} backgroundColor={COLORS.white}></Input>
+      <Input
+        placeholder="Enter game code"
+        value={gameCode}
+        onChangeText={setGameCode}
+        autoCapitalize="none"
+        backgroundColor={COLORS.white}
+      />
       
       {errors.gameCode && <Text style={{ color: 'red' }}>{errors.gameCode}</Text>}
 
@@ -281,6 +425,24 @@ const CreateGameScreen = ({ navigation }) => {
       )}
       {errors.artifacts && <Text style={{ color: 'red', marginTop: 5 }}>{errors.artifacts}</Text>}
 
+      <Text style={[styles.label, { fontSize: scale(SIZES.body), marginTop: scale(15), marginBottom: scale(5) }]}>
+        Locations Included
+      </Text>
+      <Text style={{ marginTop: scale(5), color: COLORS.gray, fontFamily: 'Figtree_400Regular' }}>
+        Locations are included automatically based on the selected artifacts.
+      </Text>
+      {getSelectedLocationsForArtifacts(
+        Object.keys(selectedArtifacts).filter((id) => selectedArtifacts[id])
+      ).map((location) => (
+        <View key={location.id} style={[styles.artifactRow, { marginTop: scale(15) }]}>
+          <View style={[styles.locationIndicator, { width: scale(22), height: scale(22), marginRight: scale(10) }]} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontWeight: "600", fontSize: scale(14) }}>{location.name}</Text>
+            {!!location.hint && <Text style={{ fontSize: scale(12), color: COLORS.gray }}>{location.hint}</Text>}
+          </View>
+        </View>
+      ))}
+
       <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: scale(30), gap: SPACING.lg}}>
         <BasicButton backgroundColor={COLORS.navy} onPress={() => navigation.goBack()} text="Cancel" textColor="white" width="45%"></BasicButton>
 
@@ -330,6 +492,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
     justifyContent: "center",
     alignItems: "center",
+  },
+  locationIndicator: {
+    borderRadius: 11,
+    backgroundColor: COLORS.yellow,
   },
   checked: {
     width: 14,

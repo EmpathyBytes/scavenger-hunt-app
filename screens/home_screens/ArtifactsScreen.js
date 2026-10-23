@@ -16,7 +16,6 @@ import LocationButton from "../../components/LocationButton";
 import { useAuth } from "../../contexts/AuthContext";
 import { useServices } from "../../contexts/ServiceContext";
 import { ArtifactsContext } from "../../contexts/ArtifactsContext";
-import { LocationsContext } from "../../contexts/LocationsContext";
 import { database } from "../../firebase_config";
 import { ref, onValue } from "firebase/database";
 import { DATABASE_CONFIG } from "../../config/config";
@@ -26,7 +25,6 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
   const { user } = useAuth();
   const { userService } = useServices();
   const { artifacts } = useContext(ArtifactsContext);
-  const { locations } = useContext(LocationsContext);
   const [fontsLoaded] = useFonts({
     Figtree_400Regular,
     Figtree_600SemiBold,
@@ -113,6 +111,19 @@ const ArtifactsScreen = ({ setScreenIndex, navigation }) => {
               <View style={{ margin: 4 }}>
                 <LocationButton
                   image={require("../../assets/QuestionMark.png")}
+                  onPress={() =>
+                    navigation?.navigate &&
+                    navigation.navigate("ArtifactInfoScreen", {
+                      foundItem: {
+                        ...item,
+                        name: "Artifact Hint",
+                        description:
+                          item?.hint ||
+                          item?.locationHint ||
+                          "Hint coming soon.",
+                      },
+                    })
+                  }
                 />
               </View>
             );

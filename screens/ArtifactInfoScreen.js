@@ -49,7 +49,10 @@ const ArtifactInfoScreen = ({ navigation, route }) => {
       <Image source={image} style={styles.image} />
 
       <Text style={styles.infoText}>
-        {foundItem?.description || "No description available."}
+        {foundItem?.hint ||
+          foundItem?.locationHint ||
+          foundItem?.description ||
+          "No hint available."}
       </Text>
     </View>
   );
