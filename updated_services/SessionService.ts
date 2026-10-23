@@ -419,6 +419,57 @@ export class SessionService extends BaseService {
     await this.setData(pointsPath, current + delta);
   }
 
+  /**
+   * Records artifacts a participant found and adds their point values
+   * to the participant's score
+   *
+   * Validation Rules:
+   * - Session must exist
+   * - User must be a participant of the session
+   * - Every artifact must exist within the session's artifact list
+   *
+   * Key Behaviors:
+   * - Validates all artifacts before writing anything
+   * - Marks each artifact under sessions/{sessionId}/participants/{userId}/foundArtifacts
+   * - Reads each artifact's points from the session's artifact entry
+   *   (artifacts without a numeric points value count as 0)
+   * - Adds the total to sessions/{sessionId}/participants/{userId}/points,
+   *   skipping the write when the total is 0
+   *
+   * @param sessionId - Unique identifier for the session
+   * @param userId - User ID of the participant
+   * @param artifactIds - Artifact IDs found by the user
+   * @returns Total points added
+   * @throws Error if the session does not exist
+   * @throws Error if the user is not part of the session
+   * @throws Error if any artifact is not part of the session
+   */
+  async awardPointsForArtifacts(sessionId: string, userId: string, artifactIds: string[]): Promise<number> {
+    const session = await this.getSession(sessionId);
+    if (!session) throw new Error('Session not found');
+    if (!session.participants || !session.participants[userId]) throw new Error('User is not part of this session');
+    for (const artifactId of artifactIds) {
+      if (!session.artifacts || !session.artifacts[artifactId]) throw new Error('Artifact is not part of this session');
+    }
+
+    let pointsToAdd = 0;
+    for (const artifactId of artifactIds) {
+      await this.addFoundArtifact(sessionId, userId, artifactId);
+
+      // Sessions created by CreateGameScreen store artifact objects here, not booleans
+      const entry = session.artifacts[artifactId] as unknown as { points?: unknown };
+      if (typeof entry === 'object' && typeof entry.points === 'number') {
+        pointsToAdd += entry.points;
+      }
+    }
+
+    if (pointsToAdd !== 0) {
+      await this.addPoints(sessionId, userId, pointsToAdd);
+    }
+
+    return pointsToAdd;
+  }
+
 
   /**
    * Lists all participants in a session

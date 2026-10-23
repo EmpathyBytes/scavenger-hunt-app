@@ -30,7 +30,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { useServices } from "../contexts/ServiceContext";
 import { LocationsContext } from "../contexts/LocationsContext";
 import { ArtifactsContext } from "../contexts/ArtifactsContext";
-import { UserService } from "../services/UserService";
 import { DATABASE_CONFIG } from "../config/config";
 import { database } from "../firebase_config";
 import { ref, onValue } from "firebase/database";
@@ -229,21 +228,14 @@ useEffect(() => {
             ? Object.keys(found.artifacts)
             : [];
         console.log("Artifact IDs for reward:", artifactIds);
-        let pointsToAdd = 0;
+        // Records the finds and adds their points to sessions/{sid}/participants/{uid}/points
+        await sessionService.awardPointsForArtifacts(sessionId, userId, artifactIds);
         const artifactsArray = Array.isArray(artifacts) ? artifacts : [];
-        const artifactNames = [];
-        for (const artifactId of artifactIds) {
-          await userService.addFoundArtifact(userId, sessionId, artifactId);
-          const artifactObj = artifactsArray.find(
-            (a) => a && a.id === artifactId
-          );
-          const artifactLabel = artifactObj?.name || artifactId;
-          artifactNames.push(artifactLabel);
-          if (artifactObj && typeof artifactObj.points === "number") {
-            pointsToAdd += artifactObj.points;
-          }
-        }
-        await userService.updatePoints(userId, sessionId, pointsToAdd);
+        const artifactNames = artifactIds.map(
+          (artifactId) =>
+            artifactsArray.find((a) => a && a.id === artifactId)?.name ||
+            artifactId
+        );
 
         const artifactsDescription =
           artifactNames.length > 0
