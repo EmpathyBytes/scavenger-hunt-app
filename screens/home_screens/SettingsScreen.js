@@ -178,11 +178,12 @@ useEffect(() => { //dynamically updates points
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, width: '100%' }}
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 20, width: '100%' }}>
         <View style={styles.usernameContainer}>
+          <Image style={styles.editImage}></Image>
           {editingDisplayName ? (
             <Input
               value={newDisplayName}
@@ -204,40 +205,41 @@ useEffect(() => { //dynamically updates points
               <Image style={styles.editImage} source={require('../../assets/Edit.png')} />
             </TouchableOpacity>
             {editingDisplayName && (
-              <TouchableOpacity onPress={handleEditDisplayName}>
-                <Text style={styles.saveButtonText}>Save</Text>
-              </TouchableOpacity>
+              <BasicButton onPress={handleEditDisplayName} text={"Save"} backgroundColor={COLORS.navy} textColor={COLORS.white}></BasicButton>
             )}
           </View>
         </View>
-        <View style={styles.circle}>
+        <View style={styles.circle} >
           <Image style={styles.circleImage} source={require('../../assets/User.png')} />
         </View>
-        <View>
-          {sessionData && (
-            <>
-            <Text style = {styles.gameCodeText}>Game Code: {userData?.currentSession || "None"}</Text>
-            <Text style = {styles.gameCodeText}>Points: {points}</Text>
-            </>
-          )}
+         {sessionData && (
+        <View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row', width: 250}}>
+            <View style={{flexDirection: 'column', gap: SPACING.md}}>
+              <Text style={styles.gameCodeText}>Game Code:</Text>
+              <Text style={styles.gameCodeText}>Points: </Text>
+            </View>
+            <View style={{flexDirection: 'column', gap: SPACING.md}}>
+              <Text style={styles.pointsAndCode}>{userData?.currentSession || "None"}</Text>
+              <Text style={styles.pointsAndCode}>{points}</Text>
+            </View>
         </View>
+        )}
         <View style={styles.buttonsContainer}>
-          <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.beige} onPress={() => navigation.navigate('PastResultsScreen')} width={"100%"}/>
-          <BasicButton text={'Notifications'} backgroundColor={COLORS.navy} textColor={COLORS.beige} width={"100%"}/>
+          <BasicButton text={'See Past Results'} backgroundColor={COLORS.navy} textColor={COLORS.white} onPress={() => navigation.navigate('PastResultsScreen')} width={250}/>
           <BasicButton 
             text={leavingSession ? 'Leaving...' : 'Leave Session'} 
             backgroundColor={COLORS.navy} 
-            textColor={COLORS.beige}
+            textColor={COLORS.white}
             disabled={leavingSession || !userData?.currentSession}
             onPress={handleLeaveSession}
-            width={"100%"}
+            width={250}
           />
           <BasicButton 
             text={'Log Out'} 
             backgroundColor={COLORS.navy} 
-            textColor={COLORS.beige} 
+            textColor={COLORS.white} 
             onPress={handleLogout}  // Add the onPress handler for logout
-            width={"100%"}
+            width={250}
           />
         </View>
       </ScrollView>
@@ -246,10 +248,20 @@ useEffect(() => { //dynamically updates points
 };
 
 const styles = StyleSheet.create({
+  container: { 
+    flex: 1,
+    width: '95%',
+    marginTop: SPACING.xxl,
+    borderWidth: 2,
+    borderColor: COLORS.black,
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.radius_container
+  },
   usernameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    justifyContent: 'center',
+    gap: 10,
     marginBottom: 10,
   },
   usernameText: {
@@ -274,10 +286,13 @@ const styles = StyleSheet.create({
   circle: {
     height: 200,
     width: 200,
-    backgroundColor: COLORS.gray,
+    backgroundColor: COLORS.white,
     borderRadius: 100,
+    borderWidth: 2,
+    borderColor: COLORS.black,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: SPACING.lg
   },
   circleImage: {
     width: '50%',
@@ -287,7 +302,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Figtree_400Regular',
     color: COLORS.navy,
     fontSize: SIZES.body,
-    marginVertical: 10,
+  },
+  pointsAndCode: {
+    textAlign: "right",
+    backgroundColor: COLORS.gold,
+    color: COLORS.white,
+    fontFamily: Figtree_600SemiBold,
+    borderRadius: SIZES.radius_component_s,
+    padding: SPACING.sm,
+    width: 'fit',
+    fontSize: SIZES.body_small,
   },
   buttonsContainer: {
     width: '100%',
