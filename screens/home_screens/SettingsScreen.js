@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     fontSize: SIZES.body,
   },
   pointsAndCode: {
-    textAlign: "right",
+    textAlign: "center",
     backgroundColor: COLORS.gold,
     color: COLORS.white,
     fontFamily: Figtree_600SemiBold,
