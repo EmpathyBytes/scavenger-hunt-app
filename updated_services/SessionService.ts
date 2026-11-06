@@ -3,6 +3,22 @@ import { GameState, Session } from '../types/updated_database';
 import { useAuth } from '../contexts/AuthContext';
 import { get } from 'firebase/database';
 
+/**
+ * Label shown for a player in leaderboards and player lists
+ *
+ * Uses the display name when it has visible characters; otherwise falls back
+ * to "Player " plus the last 4 characters of the user ID, so players without
+ * a name can still be told apart.
+ *
+ * @param userId - User ID of the player
+ * @param displayName - Stored display name, if any
+ * @returns Label to display
+ */
+export function playerLabel(userId: string, displayName?: string | null): string {
+  const name = typeof displayName === 'string' ? displayName.trim() : '';
+  return name || `Player ${userId.slice(-4)}`;
+}
+
 export class SessionService extends BaseService {
   /**
    * Creates a new blank session with default values
@@ -545,15 +561,14 @@ export class SessionService extends BaseService {
     }> = [];
 
     if (session.participants) {
-      for (const userId of Object.keys(session.participants)) {
-        const displayName =
-          (await this.getData<string>(`users/${userId}/displayName`)) ??
-          "Unknown User";
+      for (const [userId, participant] of Object.entries(session.participants)) {
+        const displayName = playerLabel(
+          userId,
+          await this.getData<string>(`users/${userId}/displayName`)
+        );
 
-        const points =
-          (await this.getData<number>(
-            `users/${userId}/sessionsJoined/${sessionId}/points`
-          )) ?? 0;
+        // Points live on the session's participant record
+        const points = participant?.points ?? 0;
 
         entries.push({ userId, displayName, points });
       }
