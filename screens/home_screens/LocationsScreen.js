@@ -109,7 +109,7 @@ const LocationsScreen = ({ setScreenIndex, navigation }) => {
                     navigation?.navigate &&
                     navigation.navigate("LocationInfoScreen", {
                       foundItem: {
-                        name: "Hint",
+                        name: "Location Hint",
                         id: item.id,
                         description:
                           item?.hint ||
