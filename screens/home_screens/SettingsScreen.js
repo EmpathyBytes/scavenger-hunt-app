@@ -76,7 +76,7 @@ useEffect(() => { //dynamically updates points
     // Ask for confirmation
     Alert.alert(
       "Leave Session",
-      "Are you sure you want to leave the current session?",
+      "Are you sure you want to leave the current session? Your session progress will be lost and cannot be restored.",
       [
         {
           text: "Cancel",
@@ -152,6 +152,9 @@ useEffect(() => { //dynamically updates points
           style: "destructive",
           onPress: async () => {
             try {
+              if (user?.uid) {
+                await userService.setCurrentSession(user.uid, null);
+              }
               await signOut();
               // Navigate back to welcome screen after successful logout
               navigation.reset({
