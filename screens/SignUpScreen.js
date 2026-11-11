@@ -153,7 +153,7 @@ const SignUpScreen = ({ navigation }) => {
 				
 				<Input placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry={true} editable={!loading}  marginBottom={SPACING.xl} width="100%"></Input>
 
-				<Input placeholder="Confirm Password" value={confirmPassword} onChangeText={confirmPassword} secureTextEntry={true} editable={!loading}  marginBottom={SPACING.xl} width="100%"></Input>
+				<Input placeholder="Confirm Password" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={true} editable={!loading}  marginBottom={SPACING.xl} width="100%"></Input>
 							
 				{loading ? (
 				  <ActivityIndicator size="large" color={COLORS.navy} />
