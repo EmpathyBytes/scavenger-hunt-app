@@ -1,7 +1,8 @@
 import React from 'react'
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from '../components/theme';
+import { COLORS, SPACING, SIZES} from '../components/theme';
 import { Figtree_400Regular, Figtree_600SemiBold, useFonts } from '@expo-google-fonts/figtree'
 import BackButton from '../components/BackButton';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -58,14 +59,20 @@ const Item = ({ item, navigation }) => (
 			<Text style={styles.sessionTitle}>
 				{item.name}
 			</Text>
-			<Text style={styles.sessionText}>
-				{item.winner}{"\n"}
-				{"Your Standing: " + item.yourStanding}{"\n"}
-				{"Your Score: " + item.yourScore}
-			</Text>
+			<Text style={styles.sessionText}>{item.name}</Text>
+			<View style={{flex: 1, justifyContent: 'space-between', flexDirection: 'row', width: 250, marginTop: SPACING.sm}}>
+				<View style={{flexDirection: 'column', gap: SPACING.xs}}>
+					<Text style={styles.sessionText}>Your Standing:</Text>
+					<Text style={styles.sessionText}>Your Score: </Text>
+				</View>
+				<View style={{flexDirection: 'column', gap: SPACING.md}}>
+					<Text style={styles.pointsAndCode}>{item.yourStanding}</Text>
+					<Text style={styles.pointsAndCode}>{item.yourScore}</Text>
+				</View>
+			</View>
 		</View>
 		<View style={styles.rightChevron}>
-			<Entypo name="chevron-right" size={30} color="white" style={{ strokeWidth: 1 }} />
+			<Entypo name="chevron-right" size={30} color="black" style={{ strokeWidth: 1 }} />
 		</View>
 	</TouchableOpacity>
   );
@@ -93,14 +100,6 @@ const PastResultsScreen = ({ navigation }) => {
 					contentContainerStyle={{ paddingBottom:150 }} 
 				/>
 			</View>
-			<LinearGradient
-                colors={['rgba(255, 255, 255, 0)','rgba(255, 249, 217, 1)']}
-				locations={[0, .6]}
-                style={styles.gradient}>
-				<Text style={styles.title}>
-					Past Games
-				</Text>
-			</LinearGradient>
 		</SafeAreaView>
 	)
 }
@@ -112,6 +111,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		fontFamily: 'Figtree_600SemiBold',
 		backgroundColor: COLORS.beige,
+		paddingTop: SPACING.v
 	},
 	gradient: {
 		width: '100%',
@@ -120,9 +120,9 @@ const styles = StyleSheet.create({
 		bottom: 0,
 	},
 	title: {
-		fontFamily: 'Figtree_400Regular',
-		fontSize: 40,
-		color: COLORS.navy,
+		fontFamily: 'Figtree_600Regular',
+		fontSize: SIZES.heading,
+		color: COLORS.black,
 		textAlign: 'center',
 		paddingTop: '17%',
 	},
@@ -131,8 +131,10 @@ const styles = StyleSheet.create({
 	},
 	session: {
 		color: 'white',
-		backgroundColor: COLORS.navy,
-		borderRadius: 17,
+		backgroundColor: COLORS.white,
+		borderRadius: SIZES.radius_container,
+		borderWidth: 2,
+		borderColor: COLORS.black,
 		padding: 20,
 		paddingRight: 15,
 		marginBlock: 10,
@@ -143,18 +145,32 @@ const styles = StyleSheet.create({
 	},
 	sessionTitle: {
 		fontFamily: 'Figtree_400Regular',
-		color: 'white',
-		fontSize: 20,
+		color: COLORS.white,
+		backgroundColor: COLORS.navy,
+		fontSize: SIZES.body,
 		fontWeight: 500,
 		marginBottom: 10,
+		padding: SPACING.sm,
+		borderRadius: SIZES.radius_component_s
 	},
 	sessionText: {
 		fontFamily: 'Figtree_400Regular',
-		color: 'white',
-		fontSize: 17,
+		color: COLORS.black,
+		fontSize: SIZES.body,
 		lineHeight: 25,
+		padding: SPACING.xs,
 	},
 	rightChevron: {
 		marginBlock: 'auto',
 	},
+	pointsAndCode: {
+    textAlign: "center",
+    backgroundColor: COLORS.gold,
+    color: COLORS.white,
+    fontFamily: Figtree_600SemiBold,
+    borderRadius: SIZES.radius_component_s,
+    padding: SPACING.sm,
+    width: SPACING.v,
+    fontSize: SIZES.body_small,
+  },
 });
