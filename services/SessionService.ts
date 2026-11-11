@@ -132,7 +132,6 @@ export class SessionService extends BaseService {
       throw new Error("Team is already part of another session");
     }
 
-    // More defensive check - treat undefined/null members same as empty object
     if (team.members && Object.keys(team.members).length > 0) {
       throw new Error("Team must be empty before adding to session");
     }
@@ -166,7 +165,6 @@ export class SessionService extends BaseService {
     const team = await this.getData<Team>(`teams/${teamId}`);
     if (!team) throw new Error("Team not found");
 
-    // More defensive check for team.members
     if (team.members && Object.keys(team.members).length > 0) {
       throw new Error("Team must be empty before removing from session");
     }
@@ -218,7 +216,6 @@ export class SessionService extends BaseService {
       throw new Error("Artifact is not part of this session");
     }
 
-    // More defensive check - treat undefined/null participants same as empty object
     if (session.participants) {
       for (const userId of Object.keys(session.participants)) {
         const userData = await this.getData(
@@ -254,7 +251,6 @@ export class SessionService extends BaseService {
     const session = await this.getSession(sessionId);
     if (!session) throw new Error("Session not found");
 
-    // More defensive checks for participants and teams
     if (session.participants && Object.keys(session.participants).length > 0) {
       throw new Error("Cannot delete session with active participants");
     }
@@ -313,15 +309,12 @@ export class SessionService extends BaseService {
   }
 
   /**
-   
-  Gets the leaderboard for a session, ordered by points (I did descending)*
-  Returns all participants in the session with their display names and points.
-  *
-  @param sessionId - Unique identifier for the session
-  @returns Array of leaderboard entries with userId, displayName, and points
-  @throws Error if the session does not exist*/
-
-  // Could throw this array block into a type alisas for readability
+   * Gets the leaderboard for a session, ordered by points in descending order.
+   *
+   * @param sessionId - Unique identifier for the session
+   * @returns Array of leaderboard entries with userId, displayName, and points
+   * @throws Error if the session does not exist
+   */
   async getSessionLeaderboardEntries(
     sessionId: string
   ): Promise<Array<{ userId: string; displayName: string; points: number }>> {
@@ -349,18 +342,7 @@ export class SessionService extends BaseService {
       }
     }
 
-    // Selection sort — unchanged logic
-    for (let i = 0; i < entries.length - 1; i++) {
-      for (let j = i + 1; j < entries.length; j++) {
-        const a = entries[i];
-        const b = entries[j];
-
-        if (b.points > a.points) {
-          entries[i] = b;
-          entries[j] = a;
-        }
-      }
-    }
+    entries.sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
 
     return entries;
   }
