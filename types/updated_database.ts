@@ -111,6 +111,16 @@ export interface Session {
     }
   };
   artifacts: { [artifactId: string]: boolean };
+  locations?: {
+    [locationId: string]: {
+      name: string;
+      hint?: string;
+      description?: string;
+      latitude?: number;
+      longitude?: number;
+      artifacts?: { [artifactId: string]: boolean };
+    };
+  };
 }
 
 // /**

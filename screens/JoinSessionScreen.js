@@ -57,10 +57,6 @@ const JoinSessionScreen = ({ navigation }) => {
         if (user?.uid) {
           const data = await userService.getUser(user.uid);
           setUserData(data);
-          if (data?.currentSession) {
-            navigation.replace('HomeScreen');
-            return;
-          }
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -123,11 +119,6 @@ const JoinSessionScreen = ({ navigation }) => {
       return;
     }
 
-    if (userData?.currentSession === sessionCode) {
-      navigation.replace('HomeScreen');
-      return;
-    }
-
     if (userData?.currentSession) {
       setErrorMessage("You're already in an active session. Please leave it first.");
       return;
@@ -164,7 +155,6 @@ const JoinSessionScreen = ({ navigation }) => {
 
   // ── Tap a game card -> navigate to game preview (placeholder for now) ──────────
   const handleGameCardPress = (game) => {
-    // TODO: navigate to GamePreviewScreen once it exists
     navigation.navigate('GamePreviewScreen', { sessionCode: game.id, session: game });
     console.log('Tapped game:', game.id);
   };

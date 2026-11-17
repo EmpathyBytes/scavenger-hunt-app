@@ -480,9 +480,6 @@ const styles = StyleSheet.create({
     top: "6%",
     left: "3%",
     zIndex: 5,
-    padding: "2%",
-    borderRadius: "20%",
-    backgroundColor: "#E04F39",
   },
   infoButtonWrapper: {
     position: "absolute",

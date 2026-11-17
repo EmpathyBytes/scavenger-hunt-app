@@ -35,7 +35,7 @@ const ArtifactInfoScreen = ({ navigation, route }) => {
     const { scene } = useGLTF(uri);
     return <primitive object={scene} />;
   }
-  const image = require("../assets/Buzz_Statue.png"); // Placeholder image
+  //const image = require("../assets/Buzz_Statue.png"); // Placeholder image
 
   return (
     <View style={styles.container}>
@@ -46,7 +46,7 @@ const ArtifactInfoScreen = ({ navigation, route }) => {
       />
       <Text style={styles.infoLabel}>{foundItem?.name || "No Name"}</Text>
       {/* Placeholder image. You may use foundItem?.imageUrl if it exists */}
-      <Image source={image} style={styles.image} />
+      {/* <Image source={image} style={styles.image} /> */}
 
       <Text style={styles.infoText}>
         {foundItem?.hint ||

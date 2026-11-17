@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { COLORS, SIZES, SPACING } from "../components/theme";
 import {
@@ -79,14 +80,21 @@ const STATE_COLORS = {
 
 export default function GamePreviewScreen({ navigation, route }) {
   const { user } = useAuth();
+  const { sessionService, userService } = useServices();
   const [fontsLoaded] = useFonts({ Figtree_400Regular, Figtree_600SemiBold });
-  const { session: passedSession } = route.params ?? {};
+  const {
+    session: passedSession,
+    sessionCode: routeSessionCode,
+  } = route.params ?? {};
   const [session, setSession] = useState(passedSession ?? null);
-  const sessionId = passedSession?.sessionCode;
+  const sessionId =
+    routeSessionCode ||
+    passedSession?.sessionCode ||
+    passedSession?.id;
   //const isCreator = user?.uid === session.createdBy;
   //const [session, setSession] = useState(MOCK_SESSION);
   // const [artifacts] = useState(MOCK_ARTIFACTS);
-  const artifacts = Object.entries(session.artifacts ?? {}).map(([id, data]) => ({
+  const artifacts = Object.entries(session?.artifacts ?? {}).map(([id, data]) => ({
     id,
     name: typeof data === "object" ? (data.name ?? id) : id,
     hint: typeof data === "object" ? (data.hint ?? data.locationHint ?? "") : "",
@@ -105,13 +113,7 @@ export default function GamePreviewScreen({ navigation, route }) {
         // setLoading(true);
         const userData = await userService.getUser(user.uid);
         setUserData(userData);
-        
-        /*
-        if (userData?.currentSession) {
-          const sessionData = await sessionService.getSession(userData.currentSession);
-          setSessionData(sessionData);
-        }
-        */
+        setHasJoined(Boolean(userData?.sessionsJoined?.[sessionId]));
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -120,10 +122,8 @@ export default function GamePreviewScreen({ navigation, route }) {
     };
     
     fetchData();
-  }, [user, userService, sessionService]);
+  }, [user, userService, sessionId]);
 
-
-  const { sessionService, userService } = useServices();
   useEffect(() => {
     if (!sessionId) return;
     
@@ -133,7 +133,7 @@ export default function GamePreviewScreen({ navigation, route }) {
     );
 
     return unsubscribe;
-  }, [sessionId]);
+  }, [sessionId, sessionService]);
 
   if (!fontsLoaded) {
     return (
@@ -143,8 +143,17 @@ export default function GamePreviewScreen({ navigation, route }) {
     );
   }
 
-  const isCreator = user?.uid === session.creatorId;
-  const participants = Object.entries(session.participants ?? {}).map(([uid, data]) => ({
+  if (!session) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" color={COLORS.navy} />
+        <Text>Loading game...</Text>
+      </View>
+    );
+  }
+
+  const isCreator = user?.uid === session?.creatorId;
+  const participants = Object.entries(session?.participants ?? {}).map(([uid, data]) => ({
     uid,
     displayName: data.displayName ?? uid,
     points: data.points ?? 0,
@@ -158,17 +167,12 @@ export default function GamePreviewScreen({ navigation, route }) {
   async function handleJoin() {
     setJoining(true);
     try {
-      // await new Promise((r) => setTimeout(r, 800));
+      const latestUserData = await userService.getUser(user.uid);
+      setUserData(latestUserData);
 
-      if (userData?.sessionsJoined?.[sessionId]) {
-        // User has already previously joined session, so update its current
+      if (latestUserData?.sessionsJoined?.[sessionId]) {
         await userService.setCurrentSession(user.uid, sessionId);
       } else {
-        // User is joining a new session, so session also updates itself
-
-        console.log("User joining session");
-        //console.log(userData)
-        console.log(session)
         await userService.addUserToSession(user.uid, sessionId);
         await userService.setCurrentSession(user.uid, sessionId);
       }
@@ -183,16 +187,38 @@ export default function GamePreviewScreen({ navigation, route }) {
   }
 
   async function handleLeave() {
-    try {
-      // Remove from session
-      await userService.removeUserFromSession(user.uid, sessionId);
+    Alert.alert(
+      "Leave Game",
+      "Are you sure you want to leave this game? Your session progress will be lost and cannot be restored.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Leave",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await userService.removeUserFromSession(user.uid, sessionId);
 
-      setHasJoined(false);
-      showToast("You left the game.", "info");
-    } catch (err) {
-      console.error("Leave failed:", err);
-      showToast("Failed to leave game", "error");
-    }
+              setHasJoined(false);
+              setUserData((previous) => {
+                if (!previous) return previous;
+                const sessionsJoined = { ...(previous.sessionsJoined ?? {}) };
+                delete sessionsJoined[sessionId];
+                return {
+                  ...previous,
+                  currentSession: null,
+                  sessionsJoined,
+                };
+              });
+              showToast("You left the game.", "info");
+            } catch (err) {
+              console.error("Leave failed:", err);
+              showToast("Failed to leave game", "error");
+            }
+          },
+        },
+      ]
+    );
   }
 
   async function handleStartGame() {
@@ -210,6 +236,16 @@ export default function GamePreviewScreen({ navigation, route }) {
     }
   }
 
+  async function handleGoToGame() {
+    try {
+      await userService.setCurrentSession(user.uid, sessionId);
+      navigation.replace("HomeScreen");
+    } catch (err) {
+      console.error("Failed to activate session:", err);
+      showToast("Unable to open game", "error");
+    }
+  }
+
   async function handleEndGame() {
     try {
       await sessionService.setGameState(sessionId, GameState.FINISHED);
@@ -222,21 +258,16 @@ export default function GamePreviewScreen({ navigation, route }) {
   }
 
   function getButtonConfig() {
-    if (isCreator) {
-      if (session.gameState === "LOBBY")
-        return { primary: { label: "Start Game", action: handleStartGame, color: COLORS.navy }, secondary: { label: "Cancel" } };
-      if (session.gameState === "ACTIVE")
-        return { primary: { label: "Go to Game →", action: () => navigation.replace("HomeScreen"), color: COLORS.navy }, secondary: { label: "Cancel" } };
-      return { primary: null, secondary: { label: "Back to Games" } };
-    }
+    if (session.gameState === "LOBBY" && isCreator && !hasJoined)
+      return { primary: { label: "Start Game", action: handleStartGame, color: COLORS.navy }, secondary: { label: "Cancel" } };
     if (session.gameState === "LOBBY" && !hasJoined)
       return { primary: { label: "Join Game", action: handleJoin, color: COLORS.navy }, secondary: { label: "Cancel" } };
     if (session.gameState === "LOBBY" && hasJoined)
-      return { primary: { label: "Waiting for Host…", disabled: true, color: COLORS.gray }, secondary: { label: "Cancel" }, leaveMsg: true };
+      return { primary: { label: "Waiting for Host…", disabled: true, color: COLORS.gray }, secondary: { label: "Leave Session", action: handleLeave } };
     if (session.gameState === "ACTIVE" && !hasJoined)
       return { primary: { label: "Join Game", action: handleJoin, color: COLORS.navy }, secondary: { label: "Cancel" } };
     if (session.gameState === "ACTIVE" && hasJoined)
-      return { primary: { label: "Go to Game →", action: () => navigation.replace("HomeScreen"), color: COLORS.navy }, secondary: { label: "Cancel" }, leaveMsg: true };
+      return { primary: { label: "Go to Game →", action: handleGoToGame, color: COLORS.navy }, secondary: { label: "Leave Session", action: handleLeave } };
     return { primary: null, secondary: { label: "Back to Games" } };
   }
 
@@ -330,17 +361,9 @@ export default function GamePreviewScreen({ navigation, route }) {
 
       {/* Bottom Action Area */}
       <View style={styles.bottomBar}>
-        {btnConfig.leaveMsg && (
-          <View style={styles.leaveMsgRow}>
-            {hasJoined && <Text style={styles.leaveMsg}>You joined. </Text>}
-            <TouchableOpacity onPress={handleLeave}>
-              <Text style={styles.leaveLink}>Tap here to leave the game</Text>
-            </TouchableOpacity>
-          </View>
-        )}
         <View style={styles.btnRow}>
           {btnConfig.secondary && (
-            <BasicButton backgroundColor={COLORS.beige} text={btnConfig.secondary.label} onPress={() => navigation.goBack()} borderColor={COLORS.navy} borderWidth={1} flex={1}></BasicButton>
+            <BasicButton backgroundColor={COLORS.beige} text={btnConfig.secondary.label} onPress={btnConfig.secondary.action || (() => navigation.goBack())} borderColor={COLORS.navy} borderWidth={1} flex={1}></BasicButton>
 
             // <TouchableOpacity
             //   style={styles.secondaryBtn}
